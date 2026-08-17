@@ -1,13 +1,13 @@
 # Phase 4b — live-body hygiene audit and repair list
 
-> **Status:** Draft — proposed repairs, **not applied**
+> **Status:** Applied 2026-08-17 — all four repairs executed and verified
 > **Owner:** Documentation repository
 > **Last reviewed:** 2026-08-17
 > **Canonical for:** Nothing — audit artifact
 > **Purpose:** Read-only audit of all 75 live GitHub issue bodies after Phase 3, listing residual
 > legacy or contradictory content and the proposed repair for each.
 
-**No GitHub mutation has been performed for this audit.** Labels, milestones, states, dependencies and
+**Audit was read-only; the four repairs below were subsequently approved and applied.** Labels, milestones, states, dependencies and
 issue topology are untouched and must remain so.
 
 ## Method
@@ -125,3 +125,51 @@ title, label, milestone, state, dependency or topology change. Original bodies a
 session state file, so each edit is reversible.
 
 Awaiting review before any mutation.
+
+
+## Execution — repairs applied 2026-08-17
+
+Four single-line corrections across three issues, body-only `PATCH`. Frontend#20's two corrections
+were applied as a single PATCH, as requested.
+
+| Repo | Issue | Before | After |
+|---|---|---|---|
+| Frontend | #8 | `- [ ] 20+ auth test cases (happy path + errors)` | `- [ ] Auth happy-path and error-path behaviour is covered across the required security scenario families.` |
+| Frontend | #20 | `- [ ] Optional grouping by category displayed when category is set on items (FR-57)` | `… (INV-FR-005)` |
+| Frontend | #20 | `- [ ] Last modified date shown per item (FR-58)` | `… (INV-FR-006)` |
+| Backend | #26 | `- [ ] Model created, matches ERD` | `- [ ] Model created, matches the canonical domain model` |
+
+Byte deltas: Frontend#8 1076→1134, Frontend#20 1130→1140, Backend#26 937→960. All other body content
+preserved byte-for-byte.
+
+### Post-repair gates — 10/10 PASS
+
+Verified against a **fresh** re-fetch of all 75 live bodies, not from the PATCH responses.
+
+| # | Gate | Result |
+|---|---|---|
+| 1 | The four approved defects are absent | **PASS** — 0 findings |
+| 2 | All R7 positive fixtures fire | **PASS** — 18/18 |
+| 3 | All R7 prohibition fixtures remain clean | **PASS** — 12/12 |
+| 4 | Zero additional genuine defects across 75 live bodies | **PASS** — 0 findings, 0 contradictions |
+| 5 | Exactly 75 issues remain | **PASS** |
+| 6 | Zero issues closed or deleted | **PASS** |
+| 7 | Exactly 21 native dependency edges | **PASS** |
+| 8 | Labels, milestones, states unchanged from the pre-repair snapshot | **PASS** |
+| 9 | Only the three approved issues have body changes | **PASS** |
+| 10 | Verifier implementation and evidence committed and pushed | **PASS** — this commit |
+
+### Verifier self-test caught a further gap
+
+The R7 self-test failed on first run: `H-02-coverage-gate` did not match
+`Coverage: >95% of household code`, because the pattern allowed a colon **or** a comparator but not
+both in sequence. Widened to `[:>≥]\s*[>≥]?\s*\d+`. This is the fixture set doing exactly its job —
+catching a rule gap before it could hide a live defect. The live audit was clean both before and after
+the fix, so no defect was masked.
+
+The verifier ships as `planning/verify_issue_hygiene.py` and is runnable standalone:
+
+```
+python3 planning/verify_issue_hygiene.py --selftest   # rules only, no network
+python3 planning/verify_issue_hygiene.py              # live audit, non-zero exit on any defect
+```

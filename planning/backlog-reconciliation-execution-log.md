@@ -338,11 +338,29 @@ and OQ-1 enforced.
 **Mutations:** 69 issue updates, 6 issue creations, 1 milestone reassignment, 21 dependency edges.
 No label, no closure, no deletion.
 
+## Entry 11 — Phase 4b live-body audit and repair
+
+Read-only audit of all 75 live bodies found 4 defects across 3 issues, all Scope/Acceptance-Criteria
+contradictions that the Phase 3 scrubber and the original Phase 4 checker both missed. Root cause was
+three regex faults: a test-count pattern requiring adjacency, an archived-doc pattern requiring the
+`.md` suffix, and no rule at all for legacy `FR-nn` identifiers.
+
+Repairs applied after approval — body-only PATCH, four single-line corrections across Frontend#8,
+Frontend#20 (both corrections in one PATCH) and Backend#26. Verified against a fresh re-fetch of all
+75 live bodies rather than the PATCH responses: **10/10 post-repair gates PASS**, 0 findings, 0
+contradictions.
+
+The redesigned verifier `planning/verify_issue_hygiene.py` implements R1-R7 with 18 positive and 12
+negative fixtures. Its self-test caught an additional gap in `H-02-coverage-gate` before the live run.
+
+**Mutations:** 3 issue body updates. No title, label, milestone, state, dependency or topology change.
+
 ## Cumulative GitHub mutation status
 
 Phase 3 executed on 2026-08-17. Before it, zero mutations had been performed. The complete set of
-mutations ever made is: 69 issue updates, 6 issue creations, 1 milestone reassignment, and 21
-dependency edges — plus the two Gate E probe edges, which were created and removed.
+mutations ever made is: 72 issue updates (69 in Phase 3 plus 3 hygiene repairs in Phase 4b), 6 issue
+creations, 1 milestone reassignment, and 21 dependency edges — plus the two Gate E probe edges, which
+were created and removed.
 
 **Never performed at any point:** issue closure, issue deletion, label mutation of any kind, milestone
 rename, milestone closure, milestone creation, or any dependency edge outside the frozen 21.

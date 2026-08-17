@@ -153,3 +153,6 @@
 {"step": 5, "edge": "Backend#34<-Backend#11", "op": "POST", "http": 201, "result": "ok", "pre_id": 5164176311, "ts": "2026-08-17T18:45:27.653391+00:00"}
 {"step": 5, "edge": "Frontend#26<-Backend#14", "op": "POST", "http": 201, "result": "ok", "pre_id": 5164176719, "ts": "2026-08-17T18:45:29.360402+00:00"}
 {"step": 5, "edge": "Frontend#26<-Frontend#5", "op": "POST", "http": 201, "result": "ok", "pre_id": 5164175884, "ts": "2026-08-17T18:45:31.180096+00:00"}
+{"step": "4b", "issue": "Frontend#8", "op": "PATCH", "result": "ok", "http": 200, "substitutions": [["- [ ] 20+ auth test cases (happy path + errors)", "- [ ] Auth happy-path and error-path behaviour is covered across the required security scenario families."]], "pre_len": 1076, "post_len": 1134, "ts": "2026-08-17T19:29:31.447317+00:00"}
+{"step": "4b", "issue": "Frontend#20", "op": "PATCH", "result": "ok", "http": 200, "substitutions": [["(FR-57)", "(INV-FR-005)"], ["(FR-58)", "(INV-FR-006)"]], "pre_len": 1130, "post_len": 1140, "ts": "2026-08-17T19:29:32.398015+00:00"}
+{"step": "4b", "issue": "Backend#26", "op": "PATCH", "result": "ok", "http": 200, "substitutions": [["- [ ] Model created, matches ERD", "- [ ] Model created, matches the canonical domain model"]], "pre_len": 937, "post_len": 960, "ts": "2026-08-17T19:29:33.373024+00:00"}
