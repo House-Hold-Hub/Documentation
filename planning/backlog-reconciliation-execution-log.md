@@ -128,15 +128,106 @@ Committed as `086831d`, which supersedes `870385e` as the Phase 3 execution sour
 
 **Mutations:** none to GitHub.
 
+## Entry 9 — Gate E: dependency-API capability probes
+
+Authorized as Gate E only. Executed against frozen execution source
+`086831d65d2a5d5dbd0c441ed3c1e4d9481a5ea8`. **Gate E result: PASS.**
+
+### Pre-probe revalidation
+
+| Check | Result |
+|---|---|
+| Frozen matrix blob at `086831d` identical to working copy | PASS — blob `d688f839c2` |
+| Frozen matrix invariants | PASS — 47 pass, 0 fail |
+| Consistency checks | PASS — 26 pass, 0 conflicts |
+| Live GitHub drift vs Phase 0 snapshot | PASS — 0 drift across 69 issues |
+| Pre-probe dependency edges | 0 |
+
+### API contract established
+
+```
+create : POST   /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by
+         body   {"issue_id": <numeric database id of the BLOCKING issue>}
+         → 201 Created, returns the full blocking issue object
+read   : GET    /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by
+         GET    /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocking
+remove : DELETE /repos/{owner}/{repo}/issues/{issue_number}/dependencies/blocked_by/{issue_id}
+         → 200 OK
+```
+
+The reference is the **numeric database `id`**, not the `#number` and not the `node_id`. The
+`issue_dependencies_summary` field on the issue object reports
+`{blocked_by, total_blocked_by, blocking, total_blocking}`.
+
+### Probe 1 — intra-repository (approved edge `M2-B10`: Backend#34 blocked_by Backend#11)
+
+| Step | Request | Status | Evidence |
+|---|---|---|---|
+| 1a create | `POST /repos/House-Hold-Hub/Backend/issues/34/dependencies/blocked_by` `{"issue_id":5164176311}` | **201** | summary `blocked_by:1` |
+| 1b read back | `GET .../issues/34/dependencies/blocked_by` | 200 | `id=5164176311 Backend#11` |
+| 1c reciprocal | `GET .../issues/11/dependencies/blocking` | 200 | `id=5164933839 Backend#34` |
+| 1d direction | `.../34/blocking` = 0, `.../11/blocked_by` = 0 | 200 | not inverted |
+| 1f remove | `DELETE .../issues/34/dependencies/blocked_by/5164176311` | **200** | summary all zero |
+
+### Probe 2 — cross-repository (approved edge `M0-A3`: Automation#3 blocked_by Infrastructure#1)
+
+| Step | Request | Status | Evidence |
+|---|---|---|---|
+| 2a create | `POST /repos/House-Hold-Hub/Automation/issues/3/dependencies/blocked_by` `{"issue_id":5164174473}` | **201** | cross-repo accepted |
+| 2b read back | `GET .../Automation/issues/3/dependencies/blocked_by` | 200 | `id=5164174473 House-Hold-Hub/Infrastructure#1` |
+| 2c reciprocal | `GET .../Infrastructure/issues/1/dependencies/blocking` | 200 | `id=5164174935 House-Hold-Hub/Automation#3` |
+| 2d remove | `DELETE .../Automation/issues/3/dependencies/blocked_by/5164174473` | **200** | both sides 0 |
+
+Cross-repository edges **are** accepted within the organization. Read-back resolves the foreign issue
+with its `repository.full_name`, so the Phase 3 verifier can confirm an edge points at the intended
+repository.
+
+### Probe 3 — idempotency and rejection semantics
+
+| Case | Status | Message | Residual state |
+|---|---|---|---|
+| Re-POST an identical existing edge | **422** | `Validation failed: Target issue has already been taken` | none — count stayed 1 |
+| POST a self-dependency | **422** | `Validation failed: Target issue cannot be the same as the source issue` | none — count stayed 1 |
+| DELETE a non-existent edge | **200** | returns the issue object | none — count stayed 0 |
+
+Create is **not** idempotent-by-repetition: a duplicate returns 422 rather than 201. Delete **is**
+idempotent.
+
+### Post-probe state
+
+| Metric | Pre-probe | Post-probe |
+|---|---|---|
+| Total `blocked_by` edges across 69 issues | 0 | **0** |
+| Total `blocking` edges across 69 issues | 0 | **0** |
+| Issues with changed title/milestone/labels/state | — | **0** |
+
+Gate E was not designed to transition into Phase 3, so both probe edges were removed. The repository
+is in exactly its pre-probe dependency state.
+
+### Finding that corrects an earlier evidence method
+
+A dependency write does **not** bump the issue's `updated_at`: Backend#34 still reports
+`2026-08-16T15:21:52Z` after an edge was created and removed. The no-mutation evidence used in
+Entries 1–8 therefore covers title, body, label, milestone and state changes but would **not** have
+detected a dependency write. Dependency absence was independently established by directly polling
+`blocked_by`/`blocking` on all 69 issues, which is conclusive; the earlier conclusion stands, but the
+reasoning is corrected here.
+
+**Mutations:** two dependency edges created and both removed. Net zero. No issue, label or milestone
+was altered.
+
 ## Cumulative GitHub mutation status
 
 **Zero issue, label, milestone or dependency mutations have been performed at any point.**
 
 Evidenced by:
 
-- every one of the 69 issues returns `[]` from the native dependency endpoint;
-- every issue's `updated_at` predates this session, and any write of any kind would bump it;
-- label and milestone sets are identical to the Phase 0 inventory.
+- every one of the 69 issues returns `[]` from both native dependency endpoints (direct poll — the
+  authoritative check for dependencies, since a dependency write does not bump `updated_at`);
+- every issue's `updated_at` predates this session, which covers title, body, label, milestone and
+  state changes;
+- label and milestone sets are identical to the Phase 0 inventory;
+- the two Gate E probe edges were created and removed, leaving a net of zero.
 
 ## Phase 3 authorization status
 

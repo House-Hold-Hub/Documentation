@@ -89,11 +89,25 @@ mechanism.
 
 ## Gate E — capability probes (must run at Phase 3 start, before any write)
 
+## Gate E — capability probes (SATISFIED — probed 2026-08-17)
+
 | # | Gate | Status |
 |---|---|---|
-| E1 | Exact request body for `POST .../dependencies/blocked_by` confirmed by one probe, read back | **UNVERIFIED** |
-| E2 | Cross-repository dependency edges accepted by this organization | **UNVERIFIED** |
-| E3 | Numeric issue `id` (not `#number`) is the correct dependency reference | **UNVERIFIED** — e.g. Backend#11 is `id=5164176311` |
+| E1 | Exact request body confirmed by probe and read back | **PASS** — `POST .../dependencies/blocked_by` with `{"issue_id": <numeric id>}` → 201 |
+| E2 | Cross-repository edges accepted by this organization | **PASS** — Automation#3 ← Infrastructure#1 accepted, read back with `repository.full_name` |
+| E3 | Numeric issue `id` is the correct reference | **PASS** — `id`, not `#number`, not `node_id` |
+| E4 | Removal verified, no reciprocal or duplicate residue | **PASS** — `DELETE .../blocked_by/{issue_id}` → 200; both sides return to 0 |
+| E5 | Idempotency characterized | **PASS** — duplicate create → 422 with no residual state; delete of a missing edge → 200 no-op |
+| E6 | Repository returned to exact pre-probe state | **PASS** — 0 edges before, 0 after; 0 issue-field drift |
+
+Full HTTP evidence is in Entry 9 of the execution log.
+
+**Required change to the Phase 3 dependency algorithm:** create is not idempotent by repetition. A
+duplicate `POST` returns **422 `Target issue has already been taken`**, which the algorithm must treat
+as *edge already present* — a success-equivalent outcome — and never as a failure. Without this, a
+retry or resumed run would abort on edges it had already written. Self-dependencies are rejected with
+422 by the API, so the acyclicity guarantee is enforced server-side for the trivial case; multi-hop
+cycles remain the matrix's responsibility and were verified acyclic.
 
 No issue may claim a native dependency the API has not confirmed. If an edge cannot be written, the
 execution log records the failure rather than reporting success.
