@@ -351,13 +351,13 @@ Full records, including acceptance criteria and dependency intent, are in `backl
 | `M0-F4` | M0 | Frontend | Frontend#4 | `UPDATE` | Establish Vitest / React Testing Library and the Frontend repository-local workflow | high |
 | `M0-I1` | M0 | Infrastructure | Infrastructure#1, Backend#4 | `MERGE` | Define the local PostgreSQL and full-stack runtime composition boundary | high |
 | `M0-I2` | M0 | Infrastructure | Infrastructure#2 | `UPDATE` | Define the environment and secret configuration contract without selecting deferred vendors | high |
-| `M0-A1` | M0 | Automation | Automation#1 | `UPDATE` | Provide reusable build and pipeline assets consumable by service repositories | medium |
+| `M0-A1` | M0 | Automation | Automation#1 | `UPDATE` | Provide reusable build and pipeline assets consumable by service repositories | high |
 | `M0-A2` | M0 | Automation | Automation#2 | `UPDATE` | Provide shared test, contract and security gates | high |
 | `M0-A3` | M0 | Automation | Automation#3 | `UPDATE` | Provide local setup automation that consumes real repository manifests | high |
-| `M0-D1` | M0 | Documentation | Documentation#1 | `UPDATE` | Publish the documentation architecture and validate the OpenAPI contract in CI | medium |
+| `M0-D1` | M0 | Documentation | Documentation#1 | `UPDATE` | Publish the documentation architecture and validate the OpenAPI contract in CI | high |
 | `M0-D2` | M0 | Documentation | Documentation#2 | `UPDATE` | Maintain contribution, contract-review and cross-repository governance | high |
 | `M1-B1` | M1 | Backend | Backend#6 | `UPDATE` | Implement the custom UUID User with django-allauth email identity and verification gating | high |
-| `M1-B2` | M1 | Backend | Backend#7 | `UPDATE` | Implement database sessions, the indexed session registry, rotation and the revocation matrix | medium |
+| `M1-B2` | M1 | Backend | Backend#7 | `UPDATE` | Implement database sessions, the indexed session registry, rotation and the revocation matrix | high |
 | `M1-B3` | M1 | Backend | Backend#8 | `SPLIT` | Implement CSRF bootstrap, signup, login, logout and current-user operations | high |
 | `M1-B4` | M1 | Backend | Backend#8 | `SPLIT` | Implement the email verification and primary-email change lifecycle | high |
 | `M1-B5` | M1 | Backend | Backend#8 | `SPLIT` | Implement enumeration-safe password recovery and authenticated password change | high |
@@ -374,10 +374,10 @@ Full records, including acceptance criteria and dependency intent, are in `backl
 | `M2-B4` | M2 | Backend | Backend#14 | `SPLIT` | Implement the invitation model and owner lifecycle operations | high |
 | `M2-B5` | M2 | Backend | Backend#14 | `SPLIT` | Implement invitation verifier exchange, safe preview and explicit acceptance | high |
 | `M2-B6` | M2 | Backend | Backend#15 | `UPDATE` | Implement owner-only join-code read/regenerate and rate-limited joining | high |
-| `M2-B7` | M2 | Backend | — | `CREATE` | Implement household soft-delete recovery and the support/administration path | medium |
+| `M2-B7` | M2 | Backend | — | `CREATE` | Implement household soft-delete recovery and the support/administration path | high |
 | `M2-B8` | M2 | Backend | Backend#16 | `UPDATE` | Complete household authorization and negative isolation coverage | high |
 | `M2-B9` | M2 | Backend | Backend#33 | `UPDATE` | Emit critical audit events for invitation, membership and household lifecycle actions | high |
-| `M2-B10` | M2 | Backend | Backend#34 | `UPDATE` | Implement the idempotent scheduled purge of soft-deleted households | medium |
+| `M2-B10` | M2 | Backend | Backend#34 | `UPDATE` | Implement the idempotent scheduled purge of soft-deleted households | high |
 | `M2-F1` | M2 | Frontend | Frontend#9 | `UPDATE` | Implement the household selector and switcher | high |
 | `M2-F2` | M2 | Frontend | Frontend#10 | `UPDATE` | Implement household creation including the required currency | high |
 | `M2-F3` | M2 | Frontend | Frontend#11 | `UPDATE` | Implement member and invitation management | high |
@@ -397,7 +397,7 @@ Full records, including acceptance criteria and dependency intent, are in `backl
 | `M5-B1` | M5 | Backend | Backend#23 | `UPDATE` | Implement Expense with amount_minor, snapshotted currency, category and incurred_on | high |
 | `M5-B2` | M5 | Backend | Backend#24 | `UPDATE` | Implement expense operations, filters and same-currency aggregates | high |
 | `M5-B3` | M5 | Backend | Backend#25 | `UPDATE` | Complete expense money, date, permission and isolation coverage | high |
-| `M5-F1` | M5 | Frontend | Frontend#18 | `UPDATE` | Implement browser-local expense date, forms, filters and same-currency totals | medium |
+| `M5-F1` | M5 | Frontend | Frontend#18 | `UPDATE` | Implement browser-local expense date, forms, filters and same-currency totals | high |
 | `M5-F2` | M5 | Frontend | Frontend#19 | `UPDATE` | Add expense UI, exponent-formatting and contract tests | high |
 | `M6-B1` | M6 | Backend | Backend#26 | `UPDATE` | Implement InventoryItem with the positive-quantity invariant | high |
 | `M6-B2` | M6 | Backend | Backend#27 | `UPDATE` | Implement inventory operations and category grouping support | high |
@@ -523,6 +523,8 @@ Documentation carries an M9 milestone with zero issues. Rather than closing it f
 Every proposed repository/milestone pair contains at least one candidate. Backend has no M9 and Frontend has no M9; neither is proposed, since neither repository owns M9 work.
 
 ## 8. Labels
+
+> **OQ-9 resolved: this migration is deferred in full.** Phase 3 performs **no** label mutation — no creation, rename, application or removal. The inventory and mapping below are retained as advisory input to an independent later normalization pass. Current labels on all 69 issues are preserved exactly. Verification rule 12c enforces zero actionable label changes.
 
 ### 8.1 The actual situation
 
@@ -695,34 +697,71 @@ The permissions-matrix ↔ OpenAPI check covers the **37** operations the matrix
 
 Actions the matrix marks unavailable were confirmed to have no writable contract surface: `HouseholdUpdateRequest` exposes only `name` and `description`, and `ExpenseUpdateRequest` exposes neither `payer_id` nor any currency field. No public recovery or ownership-transfer operation exists.
 
-## 11. Open questions
+## 11. Frozen decisions
 
-| ID | Question | Proposed answer |
-|---|---|---|
-| OQ-1 | **Milestone naming authority** — No canonical artifact claims authority over milestone titles. GitHub titles differ cosmetically from the implementation plan's wording. Should titles be aligned to the plan, or does GitHub retain naming as part of its execution-state authority? | No rename is proposed. |
-| OQ-2 | **Documentation#1 disposition** — Most of its acceptance criteria are already satisfied by the current repository. Narrow it to contract validation (proposed), or close it as superseded and create a focused validation issue? | `UPDATE`, narrowed. |
-| OQ-3 | **Empty Documentation M9 milestone** — No canonical artifact assigns Documentation-owned M9 work; the README assigns runbook implementation to Infrastructure. The roadmap's "additional operations detail" item is unassigned and could be argued into Documentation. | Close the empty milestone. |
-| OQ-4 | **Backend#34 milestone** — The implementation plan places the idempotent purge command among M2 household outcomes; release acceptance lists scheduled purge among M9 operational evidence. The command and its scheduling are separable. | Move the command to M2; scheduling stays at M9 in Infrastructure#3. |
-| OQ-5 | **Automation build asset boundary** — ADR-009 separates reusable Automation assets from service release execution but does not say which side image publication falls on. Automation#1 currently pushes images on merge to main. | Reframe as a reusable callable build workflow; registry target deferred to D02. |
-| OQ-6 | **Session/registry issue boundary** — The draft groups session configuration, the indexed registry, rotation and the seven-event revocation matrix into one candidate (Backend#7). This is a large unit. | Keep as one issue. |
-| OQ-7 | **Expense category visualization** — Frontend#18 mandates a pie chart. EXP-FR-017 requires per-category totals but specifies no visualization, and the dashboard non-goals exclude charts only on the dashboard. | Require totals; leave visual form to design. |
-| OQ-8 | **Household recovery mechanism** — HH-FR-034 requires support/administration recovery but names no interface (management command, admin action, or API). | Flagged for decision before implementing M2-B7. |
-| OQ-9 | **Label taxonomy approval** — No canonical label taxonomy exists. The structured scheme is defined but unused; the legacy scheme is in use on all 69 issues. | Adopt the structured taxonomy in §8 — requires approval. |
+All nine open questions were resolved by project decision on 2026-08-17. They are frozen for Phase 3 and recorded in the matrix under `frozen_decisions`, so the mutation is reproducible from the artifact alone. **No open question remains, and every candidate is now high confidence.**
 
-### Low-confidence candidates
+| OQ | Subject | Decision | Phase 3 effect |
+|---|---|---|---|
+| **OQ-1** | Milestone naming authority | Do not rename any milestone. All current GitHub milestone titles remain unchanged. The canon establishes no naming authority and title normalization is outside this reconciliation. | 0 milestone renames. |
+| **OQ-2** | Documentation#1 disposition | Keep Documentation#1 and UPDATE it, narrowing scope to the remaining canonical OpenAPI publication, validation and CI contract work. | Documentation#1 updated in place; no closure; no new issue. |
+| **OQ-3** | Empty Documentation M9 milestone | Defer. The empty Documentation M9 milestone stays open and unchanged. No M9 Documentation candidate is created and the milestone is not closed. | 0 milestone closures; 0 new candidates. |
+| **OQ-4** | Backend#34 milestone | Move Backend#34 from M8 to M2. | 1 milestone reassignment. |
+| **OQ-5** | Automation build-asset boundary | Automation owns a reusable callable build asset; service repositories own invocation and execution. No registry or provider is selected before D02. | Automation#1 scope and acceptance criteria rewritten. |
+| **OQ-6** | Session/registry issue boundary | Session configuration, the indexed registry, rotation and the revocation matrix stay together in Backend#7 / M1-B2. | No split; candidate count unchanged. |
+| **OQ-7** | Expense category visualization | Require the total and per-category expense totals. Neither require nor forbid a chart; visual presentation remains a design decision. | Frontend#18 acceptance criteria state totals only. |
+| **OQ-8** | Household support-recovery mechanism | Explicitly defer the implementation mechanism. M2-B7 specifies only canonical, objectively verifiable outcomes: support/admin-only recovery within retention, restoration of access and state, idempotency and auditability. No public or internal API is introduced and no management-command or Django-admin implementation is chosen here. | M2-B7 created with outcome-only criteria. |
+| **OQ-9** | Label taxonomy | Defer the structured-label migration entirely. Phase 3 performs no label mutation. Current labels are preserved exactly. Taxonomy normalization is an independent later pass. | 0 label creations, renames, applications or removals. |
 
-**Low confidence: 0.** None. No proposal rests on a canonically silent judgement without an accompanying open question.
+Three decisions defer work out of this reconciliation entirely — **OQ-1** (milestone naming), **OQ-3** (empty Documentation M9 milestone) and **OQ-9** (label taxonomy). Each is separable and none blocks the backlog correction.
 
-**Medium confidence: 6** — each carries an open question above:
+**OQ-9 has the largest effect.** The proposed organization-wide label migration is not executed. Every candidate's actionable `label_changes.add` and `label_changes.remove` are empty; the proposal survives only under `proposed_add` / `proposed_remove`, flagged advisory by `label_migration_status.deferred`. Current labels on all 69 issues are preserved exactly. Verification rule 12c enforces this — Phase 3 cannot mutate a label without failing preflight.
 
-- `M0-A1` (Automation, M0) — Does 'reusable build/pipeline assets' include a shared publish step, or must publishing stay entirely inside each service repository? ADR-009 separates reusable assets from release execution but does not draw the line for image publication.
-- `M0-D1` (Documentation, M0) — Documentation#1's original acceptance criteria appear already satisfied by the current repository state. Confirm the issue should be narrowed to contract validation rather than closed and replaced.
-- `M1-B2` (Backend, M1) — The draft groups session configuration, the indexed registry, rotation and the full revocation matrix into one candidate. Confirm this stays one issue rather than splitting registry/revocation into its own.
-- `M2-B7` (Backend, M2) — The canon requires support/administration recovery but does not specify its interface (management command, admin action, or API). Confirm the intended mechanism before implementation.
-- `M2-B10` (Backend, M2) — Backend#34 is proposed to move from M8 to M2 on the strength of the implementation plan's M2 outcomes. Confirm the milestone move, since release acceptance lists scheduled purge among M9 operational evidence.
-- `M5-F1` (Frontend, M5) — Frontend#18 mandates a pie chart for the category breakdown. The expense PRD requires per-category totals but specifies no visualization. Confirm whether a chart is in MVP scope or whether a text summary suffices.
+**OQ-8** keeps `M2-B7` outcome-only: support/admin-only recovery within retention, restoration of access and state, idempotency, and auditability. No public or internal API is introduced and no management-command or Django-admin implementation is chosen. Verification rule 12k scans its criteria for mechanism language and fails if any appears.
 
-**High confidence: 69** — each correction follows directly from a cited canonical rule.
+Six candidates carry a `decided_by` reference recording which decision determined them: `M0-A1` (OQ-5), `M0-D1` (OQ-2), `M1-B2` (OQ-6), `M2-B7` (OQ-8), `M2-B10` (OQ-4), `M5-F1` (OQ-7).
+
+### Confidence after freezing
+
+**75 high, 0 medium, 0 low.** Before freezing, six candidates were medium because a decision was outstanding. `high` now covers two provenances: a correction that follows directly from a cited canonical rule, and a correction determined by an approved decision recorded above. The `decided_by` field distinguishes them, so canonical authority is never confused with project choice.
+
+## 11A. Phase 3 mutation counts
+
+Exact, frozen. Anything not listed is zero.
+
+| Mutation | Count |
+|---|---|
+| Issues updated in place, number preserved | 69 |
+| — of which narrowed as SPLIT sources | 3 |
+| New issues from `CREATE` candidates | 3 |
+| New issues from `SPLIT` successors | 3 |
+| **Total new issues** | **6** |
+| Issues closed | 0 |
+| Issues deleted | 0 |
+| Milestone reassignments | 1 |
+| Milestone renames — OQ-1 deferred | 0 |
+| Milestone closures — OQ-3 deferred | 0 |
+| Milestones created | 0 |
+| Label mutations of any kind — OQ-9 deferred | 0 |
+| Native `blocked_by` edges, pending Gate E | 21 |
+| Invalid Markdown dependency references removed | 4 |
+
+Backlog after Phase 3: **69 existing + 6 new = 75 issues.** All 69 existing numbers preserved; none closed, none deleted.
+
+### The 6 new issues
+
+| Candidate | Repo | MS | Origin | Title |
+|---|---|---|---|---|
+| `M1-F3` | Frontend | M1 | `CREATE` — no live issue | Implement Google login and explicit reauthenticated account linking/unlinking |
+| `M2-B7` | Backend | M2 | `CREATE` — no live issue | Implement household soft-delete recovery and the support/administration path |
+| `M2-F4` | Frontend | M2 | `CREATE` — no live issue | Implement the invitation fragment landing, exchange and verified acceptance flow |
+| `M1-B4` | Backend | M1 | `SPLIT` successor of Backend#8 | Implement the email verification and primary-email change lifecycle |
+| `M1-B5` | Backend | M1 | `SPLIT` successor of Backend#8 | Implement enumeration-safe password recovery and authenticated password change |
+| `M2-B5` | Backend | M2 | `SPLIT` successor of Backend#14 | Implement invitation verifier exchange, safe preview and explicit acceptance |
+
+### The 1 milestone reassignment
+
+**Backend#34** — `M8` → `M2` (OQ-4). The implementation plan places the idempotent scheduled purge among M2 household outcomes; M9 retains only the deployment scheduling, already covered by Infrastructure#3. Backend M8 keeps 3 candidates; Backend M2 rises to 10.
 
 ## 12. Verification results
 
@@ -809,8 +848,6 @@ Split by ownership. This candidate keeps only the Backend service Dockerfile, .d
 - remove: Frontend#1 (React scaffold) — no longer needed once the React image leaves this issue
 - native `blocked_by` (intent): `Backend#1`
 
-**Labels** — add `area:infrastructure`, `type:chore`; remove `backend`, `docker`, `infrastructure`
-
 #### `M1-B3` — Implement CSRF bootstrap, signup, login, logout and current-user operations
 
 - **Milestone / repo:** M1 / Backend
@@ -837,8 +874,6 @@ Split Backend#8 along contract operation groups. This candidate covers the CSRF 
 - [ ] Unsafe requests, including operations declaring security: [], require X-CSRFToken.
 - [ ] Error responses use 400/401/403/404/409 only; no 422 is returned.
 - [ ] No password-policy or rate-limit constant is fixed in the issue; D01 governs the values.
-
-**Labels** — add `area:auth`, `type:feature`, `priority:critical`; remove `authentication`, `backend`, `email`
 
 #### `M1-B4` — Implement the email verification and primary-email change lifecycle
 
@@ -867,8 +902,6 @@ Create the verification lifecycle as its own unit: verify, rate-limited resend, 
 **Dependencies**
 
 - native `blocked_by` (intent): `M1-B1`, `M1-B2`, `M1-B7`
-
-**Labels** — add `area:auth`, `area:email`, `type:feature`, `security`, `priority:high`; remove none
 
 #### `M1-B5` — Implement enumeration-safe password recovery and authenticated password change
 
@@ -899,8 +932,6 @@ Separate recovery and change into their own unit. Reset requests return an enume
 
 - native `blocked_by` (intent): `M1-B1`, `M1-B2`, `M1-B7`
 
-**Labels** — add `area:auth`, `area:email`, `type:feature`, `security`, `priority:high`; remove none
-
 #### `M2-B4` — Implement the invitation model and owner lifecycle operations
 
 - **Milestone / repo:** M2 / Backend
@@ -929,8 +960,6 @@ Split Backend#14 into owner lifecycle and invitee handoff. This candidate covers
 - [ ] Resend rotates the verifier and invalidates the previous verifier and every intent bound to the previous generation.
 - [ ] At most one pending invitation exists per household and normalized email, and an active member cannot be invited again.
 - [ ] Only a cryptographic hash of the verifier is stored; expiry is 30 days from the current issuance or resend.
-
-**Labels** — add `area:household`, `area:email`, `type:feature`, `security`, `priority:critical`; remove `backend`, `email`, `invitation`
 
 #### `M2-B5` — Implement invitation verifier exchange, safe preview and explicit acceptance
 
@@ -964,8 +993,6 @@ Implement the three-step handoff the canon requires. Exchange accepts the verifi
 
 - native `blocked_by` (intent): `M2-B4`, `M1-B1`, `M1-B2`
 
-**Labels** — add `area:household`, `type:feature`, `security`, `priority:critical`; remove none
-
 ### A.2 MERGE candidate (1)
 
 #### `M0-I1` — Define the local PostgreSQL and full-stack runtime composition boundary
@@ -997,8 +1024,6 @@ Absorb the full-stack compose scope from Backend#4 into Infrastructure, which th
 - remove: Infrastructure#1 → Backend#4 (inverted ownership dependency)
 - native `blocked_by` (intent): `Backend#4 (service image)`, `Frontend#1 (service image)`
 
-**Labels** — add `area:infrastructure`, `type:chore`, `priority:high`; remove `database`, `docker`, `infrastructure`
-
 ### A.3 CREATE candidates (3)
 
 #### `M1-F3` — Implement Google login and explicit reauthenticated account linking/unlinking
@@ -1028,12 +1053,10 @@ Add the Frontend half of collision-safe linking: a Google login entry point, a c
 
 - native `blocked_by` (intent): `Backend#9`, `Frontend#5`
 
-**Labels** — add `area:auth`, `type:feature`, `security`; remove none
-
 #### `M2-B7` — Implement household soft-delete recovery and the support/administration path
 
 - **Milestone / repo:** M2 / Backend
-- **Action:** `CREATE`   **Confidence:** medium   **Draft lineage:** none
+- **Action:** `CREATE`   **Confidence:** high   **Draft lineage:** none
 - **Forward → live issues:** none (`CREATE`)
 - **Reverse ← live issues:** none — no existing issue references this candidate
 - **Issue number inherited:** none — new issue created in Phase 3
@@ -1057,12 +1080,6 @@ Add the missing middle of the deletion lifecycle: an administrative recovery pat
 **Dependencies**
 
 - native `blocked_by` (intent): `M2-B1`, `M2-B9`
-
-**Labels** — add `area:household`, `type:feature`, `security`; remove none
-
-**Open questions**
-
-- The canon requires support/administration recovery but does not specify its interface (management command, admin action, or API). Confirm the intended mechanism before implementation.
 
 #### `M2-F4` — Implement the invitation fragment landing, exchange and verified acceptance flow
 
@@ -1092,8 +1109,6 @@ Add the invitee-facing flow: read the verifier from the URI fragment, remove it 
 **Dependencies**
 
 - native `blocked_by` (intent): `Backend#14`, `Frontend#5`
-
-**Labels** — add `area:household`, `type:feature`, `security`, `priority:critical`; remove none
 
 ### A.4 Live issues with `SPLIT` disposition (3)
 
