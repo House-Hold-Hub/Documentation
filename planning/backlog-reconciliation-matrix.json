@@ -1,0 +1,4780 @@
+{
+  "schema_version": "1.1",
+  "action_semantics": {
+    "_note": "candidate.action and live_issue.disposition are DIFFERENT axes and must not be cross-read. A candidate action describes what happens to a unit of canonical work; a disposition describes what happens to an existing GitHub issue number.",
+    "candidate.action": {
+      "KEEP": "Canonical work already correctly represented; no edit needed.",
+      "UPDATE": "One live issue carries this work and is corrected in place, preserving its number.",
+      "SPLIT": "This candidate is one of several produced from a single live issue whose canonical boundary changed. Exactly one sibling inherits the original issue number (role=primary); the others are created new in Phase 3.",
+      "MERGE": "This candidate absorbs scope from TWO OR MORE live issues. Exactly one contributor is role=primary and keeps its issue number; the others contribute scope only. A contributor's own issue-level disposition is INDEPENDENT of this action.",
+      "CREATE": "No live issue exists; a new issue is opened in Phase 3. live_issues is empty.",
+      "CLOSE_SUPERSEDED": "Not used as a candidate action in this matrix; closure is an issue-level disposition only."
+    },
+    "live_issue.disposition": {
+      "KEEP": "Issue is already canon-correct; untouched.",
+      "UPDATE": "Issue is corrected in place and keeps its number.",
+      "SPLIT": "Issue's scope divides across several candidates; it keeps its number for the candidate where it is role=primary and is narrowed accordingly.",
+      "MERGE": "Issue is WHOLLY absorbed into a candidate primarily carried by a different issue. It retains no independent scope and is closed in Phase 3 with a pointer to the absorbing issue. Not used in this matrix — see _merge_note.",
+      "CLOSE_SUPERSEDED": "Issue is closed. closure_kind distinguishes `superseded` (successors exist, named in superseded_by) from `canonically_removed` (the canon deleted the work and nothing replaces it)."
+    },
+    "_merge_note": "This matrix contains one MERGE candidate (M0-I1) and zero MERGE dispositions. That is correct, not an inconsistency. M0-I1 absorbs the full-stack composition scope from Backend#4 into Infrastructure#1. Infrastructure#1 is role=primary and keeps its number (disposition UPDATE). Backend#4 is NOT wholly absorbed — it retains the Backend service Dockerfile as M0-B4 — so its disposition is SPLIT, not MERGE. A MERGE disposition would only apply to an issue left with no independent scope at all.",
+    "_phase3_rule": "Phase 3 MUST derive 'which issue number is edited' from live_issues[].role == 'primary', never from candidate.action. A MERGE or SPLIT action never by itself implies closing an issue; only an issue-level disposition of MERGE or CLOSE_SUPERSEDED does."
+  },
+  "generated_for": "House-Hold-Hub backlog reconciliation, Phase 1 + Phase 2",
+  "as_of": "2026-08-17",
+  "status": "Draft — audit artifact; canonical for nothing",
+  "mutation_performed": false,
+  "canonical_baseline": {
+    "repository": "House-Hold-Hub/Documentation",
+    "commit_sha": "3006cae70caba1829d0ad8cfcc9b17af5791f052",
+    "committed_at": "2026-08-17T16:33:39+02:00",
+    "branch": "main",
+    "files": 60,
+    "pushed": false,
+    "note": "SHA of the immutable canonical documentation baseline this reconciliation was derived from. Phase 3 mutation must be traceable to this commit."
+  },
+  "candidates": [
+    {
+      "candidate_id": "M0-B1",
+      "draft_candidate": "M0-B1",
+      "milestone": "M0",
+      "target_repo": "Backend",
+      "proposed_title": "Scaffold Django project on the approved Python 3.14 / Django 5.2 LTS runtime baseline",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 1,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-010-backend-runtime-baseline.md",
+        "architecture/technology-baseline.md",
+        "planning/mvp-implementation-plan.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Title and scope specify Django 6.x; canonical baseline is Django 5.2 LTS on Python 3.14.",
+        "requirements.txt pins Django 6.x, psycopg2, python-decouple, django-extensions; exact packages and the PostgreSQL driver are deferred decision D06 and owned by Backend manifests/lockfiles.",
+        "Acceptance criterion 'CORS configured for localhost:3000' presumes cross-origin; same-origin frontend/API is the default topology."
+      ],
+      "proposed_correction": "Retitle to the Django 5.2 LTS / Python 3.14 baseline. Name only the approved technology families and defer exact patch versions, packaging/lock strategy and DB driver to D06 at scaffold time. Configure the custom UUID User before the first migration. Replace the CORS criterion with the same-origin default, noting that any cross-origin topology needs an explicit CORS/credential review.",
+      "acceptance_criteria": [
+        "`manage.py check` passes on Python 3.14 with Django 5.2 LTS.",
+        "AUTH_USER_MODEL points at the custom UUID user app before any migration is generated.",
+        "No exact dependency version is asserted in the issue; versions live in the manifest and lockfile."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore",
+          "priority:critical"
+        ],
+        "remove": [
+          "backend",
+          "high-priority",
+          "setup"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-B2",
+      "draft_candidate": "M0-B2",
+      "milestone": "M0",
+      "target_repo": "Backend",
+      "proposed_title": "Establish the custom UUID User model and initial migration skeleton",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 2,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-010-backend-runtime-baseline.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "architecture/domain-model.md",
+        "planning/mvp-implementation-plan.md"
+      ],
+      "detected_drift": [
+        "Scope creates all 8 entities in M0; the implementation plan places feature models in their own milestones (M2-M6). Only the custom UUID User must precede the first migration.",
+        "User fields list `password_hash` and `google_id`; both are explicitly forbidden.",
+        "Expense listed with `amount_cents`; the domain model states `amount_cents` is not a canonical field or concept.",
+        "Household entity omits the required ISO 4217 `currency_code`.",
+        "Invitation omits token generation/version identity needed to invalidate stale exchanged intents.",
+        "Acceptance criteria cite the archived DOMAIN_MODEL_CORRECTED.md and ERD.md."
+      ],
+      "proposed_correction": "Narrow the scope to the custom UUID User model plus the initial migration skeleton, which is the only model work the plan places in M0. Remove `password_hash` and `google_id`: passwords use Django's facilities and provider identity uses django-allauth SocialAccount. Move the remaining seven entities to their feature-milestone model issues, which already exist. Cite the canonical domain model rather than archived snapshots.",
+      "acceptance_criteria": [
+        "A custom UUID-primary-key User model exists and is referenced by AUTH_USER_MODEL before the first migration is created.",
+        "The User model defines no bespoke password field and no provider-specific `google_id`.",
+        "`makemigrations` produces the initial migration with the custom user as the identity model."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "priority:critical"
+        ],
+        "remove": [
+          "backend",
+          "database",
+          "models"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-B3",
+      "draft_candidate": "M0-B3",
+      "milestone": "M0",
+      "target_repo": "Backend",
+      "proposed_title": "Configure DRF and validate the implementation against the Documentation-owned OpenAPI contract",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 3,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-014-api-contract-governance.md",
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "api/README.md",
+        "architecture/technology-baseline.md"
+      ],
+      "detected_drift": [
+        "Scope configures Swagger/schema generation and states the OpenAPI YAML can be downloaded from `/api/schema/openapi.yaml`, which would make the Backend-generated schema a competing source of truth.",
+        "Acceptance criteria require stub serializers for all 8 models, duplicating feature-milestone work."
+      ],
+      "proposed_correction": "Invert the contract direction: the Documentation-owned api/openapi.yaml is the sole route and wire-contract source of truth, and the Backend implements and validates against it. Replace schema generation-as-truth with a contract-validation check that fails on drift between the implementation and the checked-in contract revision. Keep DRF base configuration, versioned api/v1 routing, pagination and the household-scoped permission base classes; drop the all-model serializer stubs.",
+      "acceptance_criteria": [
+        "A CI check compares implemented operations against api/openapi.yaml and fails on drift.",
+        "No Backend-generated schema is published as an authoritative contract artifact.",
+        "Base permission classes enforce active-household membership before object authorization."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:api",
+          "type:chore",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "drf",
+          "api"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-B4",
+      "draft_candidate": "M0-B4",
+      "milestone": "M0",
+      "target_repo": "Backend",
+      "proposed_title": "Add the Backend service Dockerfile and local runtime configuration",
+      "action": "SPLIT",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 4,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/technology-baseline.md",
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "architecture/overview.md"
+      ],
+      "detected_drift": [
+        "Backend#4 owns the full-stack docker-compose covering django, react and postgres. The technology baseline assigns local full-stack orchestration to Infrastructure, consuming service-owned images; ADR-009 requires service repositories to keep service-specific Dockerfiles and forbids Infrastructure becoming a duplicate source for them.",
+        "Scope includes a Dockerfile for React, which belongs to Frontend."
+      ],
+      "proposed_correction": "Split by ownership. This candidate keeps only the Backend service Dockerfile, .dockerignore and local runtime configuration in the Backend repository. The compose/orchestration half moves to M0-I1 in Infrastructure, and the React image to M0-F1 in Frontend.",
+      "acceptance_criteria": [
+        "The Backend Dockerfile builds and runs the service independently of any compose file.",
+        "The Backend repository contains no full-stack compose definition."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [
+          "Frontend#1 (React scaffold) — no longer needed once the React image leaves this issue"
+        ],
+        "native_blocked_by": [
+          "Backend#1"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore"
+        ],
+        "remove": [
+          "backend",
+          "docker",
+          "infrastructure"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-B5",
+      "draft_candidate": "M0-B5",
+      "milestone": "M0",
+      "target_repo": "Backend",
+      "proposed_title": "Add the Backend repository-local GitHub Actions workflow",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 5,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "architecture/technology-baseline.md",
+        "quality/testing-strategy.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Title prefix is [M0-Automation] although the issue correctly lives in Backend; ADR-009 assigns repository-local workflow entry points to the service repository.",
+        "Hard-codes flake8 and mypy; exact lint/format tooling is deferred decision D06.",
+        "Requires a coverage report as a gate; coverage is reported without a merge-blocking threshold."
+      ],
+      "proposed_correction": "Correct the title prefix to [M0-Backend]. Express the workflow as lint / type-check / test entry points without naming specific tools until D06 selects them at scaffold time. Report coverage as information; do not gate on a percentage. Consume shared Automation assets where they exist.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:ci",
+          "type:chore"
+        ],
+        "remove": [
+          "automation",
+          "backend",
+          "ci-cd"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-F1",
+      "draft_candidate": "M0-F1",
+      "milestone": "M0",
+      "target_repo": "Frontend",
+      "proposed_title": "Scaffold the React 19 / TypeScript / Vite application with native CSS Modules and design tokens",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 1,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/technology-baseline.md",
+        "planning/mvp-implementation-plan.md"
+      ],
+      "detected_drift": [
+        "Scope omits the approved styling baseline: native CSS, CSS Modules and CSS custom properties for design tokens.",
+        "`.env.example` uses the CRA-style REACT_APP_API_URL prefix; Vite exposes only VITE_-prefixed variables, so the documented variable would never reach the client.",
+        "Vitest and React Testing Library are not established here or in Frontend#4's scope as written."
+      ],
+      "proposed_correction": "Add the approved CSS baseline (native CSS, CSS Modules, CSS custom properties) and record the MVP exclusions: no Tailwind, Material UI or CSS-in-JS, and no generalized component library built upfront. Rename the environment variable to the VITE_ prefix. Add the Frontend service Dockerfile absorbed from Backend#4.",
+      "acceptance_criteria": [
+        "`npm run dev` starts the Vite dev server and TypeScript compiles clean.",
+        "Styling uses CSS Modules and custom-property design tokens with no CSS framework dependency.",
+        "The client reads its API base URL from a VITE_-prefixed variable."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore",
+          "priority:critical"
+        ],
+        "remove": [
+          "frontend",
+          "react",
+          "setup"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-F2",
+      "draft_candidate": "M0-F2",
+      "milestone": "M0",
+      "target_repo": "Frontend",
+      "proposed_title": "Build the session/CSRF-aware API client with safe error and redaction behaviour",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 2,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "security/security-model.md",
+        "api/README.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "architecture/adr/ADR-014-api-contract-governance.md"
+      ],
+      "detected_drift": [
+        "Acceptance criteria require errors to be logged with URL, params and response context. The security model forbids client telemetry that captures request bodies containing credentials or broad URL/parameter dumps, and forbids logging CSRF values and bearer verifiers.",
+        "Uses the CRA-style REACT_APP_API_URL prefix.",
+        "Blanket retry on 5xx with exponential backoff is applied without excluding non-idempotent unsafe requests.",
+        "References Frontend#4 for types; the generated-types issue is Frontend#3."
+      ],
+      "proposed_correction": "Specify the CSRF bootstrap contract explicitly: fetch the token from the CSRF bootstrap operation and send X-CSRFToken on every unsafe request including public ones. Add a redaction layer so URLs, fragments, request bodies, cookies, CSRF values and bearer verifiers never reach logs, telemetry or error context. Restrict retry to safe idempotent reads. Fix the env prefix and the cross-reference.",
+      "acceptance_criteria": [
+        "Every unsafe request carries X-CSRFToken obtained from the bootstrap operation.",
+        "A redaction test asserts no URL fragment, credential-bearing body, cookie or CSRF value appears in any log or error-report payload.",
+        "401 triggers session-loss handling; 403 and 404 are handled without disclosing out-of-scope resources."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:api",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "api",
+          "frontend"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-F3",
+      "draft_candidate": "M0-F3",
+      "milestone": "M0",
+      "target_repo": "Frontend",
+      "proposed_title": "Generate TypeScript contract artifacts from the Documentation-owned OpenAPI contract",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 3,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-014-api-contract-governance.md",
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "api/README.md"
+      ],
+      "detected_drift": [
+        "Scope generates types from OPENAPI.md, an archived Markdown snapshot. The canonical machine-readable contract is Documentation's api/openapi.yaml.",
+        "No requirement that generated artifacts identify the contract revision they were built from, which api/README makes a convention."
+      ],
+      "proposed_correction": "Point generation at Documentation's api/openapi.yaml. Require generated artifacts to record the exact contract revision, and add a CI check that fails when checked-in generated artifacts drift from that revision.",
+      "acceptance_criteria": [
+        "Generated types derive from api/openapi.yaml, not from any archived Markdown contract.",
+        "Generated artifacts record their source contract revision and CI fails on drift."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:api",
+          "type:chore"
+        ],
+        "remove": [
+          "api",
+          "frontend",
+          "types"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-F4",
+      "draft_candidate": "M0-F4",
+      "milestone": "M0",
+      "target_repo": "Frontend",
+      "proposed_title": "Establish Vitest / React Testing Library and the Frontend repository-local workflow",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 4,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/technology-baseline.md",
+        "quality/testing-strategy.md",
+        "architecture/adr/ADR-009-five-repository-topology.md"
+      ],
+      "detected_drift": [
+        "Title prefix is [M0-Automation] although the issue correctly lives in Frontend.",
+        "Scope covers only the workflow; the approved Vitest + React Testing Library harness is not established anywhere.",
+        "Does not record that Jest is explicitly excluded as the MVP frontend test runner."
+      ],
+      "proposed_correction": "Correct the title prefix to [M0-Frontend]. Add establishment of the Vitest + React Testing Library harness alongside the workflow, and note the explicit exclusion of Jest.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:ci",
+          "type:test"
+        ],
+        "remove": [
+          "automation",
+          "ci-cd",
+          "frontend"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-I1",
+      "draft_candidate": "M0-I1",
+      "milestone": "M0",
+      "target_repo": "Infrastructure",
+      "proposed_title": "Define the local PostgreSQL and full-stack runtime composition boundary",
+      "action": "MERGE",
+      "live_issues": [
+        {
+          "repo": "Infrastructure",
+          "number": 1,
+          "role": "primary"
+        },
+        {
+          "repo": "Backend",
+          "number": 4,
+          "role": "split_source"
+        }
+      ],
+      "doc_sources": [
+        "architecture/technology-baseline.md",
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "architecture/overview.md",
+        "planning/mvp-implementation-plan.md"
+      ],
+      "detected_drift": [
+        "Infrastructure#1 declares a dependency on Backend#4 for docker-compose, inverting the canonical ownership: Infrastructure owns local full-stack orchestration and Backend owns only its service image.",
+        "The compose definition currently lives in Backend#4."
+      ],
+      "proposed_correction": "Absorb the full-stack compose scope from Backend#4 into Infrastructure, which the technology baseline names as the owner of local full-stack orchestration consuming service-owned images. Remove the inverted dependency on Backend#4 and replace it with dependencies on the two service Dockerfile candidates. PostgreSQL 14+ is the approved family; the exact deployed version stays with Infrastructure configuration.",
+      "acceptance_criteria": [
+        "A single Infrastructure-owned compose definition brings up PostgreSQL plus the Backend and Frontend service images.",
+        "No compose definition remains in the Backend repository.",
+        "Data persists across container restarts and the schema is created by Django migrations."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [
+          "Infrastructure#1 → Backend#4 (inverted ownership dependency)"
+        ],
+        "native_blocked_by": [
+          "Backend#4 (service image)",
+          "Frontend#1 (service image)"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore",
+          "priority:high"
+        ],
+        "remove": [
+          "database",
+          "docker",
+          "infrastructure"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-I2",
+      "draft_candidate": "M0-I2",
+      "milestone": "M0",
+      "target_repo": "Infrastructure",
+      "proposed_title": "Define the environment and secret configuration contract without selecting deferred vendors",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Infrastructure",
+          "number": 2,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/roadmap.md",
+        "security/security-model.md",
+        "architecture/adr/ADR-015-transactional-email-delivery.md"
+      ],
+      "detected_drift": [
+        "Template set spans development, staging and production while deployment, secret-store and monitoring providers remain deferred under D02.",
+        "No statement that real personal data, including real-email staging, is blocked until D03 resolves."
+      ],
+      "proposed_correction": "Keep the variable contract provider-neutral: document purpose, example and requiredness per variable without implying a chosen managed provider. Record that D02 selects the email provider before M1 integration and the deployment/secret-store/monitoring providers before M9, and that D03 gates real personal data including real-email staging.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore"
+        ],
+        "remove": [
+          "configuration",
+          "infrastructure"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-A1",
+      "draft_candidate": "M0-A1",
+      "milestone": "M0",
+      "target_repo": "Automation",
+      "proposed_title": "Provide reusable build and pipeline assets consumable by service repositories",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Automation",
+          "number": 1,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "architecture/technology-baseline.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Scope builds and pushes images to Docker Hub or GHCR on push to main. ADR-009's required controls state Automation owns reusable assets, not the execution state of service releases.",
+        "Selecting a registry pre-empts the deployment-target decision deferred under D02."
+      ],
+      "proposed_correction": "Reframe as a reusable, callable build workflow asset that service repositories invoke, keeping release execution with the service repositories. Leave the registry/deployment target unselected until D02 resolves before M9.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:ci",
+          "type:chore"
+        ],
+        "remove": [
+          "automation",
+          "ci-cd",
+          "docker"
+        ]
+      },
+      "confidence": "medium",
+      "open_questions": [
+        "Does 'reusable build/pipeline assets' include a shared publish step, or must publishing stay entirely inside each service repository? ADR-009 separates reusable assets from release execution but does not draw the line for image publication."
+      ]
+    },
+    {
+      "candidate_id": "M0-A2",
+      "draft_candidate": "M0-A2",
+      "milestone": "M0",
+      "target_repo": "Automation",
+      "proposed_title": "Provide shared test, contract and security gates",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Automation",
+          "number": 2,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "quality/testing-strategy.md",
+        "security/security-model.md",
+        "architecture/adr/ADR-014-api-contract-governance.md"
+      ],
+      "detected_drift": [
+        "Scope covers branch protection only; the canonical Automation remit also includes shared contract validation, dependency-security scanning and secret scanning.",
+        "Assumes required status checks named for specific service workflows before those workflows are defined."
+      ],
+      "proposed_correction": "Broaden to the shared gate set the canon assigns to Automation: contract validation, dependency-security scanning and secret scanning, alongside branch protection. Reference the service workflows as consumers rather than hard-coding check names.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:ci",
+          "type:chore",
+          "security"
+        ],
+        "remove": [
+          "automation",
+          "ci-cd"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-A3",
+      "draft_candidate": "M0-A3",
+      "milestone": "M0",
+      "target_repo": "Automation",
+      "proposed_title": "Provide local setup automation that consumes real repository manifests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Automation",
+          "number": 3,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "planning/mvp-implementation-plan.md"
+      ],
+      "detected_drift": [
+        "Depends on Backend#4 for docker-compose, which moves to Infrastructure under M0-I1.",
+        "The draft gate requires setup automation to consume real repository manifests, which do not yet exist."
+      ],
+      "proposed_correction": "Repoint the compose dependency at the Infrastructure-owned composition. Record that this work lands only once repository manifests exist, per the import rules.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [
+          "Automation#3 → Infrastructure#1 (Infrastructure-owned composition)"
+        ],
+        "remove": [
+          "Automation#3 → Backend#4 (compose moved to Infrastructure)"
+        ],
+        "native_blocked_by": [
+          "Infrastructure#1",
+          "Infrastructure#2"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore"
+        ],
+        "remove": [
+          "automation",
+          "setup"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M0-D1",
+      "draft_candidate": "M0-D1",
+      "milestone": "M0",
+      "target_repo": "Documentation",
+      "proposed_title": "Publish the documentation architecture and validate the OpenAPI contract in CI",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Documentation",
+          "number": 1,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-014-api-contract-governance.md",
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "api/README.md",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "Scope describes creating a docs/ tree and copying OPENAPI.md from the project root. The repository already has its canonical structure and a standalone api/openapi.yaml; OPENAPI.md is an archived snapshot.",
+        "Acceptance criteria ('repo created and organized', 'architecture documentation linked', 'README explains how to navigate') are already satisfied by the current repository.",
+        "Setup-guide acceptance is gated on a fresh-developer trial, which is an unapproved proxy."
+      ],
+      "proposed_correction": "Narrow to the residual canonical work: contract publication and automated validation. Record the already-satisfied portions as done rather than restating them. Add OpenAPI syntax and contract linting in CI, which release acceptance requires as evidence. Drop the archived OPENAPI.md reference and the fresh-developer gate.",
+      "acceptance_criteria": [
+        "OpenAPI syntax and contract lint run in CI and fail on an invalid contract.",
+        "The rendered contract is reachable from the documentation navigation.",
+        "No archived snapshot is referenced as a current contract source."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:api",
+          "type:docs",
+          "priority:high"
+        ],
+        "remove": [
+          "documentation"
+        ]
+      },
+      "confidence": "medium",
+      "open_questions": [
+        "Documentation#1's original acceptance criteria appear already satisfied by the current repository state. Confirm the issue should be narrowed to contract validation rather than closed and replaced."
+      ]
+    },
+    {
+      "candidate_id": "M0-D2",
+      "draft_candidate": "M0-D2",
+      "milestone": "M0",
+      "target_repo": "Documentation",
+      "proposed_title": "Maintain contribution, contract-review and cross-repository governance",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Documentation",
+          "number": 2,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-009-five-repository-topology.md",
+        "architecture/adr/ADR-014-api-contract-governance.md",
+        "CONTRIBUTING.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Scope proposes a separate CODE_STANDARDS.md and names Black and Prettier; exact lint/format configuration is deferred decision D06 and owned by repository manifests.",
+        "Does not carry the ADR-009/ADR-014 rule that breaking OpenAPI changes require Documentation, Backend and Frontend review."
+      ],
+      "proposed_correction": "Fold the contract-review rule in explicitly: breaking OpenAPI changes require Documentation, Backend and Frontend review, and the contract changes before or with producer/consumer changes. Reference repository-owned tool configuration instead of naming formatters that D06 has not selected.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "type:docs"
+        ],
+        "remove": [
+          "documentation"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-B1",
+      "draft_candidate": "M1-B1",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement the custom UUID User with django-allauth email identity and verification gating",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 6,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-010-backend-runtime-baseline.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "product/prds/prd-identity-authentication.md",
+        "architecture/domain-model.md",
+        "security/security-model.md"
+      ],
+      "detected_drift": [
+        "Fields list `password_hash` and `google_id`. ADR-011 forbids a bespoke password field and a provider-specific google_id; provider identity uses django-allauth SocialAccount.",
+        "Extends AbstractUser without establishing the UUID identity required before the first migration.",
+        "Proposes overriding password hashing with bcrypt/Argon2; Django's password facilities are the canonical mechanism.",
+        "No email-verification gating: verification state must come from django-allauth's verified-email representation, not a duplicate application boolean, and unverified accounts must be denied normal access.",
+        "Acceptance criteria cite the archived DOMAIN_MODEL_CORRECTED.md."
+      ],
+      "proposed_correction": "Rebuild around the canonical identity model: custom UUID User integrated with Django authentication and django-allauth, no bespoke password field, no google_id, provider identity via SocialAccount, verified-email state from allauth's representation. Add the pre-verification access gate limiting the session to verification status, rate-limited resend, safe pending-email correction, and cancel/logout.",
+      "acceptance_criteria": [
+        "The User model exposes a UUID identifier, a unique normalized email and a display name, and defines neither a password field nor a google_id.",
+        "Verification state is read from django-allauth's verified-email record; no duplicate email_verified boolean exists.",
+        "An authenticated but unverified account is denied every household and feature operation and can reach only the verification lifecycle."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "priority:critical"
+        ],
+        "remove": [
+          "authentication",
+          "backend",
+          "high-priority"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-B2",
+      "draft_candidate": "M1-B2",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement database sessions, the indexed session registry, rotation and the revocation matrix",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 7,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "security/security-model.md",
+        "product/prds/prd-identity-authentication.md",
+        "api/README.md"
+      ],
+      "detected_drift": [
+        "SameSite=Strict is specified. ADR-011 and the security model require SameSite=Lax where the validated OAuth top-level redirect needs the pre-authentication session; api/README states stale SameSite=Strict examples are not contract authority.",
+        "The CSRF cookie is not established as readable by the official frontend, which the X-CSRFToken contract requires.",
+        "No indexed user-session registry, no session rotation at authentication and identity-security boundaries, and none of the seven revocation events are covered."
+      ],
+      "proposed_correction": "Add the indexed user-session registry compatible with Django/django-allauth and implement the full revocation matrix: logout revokes current; password reset revokes all; authenticated password change preserves/rotates current and revokes others; primary-email change and OAuth link/unlink require recent reauthentication, rotate current and revoke others; disable/soft-delete revokes all; restoration requires fresh authentication. Set SameSite=Lax, keep the session cookie HttpOnly and Secure outside local development, and make the CSRF cookie readable. Explicitly preserve the non-secret invitation intent across rotation.",
+      "acceptance_criteria": [
+        "Each of the seven revocation-matrix events produces its specified server-side result, verified by test.",
+        "Session identifiers rotate at authentication and at identity-security boundaries, and the non-secret invitation intent survives that rotation.",
+        "The session cookie is HttpOnly and Secure outside local development; the CSRF cookie is readable and SameSite is Lax.",
+        "Revocation is effective on the next request without decoding or scanning session payloads."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "security",
+          "priority:critical"
+        ],
+        "remove": [
+          "authentication",
+          "backend",
+          "session"
+        ]
+      },
+      "confidence": "medium",
+      "open_questions": [
+        "The draft groups session configuration, the indexed registry, rotation and the full revocation matrix into one candidate. Confirm this stays one issue rather than splitting registry/revocation into its own."
+      ]
+    },
+    {
+      "candidate_id": "M1-B3",
+      "draft_candidate": "M1-B3",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement CSRF bootstrap, signup, login, logout and current-user operations",
+      "action": "SPLIT",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 8,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "api/README.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "product/prds/prd-identity-authentication.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Backend#8 bundles credential auth, email verification and password recovery into one issue while omitting the CSRF bootstrap and every email-lifecycle operation the contract defines.",
+        "Hard-codes D01 constants: minimum password length 10 with complexity, 5 logins/min per IP, 3 resets/hour per email, 1-hour reset token.",
+        "Acceptance criteria admit status 422, which the contract never uses.",
+        "References the archived OPENAPI.md."
+      ],
+      "proposed_correction": "Split Backend#8 along contract operation groups. This candidate covers the CSRF bootstrap plus signup, login, logout and current-user operations. Remove all D01 constants and reference the decision instead; safe launch defaults are selected before implementation, then reviewed and locked at M8. Remove 422 from the error set.",
+      "acceptance_criteria": [
+        "Operations getCsrfToken, signup, login, logout and getCurrentUser behave as the contract defines.",
+        "Unsafe requests, including operations declaring security: [], require X-CSRFToken.",
+        "Error responses use 400/401/403/404/409 only; no 422 is returned.",
+        "No password-policy or rate-limit constant is fixed in the issue; D01 governs the values."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "priority:critical"
+        ],
+        "remove": [
+          "authentication",
+          "backend",
+          "email"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-B4",
+      "draft_candidate": "M1-B3",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement the email verification and primary-email change lifecycle",
+      "action": "SPLIT",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 8,
+          "role": "split_source"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/prds/prd-identity-authentication.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "security/security-model.md"
+      ],
+      "detected_drift": [
+        "No live issue covers verifyEmail, resendEmailVerification, requestPrimaryEmailChange or verifyPrimaryEmailChange, all of which the contract defines and IA-FR-003/004 require."
+      ],
+      "proposed_correction": "Create the verification lifecycle as its own unit: verify, rate-limited resend, and the primary-email change request/verify pair. Primary-email change requires recent reauthentication, rotates the current session and revokes all others. Verification credentials are bearer material and never appear in a server-visible path or query.",
+      "acceptance_criteria": [
+        "An unverified account can reach only the verification lifecycle; every other operation is denied.",
+        "Resend is rate-limited and leaves recoverable pending state when provider submission fails.",
+        "Primary-email change requires recent reauthentication, rotates the current session and revokes all others.",
+        "No verification credential appears in a request path, query string, log, referrer or persistent browser storage."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "M1-B1",
+          "M1-B2",
+          "M1-B7"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "area:email",
+          "type:feature",
+          "security",
+          "priority:high"
+        ],
+        "remove": []
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-B5",
+      "draft_candidate": "M1-B3",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement enumeration-safe password recovery and authenticated password change",
+      "action": "SPLIT",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 8,
+          "role": "split_source"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/prds/prd-identity-authentication.md",
+        "security/security-model.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Backend#8 fixes the reset token at 32 bytes with SHA-256 and a 1-hour expiry and sets reset rate limits; these are D01 constants.",
+        "Enumeration safety is not stated as a requirement, and the security model additionally requires that response timing not disclose whether a provider call occurred.",
+        "The changePassword operation is absent."
+      ],
+      "proposed_correction": "Separate recovery and change into their own unit. Reset requests return an enumeration-safe result in body, status and observable timing regardless of account existence or provider outcome. Reset credentials are time-limited, single-use, stored only as a hash and never retained in plaintext. Successful reset revokes every session; authenticated change preserves/rotates the current session and revokes all others. Defer the exact constants to D01.",
+      "acceptance_criteria": [
+        "Reset requests are indistinguishable in body, status and observable timing for existing and non-existing accounts.",
+        "A reset credential is single-use and invalidated after use; plaintext is never persisted.",
+        "Successful reset revokes every session; authenticated change revokes all sessions except the rotated current one."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "M1-B1",
+          "M1-B2",
+          "M1-B7"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "area:email",
+          "type:feature",
+          "security",
+          "priority:high"
+        ],
+        "remove": []
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-B6",
+      "draft_candidate": "M1-B4",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement Google OAuth trust validation and explicit collision-safe linking",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 9,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "product/prds/prd-identity-authentication.md",
+        "security/security-model.md",
+        "api/openapi.yaml",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "'Linking existing users to Google account (optional for MVP)' contradicts IA-FR-008, which forbids automatic linking and requires explicit, recently reauthenticated linking on email collision.",
+        "'Logout clears Google session' directly contradicts IA-US-002 and ADR-011: HouseHoldHub logout ends only the HouseHoldHub session.",
+        "No mandatory OAuth state validation and no issuer/audience/provider-trust validation of the verified-email claim.",
+        "'OAuth users can reset password normally' asserts behaviour no canonical source establishes.",
+        "Unlink is absent although the contract defines it and it carries revocation consequences."
+      ],
+      "proposed_correction": "Make trust validation and collision safety explicit: validate mandatory state, and accept a Google verified-email claim only after issuer, audience and provider-trust validation. A colliding email never auto-links and never creates an ambiguous duplicate; linking requires authentication to the existing account, recent reauthentication and an explicit connect action. Add unlink. Link and unlink rotate the current session and revoke all others. Persist no Google access or refresh token. Remove the Google-logout claim.",
+      "acceptance_criteria": [
+        "Missing or forged OAuth state is rejected.",
+        "A Google identity colliding with an existing local account neither auto-links nor creates a duplicate account.",
+        "Link and unlink require recent reauthentication, rotate the current session and revoke all others.",
+        "No Google access or refresh token is persisted.",
+        "Logout ends only the HouseHoldHub session."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "security",
+          "priority:high"
+        ],
+        "remove": [
+          "authentication",
+          "backend",
+          "oauth"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-B7",
+      "draft_candidate": "M1-B5",
+      "milestone": "M1",
+      "target_repo": "Backend",
+      "proposed_title": "Implement the provider-neutral transactional email adapter with durable delivery state",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 10,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-015-transactional-email-delivery.md",
+        "security/security-model.md",
+        "product/roadmap.md",
+        "architecture/domain-model.md"
+      ],
+      "detected_drift": [
+        "Title and scope name SendGrid, AWS SES and Mailgun. The managed provider is deferred decision D02 and must stay behind a provider-neutral adapter.",
+        "'Password reset email sent within 1 second' is an unqualified numeric gate.",
+        "No commit ordering: ADR-015 requires commit domain state, then a bounded synchronous provider call from transaction.on_commit(), then durable delivery status.",
+        "No data-minimisation constraint on delivery records.",
+        "Declares a dependency on Backend#8 while Backend#8 declares a dependency on it — a two-node cycle."
+      ],
+      "proposed_correction": "Retitle to the provider-neutral adapter and remove every named vendor pending D02. Specify the ADR-015 sequence explicitly and require an honest recoverable status: provider acceptance is not inbox delivery, and provider exceptions never roll back committed domain state. Constrain delivery records to identifiers, status, attempt timing/count, provider request id and safe error class, excluding plaintext credentials, full sensitive URLs, rendered secret-bearing bodies and unnecessary PII. Break the cycle: the adapter is the prerequisite and the auth operations depend on it, not the reverse.",
+      "acceptance_criteria": [
+        "Provider submission occurs only after domain commit, via transaction.on_commit(), with bounded latency.",
+        "A provider exception leaves committed domain state intact and records a recoverable status.",
+        "Delivery records contain no plaintext credential, full sensitive URL or rendered secret-bearing body.",
+        "No queue, Redis, Celery or dedicated worker is introduced for email."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [
+          "Backend#10 → Backend#8 (cycle: Backend#8 also depends on Backend#10)"
+        ],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:email",
+          "type:feature",
+          "security",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "email"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-F1",
+      "draft_candidate": "M1-F1",
+      "milestone": "M1",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement authentication and session state with verification awareness",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 5,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-identity-authentication.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "Auth state models only user/loading and omits verified-email state, which gates all normal application access.",
+        "Logout is described as clearing client user state; server-side revocation is the authority."
+      ],
+      "proposed_correction": "Add verification status to the auth context so the application can present the restricted pre-verification surface. Treat the server as authoritative: logout calls the logout operation, and 401/403 responses drive client state rather than cached values.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature"
+        ],
+        "remove": [
+          "authentication",
+          "context",
+          "frontend"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-F2",
+      "draft_candidate": "M1-F2",
+      "milestone": "M1",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement signup, verification, login, recovery and recoverable-delivery UX",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 6,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-identity-authentication.md",
+        "security/security-model.md",
+        "architecture/adr/ADR-013-invitation-security.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "PasswordResetConfirmPage reads the token from the URL. The security model requires reset bearers in the URI fragment, never a server-visible path or query, and forbids persistent browser storage.",
+        "No verification pages: status, rate-limited resend, or safe pending-email correction.",
+        "The pre-verification restricted surface is not represented.",
+        "References the archived OPENAPI.md."
+      ],
+      "proposed_correction": "Move the reset bearer to the URI fragment with the same handling as the invitation verifier: read once, strip from navigation state, never persist, submit in a POST body. Add the verification lifecycle screens and the restricted pre-verification surface. Add recoverable delivery-failure UX with rate-limited resend.",
+      "acceptance_criteria": [
+        "The reset credential is read from the fragment, removed from browser-visible navigation state and never written to storage.",
+        "An unverified session sees only verification status, resend, safe pending-email correction and logout.",
+        "Delivery failure presents a recoverable state with a rate-limited retry rather than a false success."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "security",
+          "priority:high"
+        ],
+        "remove": [
+          "authentication",
+          "frontend",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-F3",
+      "draft_candidate": "M1-F3",
+      "milestone": "M1",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement Google login and explicit reauthenticated account linking/unlinking",
+      "action": "CREATE",
+      "live_issues": [],
+      "doc_sources": [
+        "product/prds/prd-identity-authentication.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "security/security-model.md",
+        "api/openapi.yaml",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "No live Frontend issue covers explicit account linking or unlinking. Frontend#6 provides only a Google login button, leaving IA-FR-008, the linking journey and the unlink operation unrepresented."
+      ],
+      "proposed_correction": "Add the Frontend half of collision-safe linking: a Google login entry point, a collision path that explains why automatic linking did not occur, an explicit connect action gated on recent reauthentication, and an unlink action with the same gate. Communicate that other sessions are revoked.",
+      "acceptance_criteria": [
+        "A colliding Google identity presents an explicit link path and never silently merges accounts.",
+        "Link and unlink both prompt for recent reauthentication before submission.",
+        "The user is told that linking or unlinking ends their other sessions."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "Backend#9",
+          "Frontend#5"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature",
+          "security"
+        ],
+        "remove": []
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-F4",
+      "draft_candidate": "M1-F1",
+      "milestone": "M1",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement protected routing with verification gating",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 7,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-identity-authentication.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md"
+      ],
+      "detected_drift": [
+        "Route guarding checks authentication only. Normal application access additionally requires a verified email, so a verified-but-unauthenticated check is insufficient."
+      ],
+      "proposed_correction": "Extend the guard to require both a valid session and verified identity, routing unverified sessions to the verification lifecycle rather than the application.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:feature"
+        ],
+        "remove": [
+          "authentication",
+          "frontend",
+          "routing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M1-F5",
+      "draft_candidate": "M1-F4",
+      "milestone": "M1",
+      "target_repo": "Frontend",
+      "proposed_title": "Add identity security, accessibility and contract tests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 8,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/prds/prd-identity-authentication.md",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "'20+ auth test cases' is an unsupported numeric quota.",
+        "'Test token parsing from email links' presumes tokens in query strings rather than fragments.",
+        "Accessibility and contract coverage are absent although the strategy requires both."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Replace the quota with the required security scenario families: verification gating, enumeration-safe reset, OAuth state rejection, collision handling, session rotation and revocation, and fragment non-leakage. Add accessibility coverage for the identity journeys and contract assertions against the generated types.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:auth",
+          "type:test"
+        ],
+        "remove": [
+          "authentication",
+          "frontend",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B1",
+      "draft_candidate": "M2-B1",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement Household with immutable ISO 4217 currency, join code and soft-delete lifecycle",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 11,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/domain-model.md",
+        "architecture/adr/ADR-012-ownership-and-authorization.md",
+        "architecture/adr/ADR-013-invitation-security.md",
+        "security/security-model.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "Model omits the required ISO 4217 currency_code, which HH-FR-001 requires at creation and the domain model marks immutable through the MVP product and API.",
+        "Join code is described as '8-char alphanumeric' without the canonical uppercase constraint, global uniqueness, or collision-safe creation and regeneration.",
+        "Acceptance criteria cite the archived DOMAIN_MODEL_CORRECTED.md."
+      ],
+      "proposed_correction": "Add the required immutable currency_code using a supported ISO 4217 code with a defined minor-unit exponent. Specify the join code as a globally unique eight-character uppercase alphanumeric value, generated collision-safely, omitted from generic household and dashboard representations. Keep soft delete non-cascading with a 30-day preservation window.",
+      "acceptance_criteria": [
+        "Household creation requires name and a supported ISO 4217 currency_code; description is optional.",
+        "currency_code cannot be changed through the product or API.",
+        "The join code is eight uppercase alphanumeric characters, globally unique across active households, and absent from generic household and dashboard responses.",
+        "Soft delete sets the deletion marker, denies normal access immediately and preserves children."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "priority:critical"
+        ],
+        "remove": [
+          "backend",
+          "high-priority",
+          "household"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B2",
+      "draft_candidate": "M2-B2",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement Membership and the owner invariants",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 12,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-012-ownership-and-authorization.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/domain-model.md",
+        "product/permissions-matrix.md"
+      ],
+      "detected_drift": [
+        "No owner invariant: ADR-012 requires Household.owner_id as the authoritative reference with a matching owner-role Membership maintained atomically, and forbids removing the owner Membership.",
+        "No statement that Membership roles are immutable in MVP; promotion, demotion and ownership transfer are unavailable.",
+        "Acceptance criteria cite the archived DOMAIN_MODEL_CORRECTED.md."
+      ],
+      "proposed_correction": "Add the ownership invariants: owner_id is authoritative, a matching owner Membership must always exist, creation and administrative repair maintain both atomically, owner-Membership removal is forbidden, and roles are immutable. Keep the one-Membership-per-(household,user) uniqueness rule.",
+      "acceptance_criteria": [
+        "Household creation atomically establishes owner_id and the matching owner Membership.",
+        "Removing the owner Membership is rejected.",
+        "No product or API path changes a Membership role.",
+        "A second Membership for the same (household, user) pair cannot be created."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security",
+          "priority:critical"
+        ],
+        "remove": [
+          "authorization",
+          "backend",
+          "household"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B3",
+      "draft_candidate": "M2-B3",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement household and member operations from the contract",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 13,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/permissions-matrix.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/adr/ADR-012-ownership-and-authorization.md"
+      ],
+      "detected_drift": [
+        "Regeneration is specified as POST /households/{id}/code; the contract defines POST /households/{household_id}/code/regenerate.",
+        "Member removal (DELETE /households/{household_id}/members/{user_id}) is absent from every Backend issue, leaving HH-FR-009 and release Journey 9 unimplemented.",
+        "Creation does not accept currency_code and update does not exclude it.",
+        "Join-code read and regeneration belong with the code candidate rather than general household CRUD.",
+        "Acceptance criteria cite the archived OPENAPI.md."
+      ],
+      "proposed_correction": "Align operations with the contract and move join-code read/regenerate to M2-B6. Add member removal with its canonical consequences: the removed member is denied on every subsequent request, authored content remains, and tasks assigned through the removed Membership become unassigned. Creation accepts the required currency_code; update accepts name and description only.",
+      "acceptance_criteria": [
+        "Household creation requires currency_code; update rejects any attempt to change it.",
+        "Member removal denies the removed member on the next request and leaves authored content in place.",
+        "Removing a member sets tasks assigned through that Membership to unassigned.",
+        "Out-of-scope household identifiers return 404; in-household denied actions return 403."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "area:api",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "api",
+          "backend",
+          "household"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B4",
+      "draft_candidate": "M2-B4",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement the invitation model and owner lifecycle operations",
+      "action": "SPLIT",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 14,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-013-invitation-security.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/domain-model.md",
+        "api/openapi.yaml",
+        "security/security-model.md",
+        "product/permissions-matrix.md"
+      ],
+      "detected_drift": [
+        "Invitation creation is routed through POST /households/{id}/members; the contract defines POST /households/{household_id}/invitations.",
+        "Revocation is DELETE /households/{id}/invitations/{token} — revocation by bearer token. HH-FR-016 and ADR-013 require revocation by non-secret invitation identifier.",
+        "Resend is absent although the contract defines it and resend must rotate the verifier and invalidate the prior generation and any intent bound to it.",
+        "The model omits token generation/version identity, without which rotation cannot invalidate an already-exchanged intent.",
+        "Acceptance criteria cite the archived DOMAIN_MODEL_CORRECTED.md."
+      ],
+      "proposed_correction": "Split Backend#14 into owner lifecycle and invitee handoff. This candidate covers the model and the owner-facing operations: create, list, revoke by invitation identifier and resend. Add token generation/version identity to the model. Resend rotates the verifier and invalidates both the prior verifier and any server-side intent bound to the old generation; ADR-013 marks an in-place hash replacement that leaves an old intent valid as nonconforming.",
+      "acceptance_criteria": [
+        "Invitations are created and listed through the contract's invitation operations, not through the members operation.",
+        "Revocation addresses the invitation by its non-secret identifier; no operation accepts a bearer token in a path.",
+        "Resend rotates the verifier and invalidates the previous verifier and every intent bound to the previous generation.",
+        "At most one pending invitation exists per household and normalized email, and an active member cannot be invited again.",
+        "Only a cryptographic hash of the verifier is stored; expiry is 30 days from the current issuance or resend."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "area:email",
+          "type:feature",
+          "security",
+          "priority:critical"
+        ],
+        "remove": [
+          "backend",
+          "email",
+          "invitation"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B5",
+      "draft_candidate": "M2-B4",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement invitation verifier exchange, safe preview and explicit acceptance",
+      "action": "SPLIT",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 14,
+          "role": "split_source"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-013-invitation-security.md",
+        "security/security-model.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "api/openapi.yaml",
+        "product/permissions-matrix.md",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "Backend#14 accepts invitations at POST /households/{id}/invitations/{token}/accept, placing the bearer token in a server-visible path. ADR-013 and the security model forbid this; the contract replaces it with exchangeInvitationVerifier, previewPendingInvitation and acceptPendingInvitation.",
+        "No non-secret, generation-bound session intent; the flow as written cannot survive signup, login, verification and session rotation.",
+        "No verified-email equality revalidation before preview or acceptance.",
+        "'Accepting valid token creates Membership' skips the required explicit acceptance step and the safe preview."
+      ],
+      "proposed_correction": "Implement the three-step handoff the canon requires. Exchange accepts the verifier in a rate-limited POST body and stores only a non-secret invitation reference bound to the validated verifier generation; exchange alone grants no membership and no preview. After authentication and verified-email confirmation the server revalidates existence, expiry, revocation, rotation and consumption plus normalized verified-email equality, then returns only the approved safe preview. Acceptance is explicit and atomically creates at most one Membership while consuming the invitation. Duplicate Membership uses 409.",
+      "acceptance_criteria": [
+        "The verifier is accepted only in a POST body and never in a path or query.",
+        "Exchange stores a non-secret invitation reference plus generation binding, never the verifier itself.",
+        "The intent survives signup, login, verification and session rotation in the same browser, and becomes unusable after resend rotation or revocation.",
+        "Preview is returned only after authentication, verification and normalized verified-email equality.",
+        "Acceptance is atomic, single-use, and rejects replay of a consumed verifier; a duplicate Membership returns 409."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "M2-B4",
+          "M1-B1",
+          "M1-B2"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security",
+          "priority:critical"
+        ],
+        "remove": []
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B6",
+      "draft_candidate": "M2-B5",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement owner-only join-code read/regenerate and rate-limited joining",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 15,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-household-membership-invitations.md",
+        "security/security-model.md",
+        "architecture/adr/ADR-013-invitation-security.md",
+        "product/permissions-matrix.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "No rate limiting on join attempts and no uniform invalid-code response; the security model requires both, and a distinguishable 404 leaks code validity.",
+        "No verified-email or eligibility requirement; the matrix restricts joining to a verified authenticated user who is not already a member.",
+        "Owner-only code read and regeneration are not covered here and are mis-specified in Backend#13.",
+        "References legacy requirement FR-19."
+      ],
+      "proposed_correction": "Absorb owner-only code read and regeneration from Backend#13 using the contract's getHouseholdCode and regenerateHouseholdCode operations. Make join attempts rate-limited with a uniform invalid-code response, require a verified authenticated non-member, and confirm regeneration invalidates the previous code immediately. The code is submitted in a request body, never a path or query.",
+      "acceptance_criteria": [
+        "Only the owner can read or regenerate the code; regeneration invalidates the previous code immediately.",
+        "Invalid, unknown and already-member outcomes are indistinguishable to an attacker probing codes, and attempts are rate-limited.",
+        "A valid current code creates exactly one Membership for a verified authenticated non-member.",
+        "The code never appears in a generic household or dashboard response."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "household"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B7",
+      "draft_candidate": null,
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement household soft-delete recovery and the support/administration path",
+      "action": "CREATE",
+      "live_issues": [],
+      "doc_sources": [
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/domain-model.md",
+        "architecture/adr/ADR-012-ownership-and-authorization.md",
+        "quality/release-acceptance.md",
+        "architecture/overview.md"
+      ],
+      "detected_drift": [
+        "HH-FR-034 requires support/administration recovery of a soft-deleted household within the 30-day window, restoring the preserved household, Memberships and resources to active normal access. Release Journey 13 requires that recovery be demonstrated and idempotent. No live issue covers it: Backend#11 covers only the soft-delete marker and Backend#34 only the purge."
+      ],
+      "proposed_correction": "Add the missing middle of the deletion lifecycle: an administrative recovery path that restores a soft-deleted household and its preserved children to normal access, is idempotent, refuses households already purged, and emits the critical audit events the security model requires.",
+      "acceptance_criteria": [
+        "Recovery within the retention window restores the household, its Memberships and its resources to normal access.",
+        "Recovery is idempotent and safe to retry.",
+        "Recovery is unavailable as a public product action for owners and members.",
+        "Delete, recovery and purge each emit a critical audit event containing no sensitive payload."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "M2-B1",
+          "M2-B9"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security"
+        ],
+        "remove": []
+      },
+      "confidence": "medium",
+      "open_questions": [
+        "The canon requires support/administration recovery but does not specify its interface (management command, admin action, or API). Confirm the intended mechanism before implementation."
+      ]
+    },
+    {
+      "candidate_id": "M2-B8",
+      "draft_candidate": "M2-B6",
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Complete household authorization and negative isolation coverage",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 16,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/permissions-matrix.md",
+        "quality/release-acceptance.md",
+        "architecture/adr/ADR-012-ownership-and-authorization.md"
+      ],
+      "detected_drift": [
+        "'100+ test cases for authorization and isolation' and 'Coverage: >95% of household code' are unsupported numeric quotas.",
+        "'Member: can view, cannot edit/delete' understates the matrix, which grants members creation and edit rights across tasks, shopping, expenses and inventory.",
+        "'Non-member: cannot access (403)' contradicts the canonical status semantics: an out-of-scope object returns 404, and 403 is reserved for a known in-household action the caller may not perform."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Replace the quota with the strategy's ten mandatory scenarios per household-scoped operation: unauthenticated; unverified; permitted member; member lacking owner/creator/assignee authority; owner; removed member on the next request; a user from another household using a valid foreign identifier; nonexistent object; soft-deleted household; and conflicting terminal or duplicate state. Correct the status expectations to 401/403/404/400/409 as the contract defines.",
+      "acceptance_criteria": [
+        "Every household-scoped operation is covered by each applicable scenario from the mandatory list.",
+        "A foreign but valid identifier returns 404, never 403.",
+        "Coverage is reported without a merge-blocking threshold."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:test",
+          "security"
+        ],
+        "remove": [
+          "authorization",
+          "backend",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B9",
+      "draft_candidate": null,
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Emit critical audit events for invitation, membership and household lifecycle actions",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 33,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "security/security-model.md",
+        "quality/release-acceptance.md",
+        "product/prds/prd-householdhub-mvp.md"
+      ],
+      "detected_drift": [
+        "Event set is narrower than the security model requires: it omits invitation resend, exchange outcome and acceptance, member joins, and household recovery and purge.",
+        "References legacy requirements FR-66 and FR-68.",
+        "Valid work that the candidate draft does not represent."
+      ],
+      "proposed_correction": "Broaden to the canonical audit set: invitation creation, resend, exchange outcome, acceptance and revocation; member joins, removals and role/ownership administration; and household soft deletion, recovery and purge. Keep the no-secrets constraint and add that records never contain bearer values or rendered messages. Note that the exact audit schema and retention remain deferred decision D03. Replace legacy FR references with the security model.",
+      "acceptance_criteria": [
+        "Each canonical audit event is emitted with enough safe metadata for incident review.",
+        "No audit record contains a password, bearer verifier, join code, OAuth value or rendered message body.",
+        "Retention and schema decisions are deferred to D03 rather than fixed here."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security"
+        ],
+        "remove": [
+          "backend",
+          "household"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-B10",
+      "draft_candidate": null,
+      "milestone": "M2",
+      "target_repo": "Backend",
+      "proposed_title": "Implement the idempotent scheduled purge of soft-deleted households",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 34,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/domain-model.md",
+        "planning/mvp-implementation-plan.md",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "Assigned to M8; the implementation plan places idempotent scheduled purge among the M2 household outcomes, with M9 owning only the scheduling wiring (already covered by Infrastructure#3).",
+        "References the archived DOMAIN_MODEL_CORRECTED.md, ERD.md and SYSTEM_DESIGN.md.",
+        "Cites legacy requirement FR-14."
+      ],
+      "proposed_correction": "Move to M2 to match the plan's household outcomes, leaving deployment scheduling with Infrastructure at M9. Replace archived citations with the domain model and household PRD. The command's behaviour as written — 30-day threshold, idempotence, dry-run, per-purge logging — is already canon-consistent and is retained.",
+      "acceptance_criteria": [
+        "Only households soft-deleted at least 30 days earlier are hard-deleted; newer and active households are untouched.",
+        "The command is safe to re-run after a purge.",
+        "Each purge emits a critical audit event without sensitive payload."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "M2-B1"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security"
+        ],
+        "remove": [
+          "backend",
+          "security"
+        ]
+      },
+      "confidence": "medium",
+      "open_questions": [
+        "Backend#34 is proposed to move from M8 to M2 on the strength of the implementation plan's M2 outcomes. Confirm the milestone move, since release acceptance lists scheduled purge among M9 operational evidence."
+      ]
+    },
+    {
+      "candidate_id": "M2-F1",
+      "draft_candidate": "M2-F1",
+      "milestone": "M2",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement the household selector and switcher",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 9,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-householdhub-mvp.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "quality/testing-strategy.md"
+      ],
+      "detected_drift": [
+        "Does not state that the active household participates in query cache identity, which the strategy requires so switching cannot leak the prior household's data.",
+        "'All API calls use active household' is not expressed as a verifiable isolation outcome."
+      ],
+      "proposed_correction": "Make household part of the query key so switching invalidates and refetches every household-scoped aggregate. Require that no data from the previously selected household remains visible after a switch. The selector lists only households the user may currently access.",
+      "acceptance_criteria": [
+        "Switching households changes every displayed aggregate and cache key.",
+        "No value from the previous household remains rendered after switching.",
+        "The selector lists only currently accessible households and may be empty."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature"
+        ],
+        "remove": [
+          "frontend",
+          "household",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-F2",
+      "draft_candidate": "M2-F2",
+      "milestone": "M2",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement household creation including the required currency",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 10,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-household-membership-invitations.md",
+        "api/openapi.yaml",
+        "product/prds/prd-expense-tracking.md"
+      ],
+      "detected_drift": [
+        "The form collects name and description only. HouseholdCreateRequest requires currency_code, and HH-FR-001 makes a supported ISO 4217 currency required at creation.",
+        "Validation fixes name length at 3-100 characters, a constraint no canonical source establishes.",
+        "References legacy requirements FR-8-9."
+      ],
+      "proposed_correction": "Add the required currency selection to the creation form and communicate that the choice is permanent, since MVP provides no household currency change. Remove the invented length constraint and defer field validation to the contract. Cite the household PRD rather than legacy FR identifiers.",
+      "acceptance_criteria": [
+        "Creation cannot be submitted without a supported ISO 4217 currency_code.",
+        "The form states that the household currency cannot be changed later.",
+        "On success the new household appears in the selector and opens its dashboard."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "frontend",
+          "household",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-F3",
+      "draft_candidate": "M2-F3",
+      "milestone": "M2",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement member and invitation management",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 11,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/permissions-matrix.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "architecture/adr/ADR-013-invitation-security.md"
+      ],
+      "detected_drift": [
+        "Invitations are created through POST /households/{id}/members; the contract defines the invitations operation.",
+        "Revocation is not expressed by invitation identifier, and resend is absent.",
+        "No indication that invitation actions are owner-only, which the matrix restricts."
+      ],
+      "proposed_correction": "Point invitation creation, listing, revocation and resend at the contract's invitation operations, addressing invitations by identifier. Keep member removal on the members operation. Restrict every invitation and removal control to the owner, and surface recoverable delivery state rather than implying inbox delivery.",
+      "acceptance_criteria": [
+        "Invitations are created, listed, resent and revoked through the invitation operations, by identifier.",
+        "Invitation and member-removal controls are unavailable to non-owners.",
+        "Delivery failure is presented as recoverable with a rate-limited resend, never as confirmed delivery."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature"
+        ],
+        "remove": [
+          "frontend",
+          "household",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-F4",
+      "draft_candidate": "M2-F4",
+      "milestone": "M2",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement the invitation fragment landing, exchange and verified acceptance flow",
+      "action": "CREATE",
+      "live_issues": [],
+      "doc_sources": [
+        "architecture/adr/ADR-013-invitation-security.md",
+        "security/security-model.md",
+        "product/prds/prd-household-membership-invitations.md",
+        "api/openapi.yaml",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "No live Frontend issue covers the invitation landing page. ADR-013's landing-page protections, the fragment handling rules and the explicit-acceptance flow are entirely unrepresented in the backlog, although release Journey 2 depends on them."
+      ],
+      "proposed_correction": "Add the invitee-facing flow: read the verifier from the URI fragment, remove it from browser-visible navigation state immediately, never write it to localStorage or sessionStorage, exchange it through a rate-limited POST body, and discard the raw value. Serve the landing route with a restrictive Content Security Policy, Referrer-Policy: no-referrer and Cache-Control: no-store, and admit no third-party script that could observe the fragment. After authentication and verification, render only the safe preview and require an explicit acceptance action.",
+      "acceptance_criteria": [
+        "The verifier never appears in a request path or query, in browser history, in storage, in telemetry or in error context.",
+        "The fragment is removed from navigation state before any other script runs.",
+        "The landing response carries a restrictive CSP, Referrer-Policy: no-referrer and Cache-Control: no-store.",
+        "Acceptance requires an explicit user action after the safe preview; the preview alone creates no membership.",
+        "The flow completes after signup, login, verification and session rotation in the same browser without reopening the link."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": [
+          "Backend#14",
+          "Frontend#5"
+        ]
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security",
+          "priority:critical"
+        ],
+        "remove": []
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-F5",
+      "draft_candidate": "M2-F5",
+      "milestone": "M2",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement the join-by-code flow",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 12,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/prds/prd-household-membership-invitations.md",
+        "security/security-model.md"
+      ],
+      "detected_drift": [
+        "Error handling is not required to be uniform; distinguishing 'code not found' from 'already a member' in the UI would leak code validity that the backend deliberately conceals."
+      ],
+      "proposed_correction": "Keep the correct POST /households/join target and add a uniform failure presentation that does not distinguish invalid, unknown, already-member or ineligible outcomes. Submit the code in the request body only.",
+      "acceptance_criteria": [
+        "All failure outcomes render an indistinguishable message.",
+        "The code is never placed in a URL path or query.",
+        "Success adds the household to the selector."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:feature",
+          "security"
+        ],
+        "remove": [
+          "frontend",
+          "household",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M2-F6",
+      "draft_candidate": "M2-F6",
+      "milestone": "M2",
+      "target_repo": "Frontend",
+      "proposed_title": "Add household, membership and invitation UI and security tests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 13,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "quality/release-acceptance.md",
+        "architecture/adr/ADR-013-invitation-security.md"
+      ],
+      "detected_drift": [
+        "'15+ test cases for household flows' is an unsupported numeric quota.",
+        "Coverage omits the fragment non-leakage, rotation and stale-intent scenarios the strategy marks mandatory."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Add the required security scenarios: fragment never reaching URL, storage, telemetry or logs; resend rotation invalidating a previously exchanged intent; revoked, expired and consumed verifiers; wrong verified email; and currency required at creation.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:household",
+          "type:test",
+          "security"
+        ],
+        "remove": [
+          "frontend",
+          "household",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M3-B1",
+      "draft_candidate": "M3-B1",
+      "milestone": "M3",
+      "target_repo": "Backend",
+      "proposed_title": "Implement Task with service-layer same-household assignment validation",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 17,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/adr/ADR-012-ownership-and-authorization.md",
+        "product/prds/prd-task-management.md",
+        "architecture/domain-model.md",
+        "quality/testing-strategy.md"
+      ],
+      "detected_drift": [
+        "Scope and acceptance criteria require a check constraint asserting assigned_to.household_id == task.household_id. ADR-012 and TASK-FR-003 explicitly forbid claiming that a normal foreign key or cross-table CHECK guarantees this invariant; the guaranteed mechanism is application/service-layer validation plus negative integrity tests.",
+        "References the archived DOMAIN_MODEL_CORRECTED.md and legacy requirements FR-27-36.",
+        "Reopening behaviour for completed_by is unspecified."
+      ],
+      "proposed_correction": "Replace the constraint claim with centralized write-boundary validation plus comprehensive negative integrity tests as the guaranteed mechanism, noting that a composite database foreign key may supplement but not replace it. Specify that completion records the actor and timestamp and that reopening clears them.",
+      "acceptance_criteria": [
+        "Assigning a Membership from another household is rejected at the central write boundary, on create and on reassignment.",
+        "The issue makes no claim that a foreign key or cross-table CHECK guarantees same-household assignment.",
+        "Completion sets the completer and timestamp; reopening clears the active completion timestamp.",
+        "Removing the assignee Membership leaves the task in place and unassigned."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:tasks",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "high-priority",
+          "task"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M3-B2",
+      "draft_candidate": "M3-B2",
+      "milestone": "M3",
+      "target_repo": "Backend",
+      "proposed_title": "Implement task operations and last-write-wins behaviour",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 18,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/permissions-matrix.md",
+        "product/prds/prd-task-management.md",
+        "architecture/adr/ADR-014-api-contract-governance.md"
+      ],
+      "detected_drift": [
+        "References the archived OPENAPI.md and legacy requirements FR-27-36.",
+        "Last-write-wins is not stated, so the absence of an optimistic-concurrency 409 is not a verifiable outcome."
+      ],
+      "proposed_correction": "Retarget references at the canonical contract and permissions matrix. State pure last-write-wins explicitly and require that valid sequential updates never produce a concurrency 409. The authorization rules already encoded — any-member edit, creator/owner reassignment and deletion, assignee-or-owner completion of assigned tasks, any-member completion of unassigned tasks, symmetric reopening — match the matrix and are retained.",
+      "acceptance_criteria": [
+        "Valid sequential updates all succeed; no concurrency-specific 409 is returned.",
+        "Reopening uses exactly the same authorization rule as completion for the task's current assignment state.",
+        "An unauthorized assignment change is denied rather than silently ignored."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:tasks",
+          "area:api",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "api",
+          "backend",
+          "task"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M3-B3",
+      "draft_candidate": "M3-B3",
+      "milestone": "M3",
+      "target_repo": "Backend",
+      "proposed_title": "Complete the task permission and isolation matrix coverage",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 19,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/permissions-matrix.md",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "'50+ test cases' and 'Coverage >95%' are unsupported numeric quotas."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Replace with full row coverage of the task permission matrix plus the mandatory isolation scenarios. The completion and reopening matrices already described are canon-consistent and are retained.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:tasks",
+          "type:test"
+        ],
+        "remove": [
+          "backend",
+          "task",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M3-F1",
+      "draft_candidate": "M3-F1",
+      "milestone": "M3",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement task list, forms, assignment, completion and deletion UX",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 14,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-task-management.md",
+        "product/permissions-matrix.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "References the archived OPENAPI.md.",
+        "Design requirements omit the non-color-only communication of completion and due state that the PRD and release acceptance require."
+      ],
+      "proposed_correction": "Retarget the contract reference. Add the accessibility requirements: completion and overdue state must not rely on color alone, and controls must be keyboard operable. The permission-aware assignment control already described matches the matrix and is retained.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:tasks",
+          "type:feature"
+        ],
+        "remove": [
+          "frontend",
+          "task",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M3-F2",
+      "draft_candidate": "M3-F2",
+      "milestone": "M3",
+      "target_repo": "Frontend",
+      "proposed_title": "Add task UI, accessibility, permission-loss and contract tests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 15,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "quality/release-acceptance.md"
+      ],
+      "detected_drift": [
+        "'20+ test cases for task flows' is an unsupported numeric quota.",
+        "Accessibility and permission-loss coverage are absent."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Add accessibility assertions and permission-loss behaviour, including 403/404 cleanup after a member is removed mid-session.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:tasks",
+          "type:test"
+        ],
+        "remove": [
+          "frontend",
+          "task",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M4-B1",
+      "draft_candidate": "M4-B1",
+      "milestone": "M4",
+      "target_repo": "Backend",
+      "proposed_title": "Implement ShoppingItem",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 20,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "architecture/domain-model.md",
+        "product/prds/prd-shopping-list.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "References the ERD as the model authority; the ERD is archived and the domain model is canonical.",
+        "Does not state that clearing purchase state also clears purchase attribution."
+      ],
+      "proposed_correction": "Cite the domain model. Add that toggling purchase state off clears the purchaser and purchase timestamp for the current state, and that creator/purchaser references are nullable so items survive user deletion.",
+      "acceptance_criteria": [
+        "Name is required and quantity is optional.",
+        "A purchased item exposes its purchaser and purchase date; clearing purchase state clears both.",
+        "Purchaser and creator references are nullable so an item survives deletion of that user."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:shopping",
+          "type:feature"
+        ],
+        "remove": [
+          "backend",
+          "models",
+          "shopping"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M4-B2",
+      "draft_candidate": "M4-B2",
+      "milestone": "M4",
+      "target_repo": "Backend",
+      "proposed_title": "Implement shopping operations including clear-purchased",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 21,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/permissions-matrix.md",
+        "product/prds/prd-shopping-list.md"
+      ],
+      "detected_drift": [
+        "References the archived OPENAPI.md."
+      ],
+      "proposed_correction": "Retarget the contract reference. The bulk clear-purchased behaviour already described — any active member, purchased items only, deleted_count returned, permanent rather than archived — matches the permissions matrix and shopping PRD and is retained.",
+      "acceptance_criteria": [
+        "Purchase state can be toggled in both directions by any active member.",
+        "Individual deletion follows the creator/owner rule; bulk clear is available to any active member.",
+        "Bulk clear removes only purchased items, leaves pending items untouched and returns the deleted count.",
+        "The list supports viewing or filtering by pending and purchased state."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:shopping",
+          "area:api",
+          "type:feature"
+        ],
+        "remove": [
+          "api",
+          "backend",
+          "shopping"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M4-B3",
+      "draft_candidate": "M4-B3",
+      "milestone": "M4",
+      "target_repo": "Backend",
+      "proposed_title": "Complete shopping permission and isolation coverage",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 22,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/permissions-matrix.md"
+      ],
+      "detected_drift": [
+        "'20+ test cases' is an unsupported numeric quota."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Replace with full matrix coverage, retaining the bulk-clear scenarios already described.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:shopping",
+          "type:test"
+        ],
+        "remove": [
+          "backend",
+          "shopping",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M4-F1",
+      "draft_candidate": "M4-F1",
+      "milestone": "M4",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement pending/purchased shopping UI with confirmed bulk clear",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 16,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-shopping-list.md",
+        "product/permissions-matrix.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "References the archived OPENAPI.md.",
+        "The confirmation dialog does not state that bulk clear is permanent deletion rather than an archive, which SHOP-FR-007/008 require."
+      ],
+      "proposed_correction": "Retarget the contract reference and make the confirmation communicate permanence explicitly. Add the accessibility requirement that purchase state not rely on color alone and that the toggle be keyboard operable.",
+      "acceptance_criteria": [
+        "Pending and purchased items are presented distinctly and are separately viewable or filterable.",
+        "Bulk clear requires an explicit confirmation stating that deletion is permanent.",
+        "The purchase control is keyboard operable and its state is not conveyed by color alone."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:shopping",
+          "type:feature"
+        ],
+        "remove": [
+          "frontend",
+          "shopping",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M4-F2",
+      "draft_candidate": "M4-F2",
+      "milestone": "M4",
+      "target_repo": "Frontend",
+      "proposed_title": "Add shopping UI and synchronization tests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 17,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md"
+      ],
+      "detected_drift": [
+        "'15+ test cases' is an unsupported numeric quota."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Add invalidation/refetch assertions so the dashboard shopping summary reflects mutations.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:shopping",
+          "type:test"
+        ],
+        "remove": [
+          "frontend",
+          "shopping",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M5-B1",
+      "draft_candidate": "M5-B1",
+      "milestone": "M5",
+      "target_repo": "Backend",
+      "proposed_title": "Implement Expense with amount_minor, snapshotted currency, category and incurred_on",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 23,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-expense-tracking.md",
+        "architecture/domain-model.md",
+        "api/openapi.yaml",
+        "api/README.md"
+      ],
+      "detected_drift": [
+        "Uses amount_cents. EXP-FR-002 requires amount_minor and the domain model states amount_cents is not a canonical field or concept.",
+        "Category enum is groceries|utilities|entertainment|other. The canonical ExpenseCategory is Food, Utilities, Maintenance, Entertainment, Other — 'groceries' does not exist and 'Food' and 'Maintenance' are missing.",
+        "Payer foreign key is PROTECT and PROTECT is described as the immutability mechanism. EXP-FR-013/014 require SET NULL on user deletion, with immutability enforced as authorization/domain behaviour, and explicitly reject PROTECT as a substitute.",
+        "currency_code is absent; each expense must snapshot the household's immutable currency.",
+        "incurred_on is absent; the model has only timestamps.",
+        "Acceptance criterion 'Amount in cents (no decimals)' assumes a two-decimal currency, which EXP-FR-003 forbids."
+      ],
+      "proposed_correction": "Rebuild the model on canonical money semantics: a strictly positive integer amount_minor interpreted through the applicable ISO 4217 minor-unit exponent, a currency_code copied from the household at creation and immutable thereafter, an explicit incurred_on calendar date, and the five approved categories. Change the payer reference to nullable with SET NULL on user deletion, enforcing payer immutability in the service layer.",
+      "acceptance_criteria": [
+        "amount_minor is a strictly positive integer; no field named amount_cents exists.",
+        "The category enum is exactly Food, Utilities, Maintenance, Entertainment, Other.",
+        "currency_code is copied from the household at creation and cannot be set or changed by a client.",
+        "Deleting a payer user leaves the expense in place with a null payer.",
+        "incurred_on is a required client-supplied calendar date, never derived from server UTC."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:expenses",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "expense",
+          "models"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M5-B2",
+      "draft_candidate": "M5-B2",
+      "milestone": "M5",
+      "target_repo": "Backend",
+      "proposed_title": "Implement expense operations, filters and same-currency aggregates",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 24,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "product/prds/prd-expense-tracking.md",
+        "product/permissions-matrix.md",
+        "api/README.md"
+      ],
+      "detected_drift": [
+        "Aggregate fields are total_cents and by_category over amount_cents. ExpenseListMeta defines total_amount_minor plus a required currency_code alongside by_category.",
+        "Ordering and filtering are described as by 'date'; the canonical field is incurred_on.",
+        "References the archived OPENAPI.md.",
+        "The update operation excludes payer but not currency, which is equally immutable."
+      ],
+      "proposed_correction": "Align the aggregate contract: total_amount_minor and per-category totals in minor units, always accompanied by the household currency_code so the integers are interpretable. Filter and order by incurred_on. Exclude both payer and currency from the update operation. Retain the already-correct rule that aggregates span all filtered expenses rather than the current page.",
+      "acceptance_criteria": [
+        "List metadata returns total_amount_minor, by_category and currency_code over all filtered expenses.",
+        "Ordering is by incurred_on, newest first, and filters cover category, payer and incurred-date range.",
+        "The update operation rejects any attempt to change payer or currency.",
+        "No conversion, exchange rate or mixed-currency aggregation occurs."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:expenses",
+          "area:api",
+          "type:feature"
+        ],
+        "remove": [
+          "api",
+          "backend",
+          "expense"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M5-B3",
+      "draft_candidate": "M5-B3",
+      "milestone": "M5",
+      "target_repo": "Backend",
+      "proposed_title": "Complete expense money, date, permission and isolation coverage",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 25,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/prds/prd-expense-tracking.md"
+      ],
+      "detected_drift": [
+        "'20+ test cases' is an unsupported numeric quota.",
+        "Money semantics are untested: no zero/negative rejection, no non-two-decimal exponent cases, no cross-household or inactive payer rejection, no currency snapshot immutability."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Add the strategy's required expense scenarios: supported ISO currencies with zero-, two- and three-digit minor-unit exponents interpreted without assuming cents; zero and negative amount rejection; cross-household and inactive payer rejection; payer and currency immutability; and same-currency aggregation with explicit currency context.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:expenses",
+          "type:test"
+        ],
+        "remove": [
+          "backend",
+          "expense",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M5-F1",
+      "draft_candidate": "M5-F1",
+      "milestone": "M5",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement browser-local expense date, forms, filters and same-currency totals",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 18,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-expense-tracking.md",
+        "api/README.md",
+        "api/openapi.yaml",
+        "product/prds/prd-householdhub-mvp.md"
+      ],
+      "detected_drift": [
+        "The create form takes an amount 'in dollars, converted to cents'. EXP-FR-003 and the design requirements forbid assuming two decimal minor units; the frontend must submit amount_minor using the supported currency's ISO exponent.",
+        "incurred_on is absent from the form; EXP-FR-009 requires the frontend to initialize it from the browser-local calendar date and send it explicitly.",
+        "Ordering is described as by 'date' rather than incurred_on.",
+        "A payer dropdown appears on the edit form path without excluding payer, which is immutable after creation.",
+        "'Category breakdown stats (pie chart or text summary)' proposes a chart the PRD neither requires nor specifies."
+      ],
+      "proposed_correction": "Submit amount_minor derived from the entered human-readable amount using the currency's ISO exponent, never a hard-coded factor of 100. Add an incurred_on field defaulted from the browser-local calendar date. Display the expense currency without offering per-expense selection, and exclude payer and currency from editing. Present per-category totals as required by EXP-FR-017; leave the visual form to design rather than mandating a chart.",
+      "acceptance_criteria": [
+        "The submitted amount_minor matches the entered amount under the household currency's ISO exponent, verified for a zero-decimal and a three-decimal currency.",
+        "incurred_on defaults to the browser-local calendar date and is always sent explicitly.",
+        "No per-expense currency selector is offered and edit forms exclude payer and currency.",
+        "Totals and per-category totals display with explicit currency context."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:expenses",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "expense",
+          "frontend",
+          "ui"
+        ]
+      },
+      "confidence": "medium",
+      "open_questions": [
+        "Frontend#18 mandates a pie chart for the category breakdown. The expense PRD requires per-category totals but specifies no visualization. Confirm whether a chart is in MVP scope or whether a text summary suffices."
+      ]
+    },
+    {
+      "candidate_id": "M5-F2",
+      "draft_candidate": "M5-F2",
+      "milestone": "M5",
+      "target_repo": "Frontend",
+      "proposed_title": "Add expense UI, exponent-formatting and contract tests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 19,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/prds/prd-expense-tracking.md"
+      ],
+      "detected_drift": [
+        "'15+ test cases' is an unsupported numeric quota.",
+        "'Test amount conversion (dollars to cents)' encodes the superseded two-decimal assumption."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Replace the dollars-to-cents assertion with exponent-aware formatting and parsing tests across zero-, two- and three-decimal ISO currencies, plus contract assertions against the generated expense types.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:expenses",
+          "type:test"
+        ],
+        "remove": [
+          "expense",
+          "frontend",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M6-B1",
+      "draft_candidate": "M6-B1",
+      "milestone": "M6",
+      "target_repo": "Backend",
+      "proposed_title": "Implement InventoryItem with the positive-quantity invariant",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 26,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-inventory-management.md",
+        "architecture/domain-model.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "References the ERD as the model authority; the ERD is archived."
+      ],
+      "proposed_correction": "Cite the domain model and inventory PRD. The positive-integer quantity with a minimum of one, optional free-form unit, and optional category and location already described are canon-consistent and are retained.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:inventory",
+          "type:feature"
+        ],
+        "remove": [
+          "backend",
+          "inventory",
+          "models"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M6-B2",
+      "draft_candidate": "M6-B2",
+      "milestone": "M6",
+      "target_repo": "Backend",
+      "proposed_title": "Implement inventory operations and category grouping support",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 27,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "api/openapi.yaml",
+        "api/README.md",
+        "product/prds/prd-inventory-management.md",
+        "architecture/adr/ADR-014-api-contract-governance.md"
+      ],
+      "detected_drift": [
+        "Acceptance criteria admit status 422 ('non-integer or non-positive values return 400/422'). The contract never returns 422.",
+        "References the archived OPENAPI.md.",
+        "Does not state that a decrement below one is rejected rather than treated as deletion."
+      ],
+      "proposed_correction": "Remove 422 from the error set; validation failures return 400. Retarget the contract reference. State explicitly that a change reducing quantity below one is rejected and never interpreted as deletion.",
+      "acceptance_criteria": [
+        "Quantity below one is rejected with 400 and the item is not deleted.",
+        "No operation returns 422.",
+        "Category filtering and grouping work without altering location metadata or authorization."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:inventory",
+          "area:api",
+          "type:feature"
+        ],
+        "remove": [
+          "api",
+          "backend",
+          "inventory"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M6-B3",
+      "draft_candidate": "M6-B3",
+      "milestone": "M6",
+      "target_repo": "Backend",
+      "proposed_title": "Complete inventory permission and isolation coverage",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 28,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/permissions-matrix.md"
+      ],
+      "detected_drift": [
+        "'20+ test cases' is an unsupported numeric quota."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Retain the quantity-validation scenarios and add the below-one decrement rejection and the mandatory isolation scenarios.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:inventory",
+          "type:test"
+        ],
+        "remove": [
+          "backend",
+          "inventory",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M6-F1",
+      "draft_candidate": "M6-F1",
+      "milestone": "M6",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement grouped inventory display and CRUD UX",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 20,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-inventory-management.md",
+        "api/openapi.yaml"
+      ],
+      "detected_drift": [
+        "References legacy requirements FR-57 and FR-58 and the archived OPENAPI.md.",
+        "Does not require the UI to communicate a rejected below-one change, which the PRD design requirements mandate."
+      ],
+      "proposed_correction": "Replace legacy references with INV-FR-005 and INV-FR-006 and retarget the contract reference. Require that decrement controls communicate a rejected below-one change and remain keyboard operable, and that grouping still presents uncategorized items understandably.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:inventory",
+          "type:feature"
+        ],
+        "remove": [
+          "frontend",
+          "inventory",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M6-F2",
+      "draft_candidate": "M6-F2",
+      "milestone": "M6",
+      "target_repo": "Frontend",
+      "proposed_title": "Add inventory quantity, permission and UI tests",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 21,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/prds/prd-inventory-management.md"
+      ],
+      "detected_drift": [
+        "'15+ test cases' is an unsupported numeric quota."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Retain the quantity-input scenarios and add the below-one rejection and uncategorized-grouping cases.",
+      "acceptance_criteria": [],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:inventory",
+          "type:test"
+        ],
+        "remove": [
+          "frontend",
+          "inventory",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M7-B1",
+      "draft_candidate": "M7-B1",
+      "milestone": "M7",
+      "target_repo": "Backend",
+      "proposed_title": "Implement dashboard aggregation with required as_of and the deterministic task preview",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 29,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-dashboard.md",
+        "api/openapi.yaml",
+        "api/README.md",
+        "product/prds/prd-householdhub-mvp.md",
+        "planning/mvp-implementation-plan.md"
+      ],
+      "detected_drift": [
+        "The response includes recent_expenses (up to 5) and expenses_total_cents. DashboardResponse defines no expense field, dashboard PRD non-goals exclude expense totals, recent expenses and any expense widget, and the umbrella PRD lists expense widgets on the dashboard among MVP non-goals.",
+        "The required as_of=YYYY-MM-DD query parameter is absent. DASH-FR-003/004 require it and forbid the backend deriving 'today' from server UTC or deployment-local time.",
+        "pending_task_count is absent: the contract requires the complete count of every incomplete task including undated ones, reported separately from the preview.",
+        "The preview is described only as 'pending_tasks (up to 3)' with no due-window rule and no deterministic ordering.",
+        "References the archived OPENAPI.md."
+      ],
+      "proposed_correction": "Rebuild the operation on DashboardResponse: require as_of, return household summary, member_count, members, pending_task_count, due_tasks and shopping_pending_count, and nothing else. Due-soon means an incomplete dated task overdue, due on as_of, or due through as_of plus seven calendar days inclusive; undated incomplete tasks are excluded from the preview but counted in pending_task_count. Order deterministically by due date, then creation timestamp, then stable identifier, capped at three. Remove every expense field.",
+      "acceptance_criteria": [
+        "The operation rejects a missing or invalid as_of with 400 and never substitutes a server-derived date.",
+        "The response contains no expense or inventory field.",
+        "pending_task_count includes undated incomplete tasks; due_tasks excludes them and returns at most three.",
+        "Boundary cases at as_of minus one day, as_of, as_of plus seven and as_of plus eight classify correctly, including across a leap day.",
+        "Ties in due date and creation timestamp resolve by stable identifier."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:dashboard",
+          "area:api",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "api",
+          "backend",
+          "dashboard"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M7-F1",
+      "draft_candidate": "M7-F1",
+      "milestone": "M7",
+      "target_repo": "Frontend",
+      "proposed_title": "Implement the minimal dashboard with browser-local as_of query identity",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 22,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/prds/prd-dashboard.md",
+        "api/openapi.yaml",
+        "quality/testing-strategy.md",
+        "product/prds/prd-householdhub-mvp.md"
+      ],
+      "detected_drift": [
+        "'Display pending tasks (open, due-soon, overdue; up to 5)' contradicts the canonical cap of three.",
+        "The complete pending-task count is absent; the PRD requires it to be visually distinct from the preview so the preview is not mistaken for the backlog.",
+        "as_of is not derived from the browser-local calendar date, nor included in query cache identity.",
+        "Shopping summary is present but the dashboard does not label the task list as a preview.",
+        "Links to expenses and inventory detail views are retained, which is permitted, but the issue does not distinguish links from the forbidden widgets."
+      ],
+      "proposed_correction": "Cap the preview at three tasks and label it as a preview, showing the complete pending count as a visually distinct value. Derive as_of from the browser-local calendar date and include both household and as_of in the query key. Handle the invalid-as_of state. Keep navigation links to expenses and inventory while confirming that no expense or inventory summary, total or widget is rendered.",
+      "acceptance_criteria": [
+        "At most three tasks render in the preview and the complete pending count is separately visible.",
+        "as_of comes from the browser-local calendar date and participates in the query cache key.",
+        "No expense or inventory value is displayed; navigation links remain.",
+        "Overdue and due state are communicated without relying on color alone.",
+        "Loading, empty, invalid-as_of, denied and error states are handled."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:dashboard",
+          "type:feature",
+          "priority:high"
+        ],
+        "remove": [
+          "dashboard",
+          "frontend",
+          "ui"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M8-B1",
+      "draft_candidate": "M8-B1",
+      "milestone": "M8",
+      "target_repo": "Backend",
+      "proposed_title": "Automate the cross-feature release journeys",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 30,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/release-acceptance.md",
+        "quality/testing-strategy.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "'100+ integration test cases' and 'Coverage: >90% of business logic' are unsupported numeric quotas.",
+        "'Stress test: 100 concurrent users, target <200ms response' and 'Performance baseline: <200ms for 100 concurrent users' are unqualified performance gates lacking percentile, dataset, environment and duration."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Remove unqualified numeric performance gates; a gate requires percentile, endpoint set, dataset, environment, concurrency profile and duration. Replace both with the thirteen named release-acceptance journeys as the coverage definition. Basic smoke and load observations may be recorded as informational baselines without becoming release gates.",
+      "acceptance_criteria": [
+        "Every applicable release-acceptance journey is automated and passing.",
+        "No numeric test count, coverage percentage or latency threshold gates the build.",
+        "Performance observations are recorded as informational baselines."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "type:test",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "integration",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M8-B2",
+      "draft_candidate": "M8-B2",
+      "milestone": "M8",
+      "target_repo": "Backend",
+      "proposed_title": "Complete authentication, authorization, isolation and abuse hardening",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 31,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "security/security-model.md",
+        "quality/testing-strategy.md",
+        "architecture/adr/ADR-011-identity-and-session-security.md",
+        "architecture/adr/ADR-013-invitation-security.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "Fixes D01 constants: login 5/min per IP, reset 3/hour per email, API 100/15min per user, and prescribes bcrypt/Argon2.",
+        "Specifies SameSite=Strict, contradicting ADR-011 and the security model.",
+        "Omits the required security families: invitation replay, rotation and expiry; logging redaction; join-code abuse; email enumeration; OAuth state and collision."
+      ],
+      "proposed_correction": "Remove the prescribed constants and defer to D01, which is reviewed and locked at this milestone. Correct SameSite to Lax. Add the missing required security scenario families, including redaction verification and representative injection and cross-site-scripting attempts across user-controlled fields and browser-rendered error states.",
+      "acceptance_criteria": [
+        "Session cookie flags match the canonical contract, including SameSite=Lax.",
+        "Invitation replay, resend rotation, revocation and expiry are all covered.",
+        "Redaction tests confirm no credential, verifier, join code or OAuth value reaches logs or error context.",
+        "Join-code abuse and password-reset enumeration behave uniformly, including in observable timing.",
+        "D01 constants are reviewed and locked at this milestone."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "type:test",
+          "security",
+          "priority:high"
+        ],
+        "remove": [
+          "backend",
+          "security",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M8-B3",
+      "draft_candidate": "M8-B3",
+      "milestone": "M8",
+      "target_repo": "Backend",
+      "proposed_title": "Establish a representative performance and query baseline with evidence-based indexing",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Backend",
+          "number": 32,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/roadmap.md",
+        "architecture/technology-baseline.md"
+      ],
+      "detected_drift": [
+        "'GET /households/{id}/tasks with 1000 tasks returns <200ms' is an unqualified gate with no percentile, environment, dataset definition or duration.",
+        "'Index verification: all 18+ indexes created as per ERD' cites an archived artifact and asserts an index count; performance-only indexes require query-plan evidence under D06."
+      ],
+      "proposed_correction": "Remove unqualified numeric performance gates; a gate requires percentile, endpoint set, dataset, environment, concurrency profile and duration. Reframe as establishing a representative baseline: define the dataset, environment and workload, capture query plans, and add performance-only indexes only where plan evidence justifies them. N+1 prevention and query-plan review remain valid qualitative outcomes.",
+      "acceptance_criteria": [
+        "A representative dataset and environment are defined and documented before any measurement.",
+        "Index additions are justified by captured query plans rather than a target count.",
+        "No latency number becomes a release gate without its full benchmark context."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "performance",
+          "type:chore"
+        ],
+        "remove": [
+          "backend",
+          "database",
+          "performance"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M8-F1",
+      "draft_candidate": "M8-F1",
+      "milestone": "M8",
+      "target_repo": "Frontend",
+      "proposed_title": "Automate critical browser journeys and accessibility checks",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 23,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/release-acceptance.md",
+        "quality/testing-strategy.md"
+      ],
+      "detected_drift": [
+        "'20+ E2E test cases' is an unsupported numeric quota.",
+        "Accessibility coverage is absent although release acceptance requires WCAG 2.1 AA evidence, keyboard use, focus management, semantic labels and non-color-only communication.",
+        "'Mock API responses for testing' weakens end-to-end fidelity, which the strategy asks to be as high as practical."
+      ],
+      "proposed_correction": "Replace numeric test-count and coverage gates with the behaviour/journey matrix; coverage is reported, never merge-blocking. Replace with the release-acceptance journeys and add accessibility verification. Add responsive verification at the approved 375 and 1280 CSS-pixel targets. Prefer real contract-backed responses over mocks where practical.",
+      "acceptance_criteria": [
+        "The critical release journeys run end to end against a contract-backed backend.",
+        "Accessibility checks cover WCAG 2.1 AA outcomes, keyboard operation and focus management.",
+        "Core workflows remain usable at 375 and at 1280 CSS pixels."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "type:test",
+          "priority:high"
+        ],
+        "remove": [
+          "e2e",
+          "frontend",
+          "testing"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M8-F2",
+      "draft_candidate": "M8-F2",
+      "milestone": "M8",
+      "target_repo": "Frontend",
+      "proposed_title": "Address measured frontend regressions without unsupported numeric gates",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Frontend",
+          "number": 24,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/testing-strategy.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "'Main bundle <500KB (gzip)' and 'Lighthouse score >80 (performance)' are fixed thresholds without benchmark context; the roadmap lists fixed bundle-size and Lighthouse thresholds among gates requiring full context first."
+      ],
+      "proposed_correction": "Remove unqualified numeric performance gates; a gate requires percentile, endpoint set, dataset, environment, concurrency profile and duration. Keep the qualitative work — code splitting, image optimization, cache strategy and the absence of console errors — and report bundle size and audit scores as observations rather than gates.",
+      "acceptance_criteria": [
+        "Bundle size and audit scores are reported as trends, not pass/fail gates.",
+        "Code splitting is in place and no console errors occur on the critical journeys."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "performance",
+          "type:chore"
+        ],
+        "remove": [
+          "frontend",
+          "performance"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M8-D1",
+      "draft_candidate": "M8-D1",
+      "milestone": "M8",
+      "target_repo": "Documentation",
+      "proposed_title": "Reconcile shipped behaviour, contract, guides and release evidence",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Documentation",
+          "number": 3,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/release-acceptance.md",
+        "architecture/adr/ADR-014-api-contract-governance.md",
+        "product/roadmap.md",
+        "README.md"
+      ],
+      "detected_drift": [
+        "'Setup guide tested with fresh developer; <30 min' and 'tested with 2 fresh developers' are unapproved numeric and staffing proxies.",
+        "Scope names an Architecture guide covering 'ADRs, System Design, ERD, data model'; System Design and ERD are archived and must not be cited as current.",
+        "Omits the release-acceptance requirement that active documentation contain no competing route inventory or stale canonical stack or model claim."
+      ],
+      "proposed_correction": "Remove the fresh-developer trial gates. Replace the archived System Design and ERD references with the architecture overview and domain model. Add an explicit reconciliation pass asserting that no active document maintains a competing route inventory and that no stale stack or model claim remains.",
+      "acceptance_criteria": [
+        "No active document contains a route inventory competing with the contract.",
+        "No active document cites an archived snapshot as a current requirement.",
+        "Documented behaviour matches the shipped contract revision."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "type:docs"
+        ],
+        "remove": [
+          "documentation"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M9-I1",
+      "draft_candidate": "M9-I1",
+      "milestone": "M9",
+      "target_repo": "Infrastructure",
+      "proposed_title": "Provision the selected production runtime, secrets, database, migrations and rollback",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Infrastructure",
+          "number": 3,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/release-acceptance.md",
+        "product/roadmap.md",
+        "planning/mvp-implementation-plan.md",
+        "architecture/adr/ADR-015-transactional-email-delivery.md"
+      ],
+      "detected_drift": [
+        "References SYSTEM_DESIGN.md for the clearsessions pattern; that snapshot is archived.",
+        "Does not record that the deployment target and secret store remain deferred under D02, or that D04 must define numeric RTO, RPO and alert thresholds before launch sign-off.",
+        "Backup and restore are absent from acceptance although release acceptance requires tested backup and restore."
+      ],
+      "proposed_correction": "Replace the archived reference with the technology baseline and release acceptance. Record D02 as the gate on deployment target and secret store, and D04 as the gate on numeric recovery and alert thresholds before sign-off. Add tested backup and restore. The scheduled-job wiring for household purge and session cleanup already described is canon-consistent and retained.",
+      "acceptance_criteria": [
+        "Backup and restore are exercised, not merely configured.",
+        "Household purge and Django session cleanup are scheduled and demonstrated.",
+        "Rollback is documented and exercised.",
+        "No production vendor is fixed before D02 resolves."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore",
+          "priority:critical"
+        ],
+        "remove": [
+          "deployment",
+          "infrastructure"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M9-I2",
+      "draft_candidate": "M9-I2",
+      "milestone": "M9",
+      "target_repo": "Infrastructure",
+      "proposed_title": "Configure the selected monitoring and error provider with redacted logging and health checks",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Infrastructure",
+          "number": 4,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "product/roadmap.md",
+        "security/security-model.md",
+        "quality/release-acceptance.md",
+        "architecture/adr/ADR-015-transactional-email-delivery.md"
+      ],
+      "detected_drift": [
+        "Names 'Sentry free tier'; the monitoring and error-tracking vendor is deferred decision D02 and must be selected before M9 provisioning.",
+        "Logging is specified as structured JSON but without the redaction requirements the security model mandates.",
+        "'Incident response runbook' risks a placeholder document, which release acceptance rejects.",
+        "Numeric alert thresholds are implied but D04 must define them first."
+      ],
+      "proposed_correction": "Remove the named vendor pending D02. Add the redaction requirements explicitly: passwords, cookies, CSRF values, bearer verifiers, join codes, OAuth code and state, email bodies and full secret-bearing URLs are never logged, with redaction applied at application, proxy, analytics and error-tracking boundaries. Add request correlation. Record that operational documents are created only when they can describe the selected runtime with executable procedures, and that D04 defines alert thresholds and severity before sign-off.",
+      "acceptance_criteria": [
+        "Structured logs carry request correlation and contain no secret or sensitive field.",
+        "Health and readiness endpoints respond correctly.",
+        "No runbook is accepted as a placeholder.",
+        "Alert thresholds and severity definitions await D04."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:infrastructure",
+          "type:chore",
+          "security"
+        ],
+        "remove": [
+          "infrastructure",
+          "monitoring"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    },
+    {
+      "candidate_id": "M9-A1",
+      "draft_candidate": "M9-A1",
+      "milestone": "M9",
+      "target_repo": "Automation",
+      "proposed_title": "Automate pre-launch contract, smoke, security, migration, restore and rollback checks",
+      "action": "UPDATE",
+      "live_issues": [
+        {
+          "repo": "Automation",
+          "number": 4,
+          "role": "primary"
+        }
+      ],
+      "doc_sources": [
+        "quality/release-acceptance.md",
+        "quality/testing-strategy.md",
+        "product/roadmap.md"
+      ],
+      "detected_drift": [
+        "'Load test baseline: 100 concurrent users, target <500ms' and the matching acceptance criterion are unqualified performance gates.",
+        "Contract validation, migration verification and rollback checks are absent although release acceptance requires each as launch evidence."
+      ],
+      "proposed_correction": "Remove unqualified numeric performance gates; a gate requires percentile, endpoint set, dataset, environment, concurrency profile and duration. Add the missing pre-launch checks: contract validation, migration verification, restore verification and rollback exercise. Load observations may be captured as an informational baseline without a threshold.",
+      "acceptance_criteria": [
+        "Contract validation, smoke, dependency-security, migration, restore and rollback checks all run before launch.",
+        "No latency or concurrency figure gates the launch.",
+        "Launch evidence satisfies release acceptance."
+      ],
+      "dependency_changes": {
+        "add": [],
+        "remove": [],
+        "native_blocked_by": []
+      },
+      "label_changes": {
+        "add": [
+          "area:ci",
+          "type:chore",
+          "priority:high"
+        ],
+        "remove": [
+          "automation",
+          "deployment",
+          "launch"
+        ]
+      },
+      "confidence": "high",
+      "open_questions": []
+    }
+  ],
+  "live_issues": [
+    {
+      "repo": "Automation",
+      "number": 1,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-A1"
+      ],
+      "rationale": "Retained but reframed from service release execution to a reusable build asset, with the registry target left to D02."
+    },
+    {
+      "repo": "Automation",
+      "number": 2,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-A2"
+      ],
+      "rationale": "Retained and broadened from branch protection to the shared contract, dependency-security and secret-scanning gates Automation owns."
+    },
+    {
+      "repo": "Automation",
+      "number": 3,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-A3"
+      ],
+      "rationale": "Retained; the compose dependency repointed from Backend#4 to the Infrastructure-owned composition."
+    },
+    {
+      "repo": "Automation",
+      "number": 4,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M9-A1"
+      ],
+      "rationale": "Retained as pre-launch verification; the 100-user/<500ms gate removed and the missing contract, migration, restore and rollback checks added."
+    },
+    {
+      "repo": "Backend",
+      "number": 1,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-B1"
+      ],
+      "rationale": "Represents the canonical Backend scaffold; corrected from Django 6.x to the Django 5.2 LTS / Python 3.14 baseline with dependency pins deferred to D06."
+    },
+    {
+      "repo": "Backend",
+      "number": 2,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-B2"
+      ],
+      "rationale": "Narrowed from an all-8-entity stub to the custom UUID User plus initial migration skeleton, which is the only model work M0 owns; forbidden password_hash and google_id fields removed."
+    },
+    {
+      "repo": "Backend",
+      "number": 3,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-B3"
+      ],
+      "rationale": "Retained as the DRF foundation but inverted from publishing a generated schema to validating against the Documentation-owned contract."
+    },
+    {
+      "repo": "Backend",
+      "number": 4,
+      "disposition": "SPLIT",
+      "maps_to_candidates": [
+        "M0-B4",
+        "M0-I1"
+      ],
+      "rationale": "Bundles the Backend service Dockerfile with a full-stack docker-compose covering React and PostgreSQL. Ownership splits: the Backend image stays here, the composition moves to Infrastructure per the technology baseline and ADR-009, and the React image moves to Frontend."
+    },
+    {
+      "repo": "Backend",
+      "number": 5,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-B5"
+      ],
+      "rationale": "Correct repository for a service-local workflow; title prefix and D06-deferred tool choices corrected, coverage gate removed."
+    },
+    {
+      "repo": "Backend",
+      "number": 6,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-B1"
+      ],
+      "rationale": "Remains the identity implementation issue but is rebuilt on the canonical model: UUID User, allauth email identity and verification gating, with password_hash and google_id removed."
+    },
+    {
+      "repo": "Backend",
+      "number": 7,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-B2"
+      ],
+      "rationale": "Retained and broadened from session configuration to the indexed session registry, rotation and the full revocation matrix; SameSite corrected from Strict to Lax."
+    },
+    {
+      "repo": "Backend",
+      "number": 8,
+      "disposition": "SPLIT",
+      "maps_to_candidates": [
+        "M1-B3",
+        "M1-B4",
+        "M1-B5"
+      ],
+      "rationale": "Bundles credential auth, verification and recovery while omitting the CSRF bootstrap and every email-lifecycle operation the contract defines. Splits along contract operation groups so each unit has verifiable boundaries; D01 constants and status 422 removed throughout."
+    },
+    {
+      "repo": "Backend",
+      "number": 9,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-B6"
+      ],
+      "rationale": "Retained as the OAuth issue but corrected on three canon violations: optional linking, clearing the Google session at logout, and missing state/issuer/audience validation."
+    },
+    {
+      "repo": "Backend",
+      "number": 10,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-B7"
+      ],
+      "rationale": "Retained as the transactional email issue; named vendors removed pending D02, the on_commit sequence added, and the dependency cycle with Backend#8 broken."
+    },
+    {
+      "repo": "Backend",
+      "number": 11,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B1"
+      ],
+      "rationale": "Retained as the Household model issue with the required immutable ISO 4217 currency and the canonical join-code specification added."
+    },
+    {
+      "repo": "Backend",
+      "number": 12,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B2"
+      ],
+      "rationale": "Retained as the Membership issue with the ADR-012 owner invariants and role immutability added."
+    },
+    {
+      "repo": "Backend",
+      "number": 13,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B3"
+      ],
+      "rationale": "Retained as household and member operations; the regeneration path is corrected, member removal is added to close a real gap, and join-code read/regenerate moves to the code candidate."
+    },
+    {
+      "repo": "Backend",
+      "number": 14,
+      "disposition": "SPLIT",
+      "maps_to_candidates": [
+        "M2-B4",
+        "M2-B5"
+      ],
+      "rationale": "Encodes the superseded /invitations/{token}/accept workflow and revocation by bearer token. Splits into owner lifecycle (create, list, revoke by identifier, resend with rotation) and the invitee handoff (exchange, safe preview, explicit acceptance) that ADR-013 and the contract require."
+    },
+    {
+      "repo": "Backend",
+      "number": 15,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B6"
+      ],
+      "rationale": "Already targets the correct POST /households/join operation; broadened to absorb owner-only code read/regenerate and to add rate limiting, uniform failure and eligibility rules."
+    },
+    {
+      "repo": "Backend",
+      "number": 16,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B8"
+      ],
+      "rationale": "Retained as the authorization and isolation suite; the 100+ case and >95% coverage quotas are replaced by the mandatory scenario matrix and the 403/404 semantics corrected."
+    },
+    {
+      "repo": "Backend",
+      "number": 17,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M3-B1"
+      ],
+      "rationale": "Retained as the Task model issue; the cross-table CHECK guarantee that ADR-012 forbids is replaced by service-layer validation plus negative integrity tests."
+    },
+    {
+      "repo": "Backend",
+      "number": 18,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M3-B2"
+      ],
+      "rationale": "Largely canon-consistent already, including the unassigned-completion rule; archived references removed and last-write-wins stated explicitly."
+    },
+    {
+      "repo": "Backend",
+      "number": 19,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M3-B3"
+      ],
+      "rationale": "Retained; 50+ case and >95% coverage quotas replaced by full permission-matrix row coverage."
+    },
+    {
+      "repo": "Backend",
+      "number": 20,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M4-B1"
+      ],
+      "rationale": "Retained; ERD citation replaced by the domain model and purchase-attribution clearing made explicit."
+    },
+    {
+      "repo": "Backend",
+      "number": 21,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M4-B2"
+      ],
+      "rationale": "Already canon-consistent on bulk clear-purchased; only the archived contract reference is corrected."
+    },
+    {
+      "repo": "Backend",
+      "number": 22,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M4-B3"
+      ],
+      "rationale": "Retained; 20+ case quota replaced by matrix coverage."
+    },
+    {
+      "repo": "Backend",
+      "number": 23,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M5-B1"
+      ],
+      "rationale": "Retained as the Expense model issue but corrected on five canon violations: amount_cents, the wrong category enum, PROTECT payer, missing currency snapshot and missing incurred_on."
+    },
+    {
+      "repo": "Backend",
+      "number": 24,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M5-B2"
+      ],
+      "rationale": "Retained; aggregate fields corrected from total_cents to total_amount_minor with currency context, and ordering and filtering moved to incurred_on."
+    },
+    {
+      "repo": "Backend",
+      "number": 25,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M5-B3"
+      ],
+      "rationale": "Retained; 20+ case quota replaced by the required money and date scenarios including non-two-decimal exponents."
+    },
+    {
+      "repo": "Backend",
+      "number": 26,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M6-B1"
+      ],
+      "rationale": "Retained; already canon-consistent apart from the archived ERD citation."
+    },
+    {
+      "repo": "Backend",
+      "number": 27,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M6-B2"
+      ],
+      "rationale": "Retained; status 422 removed and below-one decrement rejection made explicit."
+    },
+    {
+      "repo": "Backend",
+      "number": 28,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M6-B3"
+      ],
+      "rationale": "Retained; 20+ case quota replaced by matrix and quantity-invariant coverage."
+    },
+    {
+      "repo": "Backend",
+      "number": 29,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M7-B1"
+      ],
+      "rationale": "Retained as the dashboard endpoint but heavily corrected: expense fields removed entirely, required as_of added, and the complete pending count plus deterministic three-task preview specified."
+    },
+    {
+      "repo": "Backend",
+      "number": 30,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M8-B1"
+      ],
+      "rationale": "Retained as the journey suite; 100+ case, >90% coverage and the 100-user/<200ms gates replaced by the release-acceptance journeys."
+    },
+    {
+      "repo": "Backend",
+      "number": 31,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M8-B2"
+      ],
+      "rationale": "Retained as security hardening; D01 constants and SameSite=Strict removed, and the missing required security families added."
+    },
+    {
+      "repo": "Backend",
+      "number": 32,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M8-B3"
+      ],
+      "rationale": "Retained as the performance issue; the <200ms gate and the 18+ index count replaced by an evidence-based baseline under D06."
+    },
+    {
+      "repo": "Backend",
+      "number": 33,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B9"
+      ],
+      "rationale": "Valid work absent from the candidate draft, required by the security model's audit-event list. Retained and broadened to the full canonical event set."
+    },
+    {
+      "repo": "Backend",
+      "number": 34,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-B10"
+      ],
+      "rationale": "Valid work absent from the candidate draft, required by HH-FR-035. Retained, archived citations replaced, and proposed to move from M8 to M2 to match the implementation plan's household outcomes."
+    },
+    {
+      "repo": "Documentation",
+      "number": 1,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-D1"
+      ],
+      "rationale": "Retained but narrowed to the residual canonical work — contract publication and CI validation — since the repository structure the issue describes already exists in canonical form."
+    },
+    {
+      "repo": "Documentation",
+      "number": 2,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-D2"
+      ],
+      "rationale": "Retained as governance; the ADR-009/014 breaking-change review rule added and D06-deferred formatter choices removed."
+    },
+    {
+      "repo": "Documentation",
+      "number": 3,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M8-D1"
+      ],
+      "rationale": "Retained as the documentation reconciliation issue; fresh-developer gates removed and archived architecture references replaced."
+    },
+    {
+      "repo": "Frontend",
+      "number": 1,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-F1"
+      ],
+      "rationale": "Retained as the Frontend scaffold; CSS Modules and design tokens added, the Vite environment prefix corrected, and the service Dockerfile absorbed from Backend#4."
+    },
+    {
+      "repo": "Frontend",
+      "number": 2,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-F2"
+      ],
+      "rationale": "Retained as the API client; error-logging criteria corrected to satisfy the redaction rules and the CSRF bootstrap contract made explicit."
+    },
+    {
+      "repo": "Frontend",
+      "number": 3,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-F3"
+      ],
+      "rationale": "Retained; generation retargeted from the archived OPENAPI.md to the Documentation-owned contract with revision stamping."
+    },
+    {
+      "repo": "Frontend",
+      "number": 4,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-F4"
+      ],
+      "rationale": "Correct repository for a service-local workflow; title prefix corrected and the Vitest/RTL harness added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 5,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-F1"
+      ],
+      "rationale": "Retained as the auth context; verification state added so the restricted pre-verification surface can be presented."
+    },
+    {
+      "repo": "Frontend",
+      "number": 6,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-F2"
+      ],
+      "rationale": "Retained as the auth pages; the reset bearer moves from the URL to the fragment and the verification lifecycle screens are added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 7,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-F4"
+      ],
+      "rationale": "Retained as route protection; extended to require verified identity, not only a session."
+    },
+    {
+      "repo": "Frontend",
+      "number": 8,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M1-F5"
+      ],
+      "rationale": "Retained; the 20+ case quota is replaced by the required security families and the email-link token assertion corrected to fragment handling."
+    },
+    {
+      "repo": "Frontend",
+      "number": 9,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-F1"
+      ],
+      "rationale": "Retained as the switcher; household added to query cache identity so switching cannot leak the prior household."
+    },
+    {
+      "repo": "Frontend",
+      "number": 10,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-F2"
+      ],
+      "rationale": "Retained as household creation; the required currency_code added and the invented name-length rule removed."
+    },
+    {
+      "repo": "Frontend",
+      "number": 11,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-F3"
+      ],
+      "rationale": "Retained as member and invitation management; invitation operations retargeted to the contract and revocation moved to invitation identifier."
+    },
+    {
+      "repo": "Frontend",
+      "number": 12,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-F5"
+      ],
+      "rationale": "Already targets the correct join operation; only uniform failure presentation is added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 13,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M2-F6"
+      ],
+      "rationale": "Retained; the 15+ case quota is replaced by the mandatory invitation security scenarios."
+    },
+    {
+      "repo": "Frontend",
+      "number": 14,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M3-F1"
+      ],
+      "rationale": "Largely canon-consistent already, including permission-aware assignment; archived reference removed and accessibility requirements added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 15,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M3-F2"
+      ],
+      "rationale": "Retained; the 20+ case quota is replaced by behaviour coverage plus accessibility and permission-loss cases."
+    },
+    {
+      "repo": "Frontend",
+      "number": 16,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M4-F1"
+      ],
+      "rationale": "Retained; the bulk-clear confirmation is required to state permanence and accessibility requirements are added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 17,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M4-F2"
+      ],
+      "rationale": "Retained; the 15+ case quota is replaced by behaviour and invalidation coverage."
+    },
+    {
+      "repo": "Frontend",
+      "number": 18,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M5-F1"
+      ],
+      "rationale": "Retained as the expense page but corrected on money semantics: dollars-to-cents conversion replaced by exponent-aware amount_minor, and the missing incurred_on field added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 19,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M5-F2"
+      ],
+      "rationale": "Retained; the 15+ case quota and the dollars-to-cents assertion are both replaced by exponent-aware formatting tests."
+    },
+    {
+      "repo": "Frontend",
+      "number": 20,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M6-F1"
+      ],
+      "rationale": "Retained; legacy FR and archived contract references replaced and below-one feedback required."
+    },
+    {
+      "repo": "Frontend",
+      "number": 21,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M6-F2"
+      ],
+      "rationale": "Retained; the 15+ case quota replaced by behaviour coverage."
+    },
+    {
+      "repo": "Frontend",
+      "number": 22,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M7-F1"
+      ],
+      "rationale": "Retained as the dashboard page; the five-task preview corrected to three, the complete pending count added, and as_of derived from the browser-local date."
+    },
+    {
+      "repo": "Frontend",
+      "number": 23,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M8-F1"
+      ],
+      "rationale": "Retained as the E2E suite; the 20+ case quota replaced by the release journeys and accessibility plus responsive verification added."
+    },
+    {
+      "repo": "Frontend",
+      "number": 24,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M8-F2"
+      ],
+      "rationale": "Retained as frontend performance work; the fixed bundle-size and Lighthouse thresholds are demoted from gates to reported observations."
+    },
+    {
+      "repo": "Infrastructure",
+      "number": 1,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-I1"
+      ],
+      "rationale": "Retained as the local database and runtime issue; absorbs the composition scope from Backend#4 and drops the inverted dependency on it."
+    },
+    {
+      "repo": "Infrastructure",
+      "number": 2,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M0-I2"
+      ],
+      "rationale": "Retained as the environment contract; kept provider-neutral with the D02 and D03 gates recorded."
+    },
+    {
+      "repo": "Infrastructure",
+      "number": 3,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M9-I1"
+      ],
+      "rationale": "Retained as production deployment; archived reference replaced, backup and restore added, and the D02/D04 gates recorded."
+    },
+    {
+      "repo": "Infrastructure",
+      "number": 4,
+      "disposition": "UPDATE",
+      "maps_to_candidates": [
+        "M9-I2"
+      ],
+      "rationale": "Retained as monitoring; the named vendor removed pending D02 and the redaction requirements added."
+    }
+  ],
+  "label_inventory": [
+    {
+      "label": "backend",
+      "repos": "B",
+      "uses": 34,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Redundant: the repository already identifies the service."
+    },
+    {
+      "label": "frontend",
+      "repos": "F",
+      "uses": 24,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Redundant with the repository."
+    },
+    {
+      "label": "infrastructure",
+      "repos": "B,I",
+      "uses": 5,
+      "disposition": "replace",
+      "target": "area:infrastructure",
+      "rationale": "Domain dimension; repo identity is implicit."
+    },
+    {
+      "label": "automation",
+      "repos": "A,B,F",
+      "uses": 6,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Redundant with the repository."
+    },
+    {
+      "label": "testing",
+      "repos": "B,F",
+      "uses": 14,
+      "disposition": "replace",
+      "target": "type:test",
+      "rationale": "Work-type dimension."
+    },
+    {
+      "label": "e2e",
+      "repos": "F",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "type:test",
+      "rationale": "Test granularity belongs in the title, not a second test label."
+    },
+    {
+      "label": "integration",
+      "repos": "B",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "type:test",
+      "rationale": "Same as above."
+    },
+    {
+      "label": "ui",
+      "repos": "F",
+      "uses": 10,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Every Frontend feature issue is UI; carries no filter value."
+    },
+    {
+      "label": "react",
+      "repos": "F",
+      "uses": 1,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Framework is fixed by the technology baseline."
+    },
+    {
+      "label": "routing",
+      "repos": "F",
+      "uses": 1,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Too granular for a cross-repo taxonomy."
+    },
+    {
+      "label": "context",
+      "repos": "F",
+      "uses": 1,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Implementation detail."
+    },
+    {
+      "label": "types",
+      "repos": "F",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "area:api",
+      "rationale": "Generated types are contract work."
+    },
+    {
+      "label": "household",
+      "repos": "B,F",
+      "uses": 10,
+      "disposition": "replace",
+      "target": "area:household",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "invitation",
+      "repos": "B",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "area:household",
+      "rationale": "Invitations are part of the household domain."
+    },
+    {
+      "label": "task",
+      "repos": "B,F",
+      "uses": 5,
+      "disposition": "replace",
+      "target": "area:tasks",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "shopping",
+      "repos": "B,F",
+      "uses": 5,
+      "disposition": "replace",
+      "target": "area:shopping",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "expense",
+      "repos": "B,F",
+      "uses": 5,
+      "disposition": "replace",
+      "target": "area:expenses",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "inventory",
+      "repos": "B,F",
+      "uses": 5,
+      "disposition": "replace",
+      "target": "area:inventory",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "dashboard",
+      "repos": "B,F",
+      "uses": 2,
+      "disposition": "replace",
+      "target": "area:dashboard",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "authentication",
+      "repos": "B,F",
+      "uses": 8,
+      "disposition": "replace",
+      "target": "area:auth",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "oauth",
+      "repos": "B",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "area:auth",
+      "rationale": "Part of the identity domain."
+    },
+    {
+      "label": "session",
+      "repos": "B",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "area:auth",
+      "rationale": "Part of the identity domain."
+    },
+    {
+      "label": "authorization",
+      "repos": "B",
+      "uses": 2,
+      "disposition": "replace",
+      "target": "security",
+      "rationale": "Authorization work is a security classification."
+    },
+    {
+      "label": "email",
+      "repos": "B",
+      "uses": 3,
+      "disposition": "replace",
+      "target": "area:email",
+      "rationale": "ADR-015 makes transactional email a first-class concern spanning identity and household."
+    },
+    {
+      "label": "api",
+      "repos": "B,F",
+      "uses": 9,
+      "disposition": "replace",
+      "target": "area:api",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "drf",
+      "repos": "B",
+      "uses": 1,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Framework is fixed by the technology baseline."
+    },
+    {
+      "label": "models",
+      "repos": "B",
+      "uses": 4,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Implementation detail; area:* already locates the work."
+    },
+    {
+      "label": "database",
+      "repos": "B,I",
+      "uses": 3,
+      "disposition": "replace",
+      "target": "area:infrastructure",
+      "rationale": "Folds into the infrastructure domain."
+    },
+    {
+      "label": "docker",
+      "repos": "A,B,I",
+      "uses": 3,
+      "disposition": "replace",
+      "target": "area:infrastructure",
+      "rationale": "Folds into the infrastructure domain."
+    },
+    {
+      "label": "deployment",
+      "repos": "A,I",
+      "uses": 2,
+      "disposition": "replace",
+      "target": "area:infrastructure",
+      "rationale": "Folds into the infrastructure domain."
+    },
+    {
+      "label": "configuration",
+      "repos": "I",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "area:infrastructure",
+      "rationale": "Folds into the infrastructure domain."
+    },
+    {
+      "label": "monitoring",
+      "repos": "I",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "area:infrastructure",
+      "rationale": "Folds into the infrastructure domain."
+    },
+    {
+      "label": "ci-cd",
+      "repos": "A,B,F",
+      "uses": 4,
+      "disposition": "replace",
+      "target": "area:ci",
+      "rationale": "Domain dimension."
+    },
+    {
+      "label": "setup",
+      "repos": "A,B,F",
+      "uses": 3,
+      "disposition": "replace",
+      "target": "type:chore",
+      "rationale": "Work-type dimension."
+    },
+    {
+      "label": "launch",
+      "repos": "A",
+      "uses": 1,
+      "disposition": "replace",
+      "target": "type:chore",
+      "rationale": "Work-type dimension."
+    },
+    {
+      "label": "documentation",
+      "repos": "all",
+      "uses": 3,
+      "disposition": "replace",
+      "target": "type:docs",
+      "rationale": "Work-type dimension; new label required."
+    },
+    {
+      "label": "security",
+      "repos": "B",
+      "uses": 2,
+      "disposition": "retain",
+      "target": "security",
+      "rationale": "Cross-cutting classification the canon repeatedly requires."
+    },
+    {
+      "label": "performance",
+      "repos": "B,F",
+      "uses": 2,
+      "disposition": "retain",
+      "target": "performance",
+      "rationale": "Cross-cutting classification; note that numeric gates remain deferred."
+    },
+    {
+      "label": "high-priority",
+      "repos": "B,F",
+      "uses": 4,
+      "disposition": "replace",
+      "target": "priority:high",
+      "rationale": "Aligns with the structured priority dimension."
+    },
+    {
+      "label": "test-api",
+      "repos": "B",
+      "uses": 0,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Diagnostic residue; defined only in Backend, never applied."
+    },
+    {
+      "label": "test-diagnostic",
+      "repos": "B",
+      "uses": 0,
+      "disposition": "remove",
+      "target": null,
+      "rationale": "Diagnostic residue; defined only in Backend, never applied."
+    }
+  ],
+  "labels_to_add": [
+    {
+      "label": "area:email",
+      "rationale": "Transactional email concern spanning identity and household invitations (ADR-015). New."
+    },
+    {
+      "label": "type:docs",
+      "rationale": "Documentation work. New; replaces the free-form `documentation` label."
+    },
+    {
+      "label": "architecture",
+      "rationale": "Work that changes or depends on an accepted ADR. New; applied sparingly."
+    },
+    {
+      "label": "area:api / area:ci / area:dashboard / area:infrastructure in Automation",
+      "rationale": "These four area labels are defined in the other four repositories but missing from Automation, so the taxonomy is not uniform."
+    }
+  ],
+  "summary": {
+    "candidate_actions": {
+      "UPDATE": 65,
+      "SPLIT": 6,
+      "MERGE": 1,
+      "CREATE": 3
+    },
+    "live_dispositions": {
+      "UPDATE": 66,
+      "SPLIT": 3
+    },
+    "candidates_by_repo": {
+      "Backend": {
+        "UPDATE": 31,
+        "SPLIT": 6,
+        "CREATE": 1
+      },
+      "Frontend": {
+        "UPDATE": 24,
+        "CREATE": 2
+      },
+      "Infrastructure": {
+        "MERGE": 1,
+        "UPDATE": 3
+      },
+      "Automation": {
+        "UPDATE": 4
+      },
+      "Documentation": {
+        "UPDATE": 3
+      }
+    },
+    "candidates_by_milestone": {
+      "M0": {
+        "UPDATE": 14,
+        "SPLIT": 1,
+        "MERGE": 1
+      },
+      "M1": {
+        "UPDATE": 8,
+        "SPLIT": 3,
+        "CREATE": 1
+      },
+      "M2": {
+        "UPDATE": 12,
+        "SPLIT": 2,
+        "CREATE": 2
+      },
+      "M3": {
+        "UPDATE": 5
+      },
+      "M4": {
+        "UPDATE": 5
+      },
+      "M5": {
+        "UPDATE": 5
+      },
+      "M6": {
+        "UPDATE": 5
+      },
+      "M7": {
+        "UPDATE": 2
+      },
+      "M8": {
+        "UPDATE": 6
+      },
+      "M9": {
+        "UPDATE": 3
+      }
+    },
+    "candidate_total": 75,
+    "live_total": 69
+  }
+}
