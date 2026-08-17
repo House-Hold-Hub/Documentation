@@ -12,11 +12,13 @@
 | Role | SHA | Short |
 |---|---|---|
 | Canonical documentation baseline | `3006cae70caba1829d0ad8cfcc9b17af5791f052` | `3006cae` |
-| Reconciliation artifacts | `870385e461b632b6a02f08300ff75242fb9e9d40` | `870385e` |
+| Reconciliation artifacts (pre-freeze) | `870385e461b632b6a02f08300ff75242fb9e9d40` | `870385e` |
+| **Frozen matrix — Phase 3 executes from this** | `086831d65d2a5d5dbd0c441ed3c1e4d9481a5ea8` | `086831d` |
 
-`870385e` is the **reconciliation-artifact commit**. Its parent is `3006cae`. Any Phase 3 mutation of
-the live GitHub backlog must cite `870385e` as the exact revision of the reconciliation matrix it was
-executed from, and `3006cae` as the canonical documentation it was derived from.
+Any Phase 3 mutation must cite `086831d` as the exact matrix revision it executed from, and
+`3006cae` as the canonical documentation it was derived from. `870385e` is retained for traceability
+as the pre-freeze artifact commit, but **must not** be used as the execution source: it predates the
+nine frozen decisions and still carries the label migration that OQ-9 deferred.
 
 Both commits are on `main` in `House-Hold-Hub/Documentation` and are present on `origin`. Neither has
 been amended, rebased, or force-pushed.
@@ -105,6 +107,27 @@ existed that a backlog mutation could cite.
 
 **Mutations:** Git push only. No GitHub issue, label, milestone or dependency was touched.
 
+## Entry 8 — decisions frozen and matrix regenerated
+
+All nine open questions resolved by project decision. Matrix regenerated at **schema 1.2** with a
+`frozen_decisions` register.
+
+Effects: confidence is now 75 high / 0 medium / 0 low, with `decided_by` recording which decision
+determined each of the six previously-medium candidates; every actionable `label_changes` entry is
+empty per OQ-9, with the proposal retained as advisory; `M2-B7` states outcomes only per OQ-8;
+Backend#34 moved to M2 per OQ-4; acceptance criteria added to `M0-A1`, which OQ-5 unblocked.
+
+Twelve new verification rules (12a–12m) enforce the frozen state. Two baseline checks (11b, 11c) were
+corrected: they compared the baseline SHA against `HEAD`, which is wrong now that `HEAD` has advanced
+past the baseline. They now assert the baseline is an *ancestor* of `HEAD` and inspect the tree at the
+baseline commit itself.
+
+Result: **47 invariants pass, 0 fail** and **26 consistency checks pass, 0 conflicts.**
+
+Committed as `086831d`, which supersedes `870385e` as the Phase 3 execution source.
+
+**Mutations:** none to GitHub.
+
 ## Cumulative GitHub mutation status
 
 **Zero issue, label, milestone or dependency mutations have been performed at any point.**
@@ -117,6 +140,8 @@ Evidenced by:
 
 ## Phase 3 authorization status
 
-**Not authorized.** Phase 3 requires the preflight gates in
-[`backlog-reconciliation-phase3-preflight.md`](backlog-reconciliation-phase3-preflight.md) to pass,
-including resolution of the nine open questions recorded in the reconciliation report.
+**Not authorized.** Gates A, B, C and D all pass — the nine decisions are frozen. **Gate E
+(dependency-API capability probes) remains unverified and has not been run**, on instruction.
+
+Phase 3 additionally requires explicit authorization to begin. See
+[`backlog-reconciliation-phase3-preflight.md`](backlog-reconciliation-phase3-preflight.md).

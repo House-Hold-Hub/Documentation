@@ -2,7 +2,7 @@
 
 > **Status:** Draft
 > **Owner:** Documentation repository
-> **Last reviewed:** 2026-08-17
+> **Last reviewed:** 2026-08-17 (decisions frozen)
 > **Canonical for:** Nothing — operational gate checklist
 > **Purpose:** Conditions that must hold before any mutation of the live GitHub backlog, and the
 > immutable revisions that mutation must be traceable to.
@@ -14,12 +14,17 @@ reconciliation must be re-derived.
 
 | Role | SHA |
 |---|---|
-| Reconciliation-artifact commit (the matrix revision to execute from) | `870385e461b632b6a02f08300ff75242fb9e9d40` |
+| **Frozen matrix — the revision Phase 3 executes from** | `086831d65d2a5d5dbd0c441ed3c1e4d9481a5ea8` |
+| Reconciliation-artifact commit (pre-freeze, superseded) | `870385e461b632b6a02f08300ff75242fb9e9d40` |
 | Canonical documentation baseline (the source the matrix was derived from) | `3006cae70caba1829d0ad8cfcc9b17af5791f052` |
+
+`870385e` carried the matrix **before** the nine decisions were frozen. Phase 3 must execute from
+`086831d`, which is the only revision containing `frozen_decisions` and the neutralized label
+changes. Executing from `870385e` would apply the label migration that OQ-9 deferred.
 
 Repository: `House-Hold-Hub/Documentation`, branch `main`, both commits present on `origin`.
 
-Every issue body written in Phase 3 that needs to cite its provenance cites `870385e`. No issue body
+Every issue body written in Phase 3 that needs to cite its provenance cites `086831d`. No issue body
 may contain a Git SHA in place of a canonical requirement reference — SHAs establish *when* a decision
 was made, not *what* the requirement is.
 
@@ -36,7 +41,7 @@ was made, not *what* the requirement is.
 
 ## Gate B — matrix integrity (satisfied)
 
-35 invariants pass, 0 fail, stable across repeated runs. Notably:
+47 invariants pass, 0 fail, stable across repeated runs. Notably:
 
 | # | Gate | Status |
 |---|---|---|
@@ -47,7 +52,8 @@ was made, not *what* the requirement is.
 | B5 | `MERGE` candidates have ≥2 contributors and exactly one `primary` | **PASS** |
 | B6 | `closure_kind` model valid and exclusive to `CLOSE_SUPERSEDED` | **PASS** — 0 closures |
 | B7 | No archived document cited as a normative source | **PASS** |
-| B8 | Schema documents both action axes and the Phase 3 primary rule | **PASS** — schema 1.1 |
+| B8 | Schema documents both action axes and the Phase 3 primary rule | **PASS** — schema 1.2 |
+| B10 | All nine decisions frozen; zero actionable label changes | **PASS** — rules 12a–12m |
 | B9 | Proposed blocking-dependency graph is acyclic | **PASS** — 21 edges, 24 nodes |
 
 ## Gate C — canonical consistency (satisfied)
@@ -60,21 +66,26 @@ was made, not *what* the requirement is.
 | C4 | No proposal implicitly resolves D01–D06 | **PASS** |
 | C5 | No proposal restates a contract schema | **PASS** |
 
-## Gate D — decisions required (OPEN — blocks Phase 3)
+## Gate D — decisions (SATISFIED — frozen 2026-08-17)
 
-Phase 3 must not begin until these are answered. Each changes what gets written.
+All nine open questions are resolved. Full text in `frozen_decisions` in the matrix and §11 of the
+report.
 
-| # | Gate | Status |
-|---|---|---|
-| D1 | OQ-1 milestone naming authority | **OPEN** |
-| D2 | OQ-2 Documentation#1 disposition | **OPEN** |
-| D3 | OQ-3 empty Documentation M9 milestone | **OPEN** |
-| D4 | OQ-4 Backend#34 milestone move M8 → M2 | **OPEN** |
-| D5 | OQ-5 Automation build-asset boundary | **OPEN** |
-| D6 | OQ-6 session/registry issue boundary | **OPEN** |
-| D7 | OQ-7 expense category visualization | **OPEN** |
-| D8 | OQ-8 household recovery mechanism | **OPEN** |
-| D9 | OQ-9 label taxonomy approval | **OPEN** — blocks all label mutation |
+| # | Gate | Resolution | Status |
+|---|---|---|---|
+| D1 | OQ-1 milestone naming | No milestone renamed | **PASS (deferred out of scope)** |
+| D2 | OQ-2 Documentation#1 | `UPDATE`, narrowed to OpenAPI publication/validation/CI | **PASS** |
+| D3 | OQ-3 Documentation M9 milestone | Deferred; left open and unchanged | **PASS (deferred)** |
+| D4 | OQ-4 Backend#34 milestone | Move M8 → M2 | **PASS** |
+| D5 | OQ-5 Automation boundary | Reusable callable asset; service repos invoke; no provider before D02 | **PASS** |
+| D6 | OQ-6 session/registry boundary | Kept together in Backend#7 / `M1-B2` | **PASS** |
+| D7 | OQ-7 expense visualization | Totals required; chart neither required nor forbidden | **PASS** |
+| D8 | OQ-8 recovery mechanism | Mechanism deferred; `M2-B7` states outcomes only | **PASS** |
+| D9 | OQ-9 label taxonomy | Migration deferred entirely; **zero** label mutation | **PASS (deferred)** |
+
+Enforcement: rules 12a–12l assert every one of these in the matrix. Rule 12c fails preflight if any
+candidate carries an actionable label change; rule 12k fails if `M2-B7` names an implementation
+mechanism.
 
 ## Gate E — capability probes (must run at Phase 3 start, before any write)
 
@@ -95,16 +106,32 @@ execution log records the failure rather than reporting success.
 - The token holds admin on all five repositories, so milestone and label mutation will succeed
   without further permission escalation. Nothing constrains a mistake except this checklist.
 
-## Mutation order (when all gates pass)
+## Exact mutation counts (frozen)
+
+| Mutation | Count |
+|---|---|
+| Issues updated in place, number preserved | 69 |
+| New issues created | 6 |
+| Issues closed | 0 |
+| Issues deleted | 0 |
+| Milestone reassignments | 1 (Backend#34 M8 → M2) |
+| Milestone renames / closures / creations | 0 / 0 / 0 |
+| Label mutations of any kind | **0** |
+| Native `blocked_by` edges | 21 (pending Gate E) |
+
+Backlog after Phase 3: 69 existing + 6 new = **75 issues**.
+
+## Mutation order (when Gate E passes)
 
 1. Probe the native dependency API with one edge and read it back (Gate E).
-2. Apply label taxonomy: additions first, then re-labelling, then removal of now-unused labels.
-3. Apply milestone membership changes.
-4. Update the 66 `UPDATE` issues in place, preserving their numbers.
-5. Create the 6 new issues: 3 `CREATE` candidates and 3 `SPLIT` successors carrying no `primary`.
-6. Narrow the 3 `SPLIT` source issues to their retained scope.
-7. Write native `blocked_by` edges and read each one back.
-8. Close the empty Documentation M9 milestone only if OQ-3 is approved.
+2. ~~Label taxonomy~~ — **skipped, OQ-9 deferred. Perform no label mutation.**
+3. Reassign Backend#34 from M8 to M2. No other milestone is touched.
+4. Update the 66 straightforward `UPDATE` issues in place, preserving their numbers.
+5. Create the 6 new issues: `M1-F3`, `M2-B7`, `M2-F4` (`CREATE`) and `M1-B4`, `M1-B5`, `M2-B5`
+   (`SPLIT` successors).
+6. Narrow the 3 `SPLIT` source issues — Backend#4, #8, #14 — to their retained scope.
+7. Write the 21 native `blocked_by` edges and read each one back.
+8. ~~Close the empty Documentation M9 milestone~~ — **skipped, OQ-3 deferred.**
 
 Issue bodies use the agreed structure — `# Summary`, `## Scope`, `## Acceptance Criteria`,
 `## Dependencies`, `## PRD References`, `## OpenAPI References`,
