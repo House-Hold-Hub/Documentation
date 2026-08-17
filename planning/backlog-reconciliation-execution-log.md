@@ -216,9 +216,136 @@ reasoning is corrected here.
 **Mutations:** two dependency edges created and both removed. Net zero. No issue, label or milestone
 was altered.
 
+## Entry 10 — Phase 3 execution and Phase 4 verification
+
+Executed from frozen source `086831d65d2a5d5dbd0c441ed3c1e4d9481a5ea8`, canonical baseline
+`3006cae70caba1829d0ad8cfcc9b17af5791f052`, using the Gate E API contract recorded in `4955c82`.
+Per-mutation journal: `backlog-reconciliation-phase3-journal.jsonl`.
+
+### Body projection rule (required; not fully determined by the frozen matrix)
+
+The frozen matrix specifies titles, scope corrections, dependencies and references for all 75
+candidates, but explicit acceptance criteria for only 54. Step 1 therefore required a projection rule,
+recorded here for reproducibility:
+
+- `# Summary` ← `proposed_title`; `## Scope` ← `proposed_correction` verbatim.
+- `## Acceptance Criteria` ← matrix criteria where present (48 primaries + 6 new issues); otherwise the
+  **existing issue's criteria carried forward** with the frozen drift scrubs applied (21 issues).
+- Scrubs remove only text the frozen corrections explicitly reject — test-count quotas, coverage and
+  latency/bundle gates, status 422, archived document names. **Nothing was authored.**
+- `## Dependencies` / `## PRD` / `## OpenAPI` / `## Architecture` ← from `dependency_changes` and
+  categorised `doc_sources`. Empty sections omitted.
+- Every body ends with a provenance line citing `086831d` and noting labels are unchanged per OQ-9.
+
+Scrubs fired on 9 issues (Backend#19/22/25/28, Frontend#13/15/17/19 and one more), each removing a
+test-count quota or coverage threshold. Original bodies for all 69 issues were captured before any
+write, so the projection is reversible.
+
+### Step 0 — preflight
+
+| Check | Result |
+|---|---|
+| Frozen matrix blob at `086831d` | `d688f839c2`, schema 1.2, 75 candidates, 9 frozen decisions |
+| Field drift (title/body/state/milestone/labels) vs Phase 0 | **0** |
+| Native dependency edges (direct poll, not `updated_at`) | **0** |
+
+### Step 1 — 69 issues updated in place
+
+69/69 updated, 0 failed. Two transient GitHub **HTTP 503**s interrupted the batch; the runner stopped
+at the checkpoint as required, then resumed idempotently by re-reading live state per issue rather
+than trusting prior responses. Read-back verification: titles, bodies, state, labels and milestones
+all as expected, **0 failures**.
+
+### Step 2 — 6 issues created
+
+| Candidate | Repo | Issue | Database id | Milestone | URL |
+|---|---|---|---|---|---|
+| `M1-B4` | Backend | #35 | `5174306308` | M1 | https://github.com/House-Hold-Hub/Backend/issues/35 |
+| `M1-B5` | Backend | #36 | `5174306808` | M1 | https://github.com/House-Hold-Hub/Backend/issues/36 |
+| `M1-F3` | Frontend | #25 | `5174307413` | M1 | https://github.com/House-Hold-Hub/Frontend/issues/25 |
+| `M2-B5` | Backend | #37 | `5174307727` | M2 | https://github.com/House-Hold-Hub/Backend/issues/37 |
+| `M2-B7` | Backend | #38 | `5174308217` | M2 | https://github.com/House-Hold-Hub/Backend/issues/38 |
+| `M2-F4` | Frontend | #26 | `5174308769` | M2 | https://github.com/House-Hold-Hub/Frontend/issues/26 |
+
+Read-back verified title, body, milestone, state and absence of labels. Total issues after this step:
+**75**.
+
+### Step 3 — milestone reassignment
+
+Backend#34 `M8 - Integration & Hardening` → `M2 - Household & Membership`. Labels unchanged
+(`backend`, `security`). Backend M8 → 3 open, Backend M2 → 10 open. No other milestone mutation.
+
+### Steps 4–5 — dependency graph resolved and written
+
+21 edges resolved to real issue identities, validated (no self-edge, no duplicate, no dangling, no
+missing issue, acyclic, direction correct), then written. **21 created, 0 already-present, 0 failed.**
+No 422 was encountered, so the Gate E duplicate path was implemented but not exercised.
+
+| Candidate | Dependent | Prerequisite | Prerequisite id | Scope |
+|---|---|---|---|---|
+| `M0-B4` | Backend#4 | Backend#1 | `5164173453` | intra |
+| `M0-I1` | Infrastructure#1 | Backend#4 | `5164173785` | cross |
+| `M0-I1` | Infrastructure#1 | Frontend#1 | `5164174005` | cross |
+| `M0-A3` | Automation#3 | Infrastructure#1 | `5164174473` | cross |
+| `M0-A3` | Automation#3 | Infrastructure#2 | `5164174584` | cross |
+| `M1-B4` | Backend#35 | Backend#6 | `5164175278` | intra |
+| `M1-B4` | Backend#35 | Backend#7 | `5164175399` | intra |
+| `M1-B4` | Backend#35 | Backend#10 | `5164175766` | intra |
+| `M1-B5` | Backend#36 | Backend#6 | `5164175278` | intra |
+| `M1-B5` | Backend#36 | Backend#7 | `5164175399` | intra |
+| `M1-B5` | Backend#36 | Backend#10 | `5164175766` | intra |
+| `M1-F3` | Frontend#25 | Backend#9 | `5164175654` | cross |
+| `M1-F3` | Frontend#25 | Frontend#5 | `5164175884` | intra |
+| `M2-B5` | Backend#37 | Backend#14 | `5164176719` | intra |
+| `M2-B5` | Backend#37 | Backend#6 | `5164175278` | intra |
+| `M2-B5` | Backend#37 | Backend#7 | `5164175399` | intra |
+| `M2-B7` | Backend#38 | Backend#11 | `5164176311` | intra |
+| `M2-B7` | Backend#38 | Backend#33 | `5164922838` | intra |
+| `M2-B10` | Backend#34 | Backend#11 | `5164176311` | intra |
+| `M2-F4` | Frontend#26 | Backend#14 | `5164176719` | cross |
+| `M2-F4` | Frontend#26 | Frontend#5 | `5164175884` | intra |
+
+### Step 6 — dependency verification
+
+21 unique `blocked_by` edges, 21 total rows (no duplicates), 21 reciprocal `blocking` rows in
+agreement, 6 cross-repository edges all resolving to the intended repository, 0 missing, 0 unexpected,
+no residual probe edge.
+
+### Step 7 — Phase 4 verification
+
+**18 checks, 18 pass, 0 fail:** 75 total issues; exactly 6 created; all 69 numbers preserved; 0
+closures; 0 deletions; every candidate resolves with matching title and body; Backend#34 in M2; all
+milestone assignments expected; labels byte-for-byte unchanged and new issues unlabelled; no milestone
+renamed, closed or created; Documentation M9 still open; all 21 edges present; no extra or duplicate
+edges; no affirmative stale or archived reference in any body; no orphaned dependency reference; OQ-9
+and OQ-1 enforced.
+
+### Hard invariants
+
+| Invariant | Required | Actual |
+|---|---|---|
+| Issues updated in place | 69 | **69** |
+| Issues created | 6 | **6** |
+| Total issues | 75 | **75** |
+| Issue closures | 0 | **0** |
+| Issue deletions | 0 | **0** |
+| Milestone reassignments | 1 | **1** |
+| Milestone renames / closures / creations | 0 / 0 / 0 | **0 / 0 / 0** |
+| Label mutations | 0 | **0** |
+| Native `blocked_by` edges | 21 | **21** |
+| Edges outside the frozen graph | 0 | **0** |
+
+**Mutations:** 69 issue updates, 6 issue creations, 1 milestone reassignment, 21 dependency edges.
+No label, no closure, no deletion.
+
 ## Cumulative GitHub mutation status
 
-**Zero issue, label, milestone or dependency mutations have been performed at any point.**
+Phase 3 executed on 2026-08-17. Before it, zero mutations had been performed. The complete set of
+mutations ever made is: 69 issue updates, 6 issue creations, 1 milestone reassignment, and 21
+dependency edges — plus the two Gate E probe edges, which were created and removed.
+
+**Never performed at any point:** issue closure, issue deletion, label mutation of any kind, milestone
+rename, milestone closure, milestone creation, or any dependency edge outside the frozen 21.
 
 Evidenced by:
 
@@ -231,8 +358,9 @@ Evidenced by:
 
 ## Phase 3 authorization status
 
-**Not authorized.** Gates A, B, C and D all pass — the nine decisions are frozen. **Gate E
-(dependency-API capability probes) remains unverified and has not been run**, on instruction.
+**Complete.** Phase 3 executed and Phase 4 verification passed 18/18. Gates A, B, C, D and E all passed — the nine decisions are frozen. **Gate E
+(dependency-API capability probes) passed on 2026-08-17.**
 
-Phase 3 additionally requires explicit authorization to begin. See
+The deferred label-taxonomy migration (OQ-9) and the deferred Documentation M9 decision (OQ-3) remain
+outstanding as independent later passes. See
 [`backlog-reconciliation-phase3-preflight.md`](backlog-reconciliation-phase3-preflight.md).
