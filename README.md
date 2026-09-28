@@ -73,7 +73,7 @@ No individual document owner has been assigned. Ownership is repository- or team
 | Infrastructure | Deployment manifests, runtime target configuration, secrets integration, backup/restore configuration, and production runbook implementation |
 | Automation | Reusable automation, shared policy and pipeline assets, integration-test support, and secret scanning |
 
-Backend and Frontend reviewers are required for breaking OpenAPI contract changes. Each service repository owns its local workflow entry points; reusable workflow logic belongs to Automation.
+Breaking OpenAPI contract changes require Documentation, Backend, and Frontend review. Each service repository owns its local workflow entry points; reusable workflow logic belongs to Automation.
 
 ## Repository relationships
 
