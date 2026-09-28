@@ -2,7 +2,7 @@
 
 > **Status:** Accepted  
 > **Owner:** Documentation repository  
-> **Last reviewed:** 2026-08-16  
+> **Last reviewed:** 2026-09-28  
 > **Canonical for:** Documentation navigation, authority, lifecycle, and ownership
 
 This repository is the shared source of truth for HouseHoldHub product requirements, durable technical decisions, the API contract, and cross-repository engineering guidance. The application is still in planning: implementation repositories do not yet contain application code or dependency manifests.
@@ -17,7 +17,7 @@ This repository is the shared source of truth for HouseHoldHub product requireme
 - [Technology baseline](architecture/technology-baseline.md)
 - [Canonical domain model](architecture/domain-model.md)
 - [ADR index](architecture/adr/README.md)
-- [Machine-readable API contract](api/openapi.yaml) and [API conventions](api/README.md)
+- [Machine-readable API contract](api/openapi.yaml), [rendered API reference](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/House-Hold-Hub/Documentation/main/api/openapi.yaml), and [API conventions](api/README.md)
 - [Security model](security/security-model.md)
 - [Testing strategy](quality/testing-strategy.md)
 - [Release acceptance](quality/release-acceptance.md)
