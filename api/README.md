@@ -2,12 +2,12 @@
 
 > **Status:** Accepted  
 > **Owner:** Documentation, with Backend and Frontend review for breaking changes  
-> **Last reviewed:** 2026-08-16  
+> **Last reviewed:** 2026-09-28  
 > **Canonical for:** Human API conventions
 
-[`openapi.yaml`](./openapi.yaml) is the sole machine-readable route and schema source of truth for the HouseHoldHub MVP. The former Markdown contract is retained as a [historical archive snapshot](../archive/2026-08-16-design-and-planning/OPENAPI.md); implementations, generated clients, mocks, and contract tests must use this YAML file.
+[`openapi.yaml`](./openapi.yaml) is the sole machine-readable route and schema source of truth for the HouseHoldHub MVP. A browser-rendered view is available through [ReDoc](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/House-Hold-Hub/Documentation/main/api/openapi.yaml); rendering is a convenience only and does not create another contract source. Implementations, generated clients, mocks, and contract tests must use the YAML contract.
 
-Change the contract before changing Backend or Frontend behavior. Generated artifacts must identify the exact contract revision they were built from, and CI should fail when checked-in generated artifacts drift from that revision. This README explains conventions only; it intentionally does not duplicate the route inventory.
+Change the contract before changing Backend or Frontend behavior. Documentation CI parses and resolves the standalone specification, then lints its contract quality before merge. Generated artifacts must identify the exact contract revision they were built from, and CI should fail when checked-in generated artifacts drift from that revision. This README explains conventions only; it intentionally does not duplicate the route inventory.
 
 ## Authentication and CSRF
 

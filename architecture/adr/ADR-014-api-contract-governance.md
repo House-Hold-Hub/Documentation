@@ -3,7 +3,7 @@
 > **Status:** Accepted  
 > **Date:** 2026-08-16  
 > **Owner:** Documentation repository; Backend and Frontend review breaking changes  
-> **Last reviewed:** 2026-08-16  
+> **Last reviewed:** 2026-09-28  
 > **Canonical for:** API contract ownership, review, and compatibility governance  
 > **Supersedes:** Ambiguous API-specification ownership in [ADR-001](ADR-001-multi-repository-structure.md) and competing route inventories in pre-baseline design documents  
 > **Superseded by:** —
@@ -66,7 +66,7 @@ MVP uses pure last-write-wins. Do not document optimistic-concurrency tokens or 
 - Contract changes must update OpenAPI before or with consumer/producer implementation changes.
 - Breaking-change review adds coordination across repositories.
 - Human-oriented documents must link to OpenAPI instead of copying convenient route tables.
-- CI must eventually validate syntax and detect implementation drift; exact tooling remains part of D06 until selected.
+- Documentation CI validates OpenAPI syntax, references, and contract quality for the canonical specification. Producer/consumer implementation drift remains a cross-repository integration concern.
 
 ## Supersession
 
