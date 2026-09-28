@@ -1,0 +1,42 @@
+name: OpenAPI contract
+
+on:
+  pull_request:
+    paths:
+      - "api/openapi.yaml"
+      - "redocly.yaml"
+      - ".github/workflows/openapi-contract.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "api/openapi.yaml"
+      - "redocly.yaml"
+      - ".github/workflows/openapi-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate OpenAPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Validate syntax and references
+        run: npx --yes @redocly/cli@2.54.3 bundle api/openapi.yaml --output /tmp/openapi-bundled.yaml
+
+      - name: Lint contract
+        run: npx --yes @redocly/cli@2.54.3 lint api/openapi.yaml --config redocly.yaml
