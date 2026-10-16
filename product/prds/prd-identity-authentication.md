@@ -101,7 +101,7 @@ This PRD defines product behavior. Identity representation and session mechanism
 - **IA-FR-018:** Account and authentication state must be able to carry the non-secret, session-bound invitation intent defined by the [household and invitation PRD](prd-household-membership-invitations.md) through same-browser signup, login, verification, and session rotation.
 - **IA-FR-019:** Transactional verification and reset delivery must use recoverable pending state and the ownership/failure behavior defined by the security and operational baseline.
 
-Exact password-policy, reset-token, and rate-limit constants remain bounded decision `D01`; see the [roadmap](../roadmap.md).
+Exact password-policy, reset-token, and rate-limit constants are bounded decision `D01` (see the [roadmap](../roadmap.md)); its launch defaults are recorded in [ADR-016](../../architecture/adr/ADR-016-authentication-launch-security-defaults.md) and locked by M8.
 
 ## 5. Account lifecycle boundary
 
@@ -145,4 +145,4 @@ MVP account disablement denies authentication and revokes sessions while retaini
 
 ## 10. Open questions
 
-No unresolved semantic blocker. `D01` and `D03` remain deliberately deferred to their roadmap deadlines.
+No unresolved semantic blocker. `D01` launch defaults are recorded in ADR-016 and remain open to review until M8; `D03` remains deliberately deferred to its roadmap deadline.

@@ -80,7 +80,7 @@ The following decisions intentionally remain unresolved. They may not be resolve
 
 | ID | Deferred decision | Required resolution deadline |
 |---|---|---|
-| `D01` | Exact password-policy, password-reset-token, and authentication/rate-limit constants | Choose safe launch defaults before M1 authentication implementation and contract generation; lock and review them by M8 hardening |
+| `D01` | Exact password-policy, password-reset-token, and authentication/rate-limit constants | Safe launch defaults are recorded in [ADR-016](../architecture/adr/ADR-016-authentication-launch-security-defaults.md) before M1 authentication implementation; lock and review them by M8 hardening |
 | `D02` | Exact managed transactional-email provider; production deployment, secret-store, and monitoring providers | Select managed email before M1 integration; select deployment, secret-store, and monitoring providers before M9 provisioning and launch |
 | `D03` | Launch jurisdiction; user-data retention/anonymization; audit, security, email, and session retention | Resolve before any real personal data is processed, including real-email staging |
 | `D04` | Numeric RTO, RPO, alert thresholds, and incident severity definitions | Resolve after `D02` and `D03`, before M9 launch sign-off |
