@@ -130,7 +130,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: '#/components/schemas/DoesNotExist'
     Unauthorized:
       description: A valid authenticated session is required.
       content:
