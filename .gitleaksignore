@@ -1,0 +1,3 @@
+# False positive: prose "Password hashing: ... with proper cost" in an archived planning document.
+# Fingerprint-only exclusion; the file, commit and rule stay scanned for everything else.
+3006cae70caba1829d0ad8cfcc9b17af5791f052:archive/2026-08-16-design-and-planning/GITHUB_ISSUES_PROPOSAL_REVISED.md:generic-api-key:1291

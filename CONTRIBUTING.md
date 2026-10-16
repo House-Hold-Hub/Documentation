@@ -111,7 +111,9 @@ Use the [PRD index and boundaries](product/prds/README.md). Keep the umbrella MV
 
 There is no dependency-security gate because Documentation has no lockfile. Both checks are required status checks in the `Protect main` ruleset. A check name is the caller job name plus the called job name, so renaming a job in `gates.yml` silently removes the protection: update the ruleset in the same change.
 
-GitHub-native security features are repository settings, not required checks, and cannot block a merge through CI. When last checked (2026-10-16, `gh api repos/House-Hold-Hub/Documentation`), secret scanning, push protection, secret scanning validity checks and Dependabot security updates were all **disabled**. The gates above do not enable them; that is an administrator decision in Settings → Code security. Until then the Gitleaks check is the only automated secret coverage and runs only once a pull request is opened. See Automation's `docs/shared-gates.md` for the shared-gate details.
+GitHub-native security features are repository settings, not required checks, and cannot block a merge through CI. When last checked (2026-10-16, `gh api repos/House-Hold-Hub/Documentation`), secret scanning, push protection, secret scanning validity checks and Dependabot security updates were all **disabled**. The gates above do not enable them; that is an administrator decision in Settings → Code security. Until then the Gitleaks check is the only automated secret coverage and runs only once a pull request is opened. On pushes to `main` the secret scan covers the whole Git history. One known false positive (prose in an archived planning document) is excluded by its exact fingerprint in [`.gitleaksignore`](.gitleaksignore); add further exclusions only per fingerprint, never per file or rule.
+
+See Automation's `docs/shared-gates.md` for the shared-gate details.
 
 ## Validation checklist
 
