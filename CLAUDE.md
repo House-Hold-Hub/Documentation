@@ -100,8 +100,11 @@ categories updates each owning artifact in the same change.
 - `product/roadmap.md` defers D01–D06 (auth and rate-limit constants; email, deployment, secret-store
   and monitoring vendors; legal retention; RTO/RPO; schedule; exact versions, tools and indexes)
   with deadlines. No document may resolve them implicitly: do not name a vendor, a numeric constant
-  or threshold, or an exact version here. A tool or version becomes citable only once the owning
-  repository has committed it.
+  or threshold, or an exact patch version or tool choice that those decisions still defer; such a
+  tool or patch version becomes citable once the owning repository has committed it. The approved
+  baselines stay fixed and citable (Python 3.14, Django 5.2 LTS, React 19, TypeScript, Vite, npm,
+  PostgreSQL, GitHub Actions: `product/roadmap.md`, `architecture/technology-baseline.md`), and exact
+  dependency versions are owned by each repository's manifests and lockfiles.
 - The `RULES` table in `planning/verify_issue_hygiene.py` is the working catalogue of superseded
   claims (`amount_cents`, `google_id`, `password_hash`, Django 6, HTTP 422, `SameSite=Strict`,
   token-in-path invitation routes, numeric test-count, coverage and latency gates, references to
