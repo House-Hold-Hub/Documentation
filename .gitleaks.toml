@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "hhh-fixture-marker"
+regex = '''HHH-FIXTURE-MARKER-[A-Z0-9]{16}'''
