@@ -1,6 +1,6 @@
 # ADR-016: Authentication launch security defaults
 
-> **Status:** Proposed  
+> **Status:** Accepted  
 > **Date:** 2026-10-17  
 > **Owner:** Backend repository with Security and Documentation governance  
 > **Last reviewed:** 2026-10-17  
