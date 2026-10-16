@@ -1,0 +1,29 @@
+name: Gates
+
+# Shared gates from House-Hold-Hub/Automation (Automation#2), pinned to the commit SHA of
+# Automation main that merged PR #6. Never reference a branch or a moving tag.
+# Published check names: "Secret scan / scan" and "OpenAPI / validate".
+# No path filters: these jobs are required status checks and must always report.
+# Replaces the former openapi-contract.yml ("Validate OpenAPI", path-filtered, not requirable).
+# No dependency-security job: Documentation has no lockfile.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Gitleaks over the commits the pull request adds.
+  secret-scan:
+    name: Secret scan
+    uses: House-Hold-Hub/Automation/.github/workflows/secret-scan.yml@5eeae49dfbef5c30fadb4d2ab8a83db068c01488 # Automation main
+
+  # Redocly bundle (syntax, $ref resolution) and lint of the canonical contract.
+  openapi:
+    name: OpenAPI
+    uses: House-Hold-Hub/Automation/.github/workflows/openapi-validate.yml@5eeae49dfbef5c30fadb4d2ab8a83db068c01488 # Automation main
+    with:
+      spec-path: api/openapi.yaml
+      config-path: redocly.yaml

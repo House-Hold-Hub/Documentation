@@ -100,6 +100,19 @@ Use the template and numbering guidance in [`architecture/adr/README.md`](archit
 
 Use the [PRD index and boundaries](product/prds/README.md). Keep the umbrella MVP PRD focused on product-wide goals, scope, cross-feature journeys, and release outcomes. Put feature-specific behavior and acceptance criteria in the responsible feature PRD. Put route/schema detail in OpenAPI and technical rationale in ADRs.
 
+## Continuous integration gates
+
+[`.github/workflows/gates.yml`](.github/workflows/gates.yml) runs on every pull request and on pushes to `main`, with no path filters, by calling reusable workflows from Automation pinned to a commit SHA:
+
+| Check name | Purpose |
+|---|---|
+| `Secret scan / scan` | Gitleaks over the commits the pull request adds; findings are redacted. A repository `.gitleaks.toml` is used when present. |
+| `OpenAPI / validate` | Redocly bundle (syntax and `$ref` resolution) and lint of `api/openapi.yaml` with `redocly.yaml`. |
+
+There is no dependency-security gate because Documentation has no lockfile. Both checks are required status checks in the `Protect main` ruleset. A check name is the caller job name plus the called job name, so renaming a job in `gates.yml` silently removes the protection: update the ruleset in the same change.
+
+GitHub-native security features are repository settings, not required checks, and cannot block a merge through CI. When last checked (2026-10-16, `gh api repos/House-Hold-Hub/Documentation`), secret scanning, push protection, secret scanning validity checks and Dependabot security updates were all **disabled**. The gates above do not enable them; that is an administrator decision in Settings → Code security. Until then the Gitleaks check is the only automated secret coverage and runs only once a pull request is opened. See Automation's `docs/shared-gates.md` for the shared-gate details.
+
 ## Validation checklist
 
 Before proposing a documentation or cross-repository governance change:
