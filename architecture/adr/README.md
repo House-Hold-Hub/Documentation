@@ -28,6 +28,7 @@ Implementation snippets in historical ADRs are illustrative records, not current
 | [ADR-013](ADR-013-invitation-security.md) | Invitation token transport and authenticated handoff | Accepted | Replaces pre-baseline design examples |
 | [ADR-014](ADR-014-api-contract-governance.md) | Documentation-owned OpenAPI and contract review | Accepted | Replaces ambiguous ownership and competing inventories |
 | [ADR-015](ADR-015-transactional-email-delivery.md) | Post-commit bounded synchronous email delivery | Accepted | Replaces pre-baseline email execution examples |
+| [ADR-016](ADR-016-authentication-launch-security-defaults.md) | `D01` authentication launch security defaults | Accepted | — |
 
 ## Status meanings
 

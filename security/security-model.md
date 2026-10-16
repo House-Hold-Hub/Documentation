@@ -87,7 +87,7 @@ Exchange does not create membership. After authentication and email verification
 
 Bearer credentials must never appear in server-visible request paths, query strings, logs, referrers, telemetry, analytics, or persistent browser storage. This rule applies to password-reset and email-verification credentials as well as invitations. Standards-required OAuth callback parameters are narrowly excepted from the path/query ban but remain mandatory, validated, and redacted.
 
-Bearer credentials are high entropy, time limited, single purpose, stored only as cryptographic hashes where server persistence is necessary, and invalidated after successful use. Exact password policy, reset-token constants, and rate limits remain decision gate D01; safe launch defaults must be selected before authentication contract implementation.
+Bearer credentials are high entropy, time limited, single purpose, stored only as cryptographic hashes where server persistence is necessary, and invalidated after successful use. Exact password policy, reset-token constants, and rate limits are decision gate D01; its safe launch defaults are recorded in [ADR-016](../architecture/adr/ADR-016-authentication-launch-security-defaults.md).
 
 Password-reset requests always return an enumeration-safe response regardless of account existence or provider outcome. Response timing must not trivially disclose whether a provider call occurred for an existing account.
 
@@ -154,7 +154,7 @@ The [testing strategy](../quality/testing-strategy.md) requires complete role/st
 
 ## Deferred security decisions
 
-- **D01:** Password validators, reset-token constants, and rate-limit values are selected before M1 authentication implementation and revisited by M8 hardening.
+- **D01:** Password validators, reset-token constants, and rate-limit launch defaults are recorded in [ADR-016](../architecture/adr/ADR-016-authentication-launch-security-defaults.md) and revisited by M8 hardening.
 - **D02:** The managed email provider is selected before M1 email integration; deployment, secret-store, and monitoring providers are selected before M9.
 - **D03:** Launch jurisdiction and user/audit/security/email/session retention are resolved before processing real personal data, including real-email staging.
 - **D04:** Numeric recovery and alert thresholds are resolved after D02/D03 and before M9 launch sign-off.
