@@ -2,10 +2,10 @@
 
 > **Status:** Accepted  
 > **Owner:** Documentation repository  
-> **Last reviewed:** 2026-09-28  
+> **Last reviewed:** 2026-10-16  
 > **Canonical for:** Documentation navigation, authority, lifecycle, and ownership
 
-This repository is the shared source of truth for HouseHoldHub product requirements, durable technical decisions, the API contract, and cross-repository engineering guidance. The application is still in planning: implementation repositories do not yet contain application code or dependency manifests.
+This repository is the shared source of truth for HouseHoldHub product requirements, durable technical decisions, the API contract, and cross-repository engineering guidance. Documentation describes intended behaviour. Implementation state lives in the sibling repositories and in live GitHub issues, so check them before describing anything as implemented.
 
 ## Start here
 
@@ -77,7 +77,7 @@ Breaking OpenAPI contract changes require Documentation, Backend, and Frontend r
 
 ## Repository relationships
 
-In the five-repository workspace, the sibling repositories are [Backend](../Backend/), [Frontend](../Frontend/), [Infrastructure](../Infrastructure/), and [Automation](../Automation/). Remote repository URLs have not yet been recorded and must not be guessed.
+In the five-repository workspace, the sibling repositories are [Backend](../Backend/), [Frontend](../Frontend/), [Infrastructure](../Infrastructure/), and [Automation](../Automation/). Each repository is published as `https://github.com/House-Hold-Hub/<Repository>`.
 
 The repositories integrate through the versioned REST contract in [`api/openapi.yaml`](api/openapi.yaml). Documentation does not imply that any planned component is already implemented.
 
