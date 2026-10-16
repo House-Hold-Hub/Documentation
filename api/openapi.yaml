@@ -335,6 +335,9 @@ components:
         password:
           type: string
           format: password
+          minLength: 15
+          maxLength: 128
+          description: Length is counted in Unicode code points; the full password policy is in ADR-016.
         name:
           type: string
     SignupResponse:
@@ -431,6 +434,9 @@ components:
         new_password:
           type: string
           format: password
+          minLength: 15
+          maxLength: 128
+          description: Length is counted in Unicode code points; the full password policy is in ADR-016.
     PasswordChangeRequest:
       type: object
       additionalProperties: false
@@ -444,6 +450,9 @@ components:
         new_password:
           type: string
           format: password
+          minLength: 15
+          maxLength: 128
+          description: Length is counted in Unicode code points; the full password policy is in ADR-016.
     OAuthLinkStartResponse:
       type: object
       additionalProperties: false

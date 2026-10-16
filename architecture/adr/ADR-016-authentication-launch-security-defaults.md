@@ -24,21 +24,21 @@ These values are the MVP launch defaults. They apply from M1, are configurable i
 
 The policy follows the memorized-secret guidance of NIST SP 800-63B for a single-factor password.
 
-- **Length:** at least 15 characters; at least 128 characters accepted. Longer input is rejected with `400`, never silently truncated.
+- **Length:** at least 15 and at most 128 characters, counted in Unicode code points. Longer input is rejected with `400`, never silently truncated. The contract declares these bounds as `minLength`/`maxLength` on the new-password fields of `signup`, `resetPassword`, and `changePassword`. The `login` password and `changePassword`'s `current_password` carry no bounds, so a later policy change never makes an existing credential unusable and a failed login stays `401`.
 - **Characters:** any Unicode characters, including spaces, are accepted as entered.
 - **No composition rules** (required character classes), no periodic expiry, no password hints, and no knowledge-based recovery questions.
-- **Blocklist:** keep Django's common-password, user-attribute-similarity (email and name), and all-numeric validators. A breached-password lookup against an external service is not part of the launch defaults; adding one is an M8 decision because it introduces a third-party data flow.
+- **Blocklist:** keep Django's common-password and user-attribute-similarity (email and name) validators. Django's all-numeric validator is not used: rejecting a password only because every character is a digit is a composition rule, and short common numeric passwords are already below the length minimum or on the common-password list. A breached-password lookup against an external service is not part of the launch defaults; adding one is an M8 decision because it introduces a third-party data flow.
 - **Hashing:** Django's default password hasher with the work factor of the Django release in use, including Django's rehash-on-login upgrade. The Backend does not pin an iteration count.
 - A password that fails the policy returns `400` with field-level details; no other status is used.
 
 ### One-time bearer credentials
 
-These apply to the email-verification, primary-email-change, and password-reset bearers. Invitation verifiers keep the rules and 30-day lifetime of [ADR-013](ADR-013-invitation-security.md); only the entropy and storage rows below also apply to them.
+These apply to the email-verification, primary-email-change, and password-reset bearers. Invitation verifiers keep the rules, storage, and 30-day lifetime of [ADR-013](ADR-013-invitation-security.md): their cryptographic hash is always persisted with the invitation and its verifier generation. Only the entropy row below also applies to them.
 
 | Property | Launch default |
 |---|---|
 | Entropy | At least 256 bits from a cryptographically secure random source |
-| Storage | Only a SHA-256 digest of the bearer is persisted; a stateless HMAC token that is never persisted also conforms if it keeps every property in this table |
+| Storage | Only a SHA-256 digest of the bearer is persisted; a stateless HMAC token that is never persisted also conforms if it keeps every property in this table. The stateless alternative never applies to invitation verifiers |
 | Use | Single-use; consumption is atomic with the state change it authorizes |
 | Rotation | Issuing a new bearer of the same purpose for the same account or address invalidates every earlier one |
 | Password-reset lifetime | 1 hour |
@@ -53,7 +53,7 @@ Operations that require recent reauthentication accept an authentication or reau
 
 ### Authentication rate limits
 
-Each operation below is limited on every key listed; exceeding any one returns `429` (`RATE_LIMITED`) with `Retry-After` set to the whole seconds until the exhausted window frees a slot. Windows may be fixed or sliding.
+Each operation below is limited on every key listed; exceeding any one returns `429` (`RATE_LIMITED`). The Backend always sends `Retry-After` on these responses, set to the whole seconds until the exhausted window frees a slot. The contract keeps the header optional, which an always-present header satisfies, so clients must still handle a `429` without it. Windows may be fixed or sliding.
 
 | Operation | Limits |
 |---|---|
@@ -73,10 +73,11 @@ Rules that make the limits safe:
 
 - **Enumeration safety.** A per-email limit counts the normalized submitted address whether or not an account exists, and a limited request returns the same `429` either way. `requestPasswordReset` stays enumeration-safe in body, status, and timing.
 - **No lockout.** Limits delay attempts; they never disable an account, so an attacker cannot lock a victim out. A login refused with `429` is refused even when the password is correct, so the limit is not a password oracle. A successful login clears that email's failed-attempt count.
-- **Shared, PostgreSQL-backed counters.** Counters are shared by every application process and stored in PostgreSQL (Django's database cache backend conforms); per-process memory does not conform in a deployed environment. No Redis or queue is introduced.
-- **Minimized keys.** Counter keys derived from an email address or client IP are keyed hashes, never plaintext, and counter entries expire with their window. Their retention otherwise follows `D03`.
+- **Shared, atomic, PostgreSQL-backed counters.** Counters are shared by every application process and stored in PostgreSQL. Checking and consuming a slot is one atomic operation: a single conditional statement (for example an upsert that increments and returns the count) or a transaction that holds a row lock on the counter. Concurrent requests for the same key can never together exceed the limit. A read-then-write through Django's cache API does not conform: Django documents `incr()` as non-atomic on backends without native increment support, including its database cache. Per-process memory does not conform in a deployed environment. If the limiter cannot record a request, the request is rejected rather than allowed. No Redis or queue is introduced.
+- **django-allauth's built-in limits are turned off.** Its limiter (65.19.7) keeps a timestamp list in Django's cache behind an advisory `cache.add` lock. With the default per-process cache it is not shared, and with the database cache its lock can be taken twice when a stale lock row is left behind. It hashes email keys without a secret. It reports a throttled login as a form validation error, which the API would return as `400` instead of `429`. Its built-in values would also differ from this table. The Backend therefore enforces these limits with its own limiter and disables allauth's, so only one set of limits applies.
+- **Minimized keys.** Counter keys derived from an email address or client IP are keyed hashes (an HMAC under a server-side secret), never plaintext or an unkeyed digest, and counter entries expire with their window. Their retention otherwise follows `D03`.
 - **Client IP.** The client IP comes from the request's peer address unless Infrastructure configures a trusted proxy; client-supplied forwarding headers are never trusted by default.
-- **Operations without `429`.** An operation whose contract does not declare `429` is not rate-limited until the contract adds it; this ADR does not change the contract.
+- **Operations without `429`.** An operation whose contract does not declare `429` is not rate-limited until the contract adds it; this ADR adds no `429` response.
 
 ## Consequences
 
@@ -91,7 +92,7 @@ Rules that make the limits safe:
 
 - A 15-character minimum adds friction at signup; Google sign-in remains the low-friction path.
 - Shared networks (a household behind one address) share per-IP limits; the per-IP values are set high enough for a household's normal use, and M8 revisits them with observed traffic.
-- Database-backed counters add a write per limited request.
+- Database-backed counters add a locked write per limited request, and the Backend maintains its own small limiter instead of reusing django-allauth's.
 - Without a breached-password check, a long but leaked password is accepted until M8 decides otherwise.
 
 ## Related decisions
