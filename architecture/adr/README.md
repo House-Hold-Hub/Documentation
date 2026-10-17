@@ -29,6 +29,7 @@ Implementation snippets in historical ADRs are illustrative records, not current
 | [ADR-014](ADR-014-api-contract-governance.md) | Documentation-owned OpenAPI and contract review | Accepted | Replaces ambiguous ownership and competing inventories |
 | [ADR-015](ADR-015-transactional-email-delivery.md) | Post-commit bounded synchronous email delivery | Accepted | Replaces pre-baseline email execution examples |
 | [ADR-016](ADR-016-authentication-launch-security-defaults.md) | `D01` authentication launch security defaults | Accepted | — |
+| [ADR-017](ADR-017-post-response-email-submission.md) | Post-response provider call for timing-sensitive email operations | Proposed | Would supersede only the "synchronous" execution detail of ADR-015 for such operations |
 
 ## Status meanings
 
