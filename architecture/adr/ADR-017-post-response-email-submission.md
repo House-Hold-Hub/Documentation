@@ -21,15 +21,17 @@ Two ways to keep the call synchronous with the request exist, and both are poor 
 
 The first Backend implementation ([Backend#36](https://github.com/House-Hold-Hub/Backend/issues/36), [PR 53](https://github.com/House-Hold-Hub/Backend/pull/53)) runs the bounded call after the HTTP response is closed, on a bounded in-process thread. That is an interpretation of ADR-015, not what it literally says, so this ADR asks for the decision explicitly.
 
+A bound on those threads creates a second, subtler channel. If only requests for existing accounts occupy a slot, an attacker who holds all but one slot with accounts they control can ask for a candidate address and then for a controlled one: their own email is refused only if the candidate existed and took the last slot. Each HTTP response is identical, but the outcome is observable in the attacker's inbox. Slot admission and occupancy therefore have to be independent of account existence, not only the response.
+
 ## Decision
 
 Keep the ADR-015 sequence and delivery model unchanged: domain state and a minimal `EmailDelivery` record commit together, the provider is called only after that commit, the call is bounded by the configured timeout, and the durable status is honest (`accepted` means provider acceptance only). All ADR-015 data-minimization rules, status values and reconciliation continue to apply.
 
 For an operation whose response time must not reveal whether a provider call is made (today, `requestPasswordReset`), the Backend may run the bounded provider call after the response is closed, on a bounded thread in the web process, instead of inside the request. The following conditions are part of the decision:
 
-1. **Bounded concurrency, no queue.** The number of such calls running at once in one process has a fixed configured limit. When no slot is free, or a thread cannot start, the call is not made and is not buffered: the delivery is recorded as not submitted, which is also what reconciliation records for a delivery that was never claimed. The caller sees the same response either way.
-2. **Own resources.** Each call uses its own database connection and closes it when it ends. Threads are not daemon threads, so a graceful worker shutdown waits for in-flight calls, at most one provider timeout each.
-3. **Honest interrupted states.** The delivery is claimed (`submitting`) and persisted before the provider call. A process that dies during the call leaves `submitting` and one that dies before it leaves `pending`; the existing reconciliation settles these as `unknown` and `not_submitted`.
+1. **Bounded concurrency, no queue.** The number of such calls running at once in one process has a fixed configured limit. When no slot is free, or a thread cannot start, the call is not made and is not buffered. The refusal does no database or provider work, so it costs the same for every request. The delivery of an eligible account stays `pending`, and reconciliation settles it as not submitted. The caller sees the same response either way.
+2. **Uniform admission and occupancy.** Every valid request takes one slot, whether or not the address has an account, is eligible, or has anything to submit. Each admitted request holds its slot for the same fixed duration, longer than the provider timeout, however quickly or slowly the provider answered. Admission, refusal and slot occupancy therefore depend only on how many valid requests are in flight, never on which addresses have accounts, so no caller can learn about one address from whether another of its own requests was submitted.
+3. **Own resources and honest states.** Each call uses its own database connection, closed as soon as the work ends. Threads are not daemon threads, so a graceful worker shutdown waits for them, at most the slot duration each. The delivery is claimed (`submitting`) and persisted before the provider call. A process that dies during the call leaves `submitting` and one that dies before it leaves `pending`; the existing reconciliation settles these as `unknown` and `not_submitted`.
 4. **Response time.** The response still takes a fixed minimum duration for every valid request, covering the few database writes only an existing account performs.
 5. **No new infrastructure.** No Redis, Celery, queue or dedicated worker is introduced. Recovery of a skipped or lost email is a new request, as in ADR-015.
 6. **Scope.** Every other email flow (verification, primary-email change, invitations) keeps the inline `on_commit` call, because their responses are allowed to report the delivery outcome.
@@ -39,18 +41,23 @@ For an operation whose response time must not reveal whether a provider call is 
 ### Positive
 
 - A slow or failing provider, and overload, change neither the body, status nor timing of a reset request, so they cannot reveal which addresses have accounts.
+- Contention for the bounded capacity reveals nothing about other addresses: a caller's own requests are admitted or refused the same way whether or not a candidate address exists.
 - A web worker is never held by a provider call, so the endpoint cannot be used to starve other operations.
 - No queue, broker or worker is added, and ADR-015's status and reconciliation model is reused as is.
 
 ### Costs and risks
 
-- Under overload the Backend deliberately drops reset emails (recorded as not submitted). A legitimate user may have to request again, and an attacker who saturates the slots can suppress emails for others during the attack; the existing per-address and per-client limits ([ADR-016](ADR-016-authentication-launch-security-defaults.md)) bound how often that is possible.
+- Under overload the Backend deliberately drops reset emails (left `pending`, then settled as not submitted). A legitimate user may have to request again, and an attacker who saturates the slots can suppress emails for others during the attack; the existing per-address and per-client limits ([ADR-016](ADR-016-authentication-launch-security-defaults.md)) bound how often that is possible. Capacity is the slot limit divided by the slot duration per process, so unknown addresses consume it too.
+- Idle threads hold the slots of requests that had nothing to submit. They are few, short-lived and hold no database connection, but they are deliberate cost, paid so that occupancy reveals nothing.
+- Provider-side effects shared by all recipients (the provider's own quota or latency) are inherent to sending any email and are not removed by this ADR; they are bounded by the per-address and per-client limits.
 - A killed process can lose an email that was committed but not yet submitted. This is the same failure mode ADR-015 already accepts for a process that dies between commit and callback.
 - The in-process thread is a second execution path beside the inline callback; the Backend must keep both covered by tests, including interruption, overload and shutdown.
 
 ### Alternatives considered
 
-- **Inline call with a response floor at least the provider timeout.** Literally ADR-015-compliant, but it ties a worker to every reset request. Rejected for availability on the MVP topology; it remains the fallback if this ADR is rejected, together with more workers.
+- **Inline call with a response floor at least the provider timeout.** Literally ADR-015-compliant, but it ties a worker to every reset request. Its occupancy is uniform, but with a few synchronous workers a handful of requests per timeout interval stall every other operation, where the uniform slot confines the damage to reset emails. It remains the fallback if this ADR is rejected, together with more workers.
+- **Admit and occupy slots only for eligible accounts.** Rejected: it is the contention oracle described in Context.
+- **Reserve slots per address or per client.** Rejected as more machinery than the fixed-duration uniform slot for the same property.
 - **A queue, Celery or a worker process.** Excluded by ADR-015 and the technology baseline for the MVP.
 - **Unbounded or daemon threads.** Rejected: unbounded threads and connections are a resource-exhaustion risk, and daemon threads are killed mid-call at shutdown.
 
