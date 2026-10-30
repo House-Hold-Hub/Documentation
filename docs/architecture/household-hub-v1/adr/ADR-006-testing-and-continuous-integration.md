@@ -6,6 +6,7 @@
 |---|---|
 | Stato | **Approvato** (2026-10-30) |
 | Data | 2026-10-30 |
+| Revisione | 2026-10-30 — decisione B1: scansione dei segreti con Gitleaks e limite accettato dell'assenza di protezioni del repository (vedi [Limite accettato](#limite-accettato-decisione-b1)) |
 | Decisore | mdellapa (product owner) |
 | Questione | [Q-011](../../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
 | Requisiti | NFR-001, NFR-004, NFR-005, NFR-007, NFR-008; SM-03, SM-04; TASK-007, TASK-023 |
@@ -33,8 +34,8 @@ solo sul database reale.
 | Interfaccia | Test client di Django, con verifica dell'HTML e delle intestazioni HTMX |
 | End-to-end e accessibilità | Playwright con controlli automatici di accessibilità (axe), anche a 360 px |
 | Analisi statica | ruff (lint e formattazione); mypy con gli stub di Django, rigoroso su `core` e sui servizi; contratti di dipendenza tra moduli ([ADR-001](ADR-001-modular-monolith.md)) |
-| Dipendenze | Lockfile con hash (strumento in VER-022); audit delle vulnerabilità delle dipendenze in CI; aggiornamenti automatici proposti come PR |
-| Segreti | Scansione dei segreti di GitHub |
+| Dipendenze | Lockfile con hash (uv, VER-022); audit delle vulnerabilità delle dipendenze in CI; aggiornamenti automatici proposti come PR (Dependabot per `uv` e `github-actions`, cadenza settimanale) |
+| Segreti | Gitleaks in CI, a versione fissata e con checksum verificato, sull'intera storia (decisione B1); sostituisce la scansione dei segreti di GitHub |
 
 ### Livelli di test
 
@@ -53,12 +54,33 @@ solo sul database reale.
 
 - GitHub Actions su ogni pull request e su `main`.
 - Passaggi: lint e formattazione, tipi, contratti tra moduli, test su
-  PostgreSQL, audit delle dipendenze.
-- Una modifica si integra solo con la CI superata.
+  PostgreSQL, audit delle dipendenze, scansione dei segreti (Gitleaks).
+- Una modifica si integra solo con la CI superata. Senza branch protection
+  la regola è procedurale: vedi [Limite accettato](#limite-accettato-decisione-b1).
 - **Nessuna pipeline di rilascio** fino alla scelta dell'hosting (DEF-001, DEF-012).
 - **Tracciabilità**: ogni criterio di accettazione del PRD è richiamato dal
   nome o dal marcatore di almeno un test (es. `AC-US-002-01`). Non si fissa
   una soglia numerica di copertura.
+
+### Limite accettato (decisione B1)
+
+Il repository è privato su GitHub Free: **branch protection, ruleset e push
+protection dei segreti non sono disponibili**. Non si passa a un piano a
+pagamento. Ne derivano:
+
+- **La regola della CI è procedurale**: nessun push diretto su `main`; merge
+  solo da pull request, con squash, dopo la verifica manuale che la CI sia
+  verde; branch eliminati dopo il merge. Nulla lo impone tecnicamente.
+- **Gitleaks sostituisce la scansione dei segreti di GitHub**: gira in CI su
+  ogni pull request e su `main`, scansiona l'intera storia, con eccezioni
+  minime e motivate in `.gitleaks.toml`. Rileva il segreto *dopo* il push, non
+  lo impedisce.
+- **Mitigazioni**: hook Gitleaks locale facoltativo (pre-commit); procedura di
+  revoca e rotazione: un segreto finito su GitHub, anche in una PR chiusa o in
+  un branch, si considera compromesso, si revoca e si ruota subito, senza
+  affidarsi alla riscrittura della storia.
+- **Condizioni di riesame**: prima del livello 1; con più contributori; se il
+  repository diventa pubblico; se cambia il piano GitHub.
 
 ## Da verificare
 
