@@ -208,17 +208,31 @@ autorizzate all'uso reale solo insieme e dopo il gate ([livelli di rilascio](roa
 
 ## Contesto del repository
 
-Fatti verificati al 2026-10-27:
+Fatti verificati al 2026-11-01 (la stesura iniziale, del 2026-10-27, descriveva
+un repository vuoto):
 
-- Il repository `House-Hold-Hub/Documentation` contiene solo il `README.md`
-  iniziale: non esistono PRD, ADR, specifiche API o convenzioni precedenti.
-- L'organizzazione GitHub `House-Hold-Hub` non ha altri repository né issue
-  aperte o chiuse su `Documentation`: non ci sono riferimenti da preservare.
-- Non esiste codice applicativo: l'impatto è interamente greenfield e non
-  ci sono comportamenti esistenti con cui entrare in conflitto.
+- Il repository `House-Hold-Hub/Documentation` (pubblico) contiene il PRD e
+  il documento di architettura con gli ADR-001 – ADR-006. Non ha issue; la sua
+  unica pull request unita (#1) è l'aggiornamento di ADR-006 (decisione B1).
+- Il repository `House-Hold-Hub/household-hub` (privato) contiene
+  l'applicazione Django. Vi è stata realizzata la milestone M0:
+  quindici issue (#1 – #15) nella milestone GitHub «M0 — Fondamenta», con la
+  #15 di verifica di completamento. Non esistono moduli, modelli o funzioni
+  oltre M0 (nessun `Money`, nessun modulo di M1, nessuna pipeline di rilascio).
+- Ogni modifica a `household-hub` passa da una pull request con la CI
+  ([ADR-006](../../architecture/household-hub-v1/adr/ADR-006-testing-and-continuous-integration.md));
+  il piano GitHub Free non consente la branch protection, quindi la regola è
+  procedurale (limite accettato, decisione B1).
+- Il codice non preesisteva al PRD: l'impatto di M0 è interamente greenfield e
+  gli esiti delle verifiche architetturali di M0 sono nel
+  [§9 dell'architettura](../../architecture/household-hub-v1/README.md#9-dettagli-da-verificare).
+- L'informativa di M0 è una bozza provvisoria non approvata per dati reali; M0
+  non va usata con dati reali.
 
-Nessuna issue è stata creata: la copertura su issue tracker è da definire
-quando il product owner lo richiederà.
+La copertura su issue tracker per le milestone successive a M0 è da definire
+quando il product owner lo richiederà. Questa sezione è descrittiva e non
+modifica requisiti, regole o identificativi: per questo la versione del PRD
+resta la 0.2.3.
 
 ## Revisioni
 
