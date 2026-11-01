@@ -3,7 +3,7 @@
 | Campo | Valore |
 |---|---|
 | Documento | Architettura software, risposta a [Q-011](../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
-| Versione | 0.2.1 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati) |
+| Versione | 0.2.2 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; decisioni di M0.1 approvate) |
 | Data | 2026-11-01 |
 | Responsabile | mdellapa |
 | Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.3 |
@@ -13,12 +13,13 @@
 
 | Documento | Contenuto | Stato |
 |---|---|---|
-| [ADR-001](adr/ADR-001-modular-monolith.md) | Monolite modulare con app Django | Approvato |
+| [ADR-001](adr/ADR-001-modular-monolith.md) | Monolite modulare con app Django | Approvato; regola 2 revisionata il 2026-11-01 (superfici tecniche pubbliche, D-9 di M0.1) |
 | [ADR-002](adr/ADR-002-stack-and-server-rendered-ui.md) | Stack, versioni e interfaccia renderizzata dal server | Approvato |
 | [ADR-003](adr/ADR-003-authentication-and-sessions.md) | Autenticazione e sessioni | Approvato |
 | [ADR-004](adr/ADR-004-space-isolation-and-authorization.md) | Isolamento degli spazi e autorizzazione applicativa, senza RLS | Approvato; meccanismo di accesso filtrato scelto durante M0 (VER-016) |
 | [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md) | Convenzioni di persistenza, importi e invarianti | Approvato nei principi; meccanismi di trigger e contatori da verificare |
 | [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) | Test e integrazione continua | Approvato; esiti di M0 registrati (limite accettato verificato) |
+| [M0.1](M0.1-structural-refactoring.md) | Milestone tecnica di refactoring strutturale tra M0 e M1: decisioni D-1 – D-9, storie tecniche, task e dipendenze | Approvata (2026-11-01); esiti alla chiusura |
 
 ## Convenzioni
 
@@ -37,8 +38,11 @@
 **Ciclo di vita di un ADR**: Proposto → Approvato → eventualmente Sostituito
 da ADR-nnn. Un ADR approvato non si modifica nel merito: si sostituisce.
 
-**Identificatori stabili**: `ADR-nnn`, `VER-nnn`, `DEF-nnn`, `RA-nnn`. Come
-nel PRD, gli identificatori non vengono riutilizzati.
+**Identificatori stabili**: `ADR-nnn`, `VER-nnn`, `DEF-nnn`, `RA-nnn`; per le
+milestone tecniche `SR-nnn` (requisiti strutturali), `TS-nnn` (storie
+tecniche) e `AC-TS-nnn-nn` (loro criteri di accettazione), con i task nella
+numerazione globale `TASK-nnn` del PRD. Come nel PRD, gli identificatori non
+vengono riutilizzati.
 
 **Rapporto con il PRD**: il PRD resta la fonte dei requisiti e delle regole di
 dominio; questo documento non li modifica. Le policy subordinate a
@@ -61,6 +65,7 @@ Decision Review, gli ADR indispensabili per M0. Con la loro approvazione
 | Pagine renderizzate dal server; nessuna SPA | [ADR-002](adr/ADR-002-stack-and-server-rendered-ui.md) |
 | Nessuna API pubblica nella V1 | [ADR-002](adr/ADR-002-stack-and-server-rendered-ui.md) |
 | ADR indispensabili prima di M0 | [ADR-001](adr/ADR-001-modular-monolith.md) – [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) |
+| Struttura del repository, organizzazione dei test e superfici tecniche pubbliche (2026-11-01) | [M0.1, D-1 – D-9](M0.1-structural-refactoring.md#decisioni); [§4.1](#41-struttura-del-repository); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
 
 **Condizioni dell'approvazione**
 
@@ -131,6 +136,34 @@ moduli vuoti.
 | `reporting` | Sole letture: report mensile, consuntivi, patrimonio | US-007, US-019, US-024 | M1 |
 | `audit` | Audit minimo del nucleo, poi registro completo; registro degli accessi del referente | US-022 | M4 |
 | `privacy` | Esportazioni, eliminazione dell'account, opposizioni, registro delle eliminazioni | US-020, US-021 | M5 (progettazione in M4) |
+
+Oltre ai moduli di dominio, `household-hub` contiene pacchetti non di dominio,
+fuori dall'elenco di ADR-001:
+
+| Pacchetto | Ruolo | Contratti tra moduli |
+|---|---|---|
+| `config` | Impostazioni, URL principali, WSGI, middleware HTTP, backend e ruoli del database, provisioning | Non è un modulo |
+| `legal` | Informative (bozza provvisoria dell'informativa generale, US-001) | Esclusa per scelta esplicita (`LOCAL_APPS_NOT_COVERED`) |
+| `testing` | Helper e infrastruttura condivisi dei test; app di prova `testing.probe`, installata solo nelle impostazioni dei test | Non è un modulo; vincolata da HH007 ([M0.1](M0.1-structural-refactoring.md)) |
+| `tests` | Verifiche trasversali (dalla M0.1) | Non è un modulo |
+
+### 4.1 Struttura del repository
+
+Regole decise con [M0.1](M0.1-structural-refactoring.md#decisioni) il
+2026-11-01. Si applicano con i task indicati; fino ad allora vale la struttura
+di M0.
+
+| Regola | Decisione | Applicata da |
+|---|---|---|
+| Ogni modulo è un pacchetto di primo livello del repository; nessuna directory `apps/` né `src/`. Si riesamina all'avvio di ogni milestone che introduce moduli | D-1 | Già in vigore |
+| Le impostazioni restano i moduli `config/settings*.py`; il pacchetto `config/settings/` si riesamina con l'ADR di hosting (DEF-001, DEF-007) | D-2 | Già in vigore |
+| Test di modulo in `<modulo>/tests/`; verifiche trasversali in `tests/`; helper condivisi in `testing/`. Ogni directory di test è un pacchetto con `__init__.py`; la radice del progetto si ricava da `settings.BASE_DIR` | D-3 | TASK-090 – TASK-092 |
+| Gli helper usati da più moduli stanno in `testing/`; quelli privati di un modulo nel suo `tests/`, non importabile dagli altri moduli | D-3 (C5) | TASK-090, TASK-092 |
+| Il codice di produzione non importa `testing.*` né pacchetti `tests`; `scoping_lint` esclude solo migrazioni e file e directory di test | D-3 (C2) | TASK-089 |
+| Template privati di un modulo in `<modulo>/templates/<modulo>/`; in `templates/` del progetto solo base, pagine di errore, override di allauth, layout e frammenti pubblici | D-4 | TASK-094 |
+| Helper dei test come semplici funzioni, senza nuove dipendenze; factory_boy si decide in M1 | D-5 | TASK-093 (facoltativo) |
+| Un modulo usa un altro modulo solo tramite `services`, `selectors` e le superfici tecniche pubbliche elencate in ADR-001, regola 2 | D-9 | Già in vigore in CI (VER-021) |
+| I criteri automatizzabili delle storie tecniche (`AC-TS`) sono richiamati dai test come quelli del PRD; ogni PR registra solo quelli che soddisfa | D-8 | TASK-088 |
 
 ## 5. Principi trasversali
 
@@ -387,3 +420,4 @@ gli ADR successivi non la riaprono.
 | 0.1.1 | 2026-10-30 | Verifiche divise tra bloccanti prima di M0 e rinviabili (§9, tabelle degli ADR); criterio di chiusura di Q-011 (§10); Q-011 aggiornata nel PRD come parzialmente risolta. Stato degli ADR invariato: Proposto |
 | 0.2 | 2026-10-30 | Decision Review: ADR-001 – ADR-006 approvati (ADR-005 nei principi, non nei meccanismi di trigger e contatori); ADR-004 garantisce l'isolamento come risultato, con meccanismo scelto in VER-016, e non promette tempi indistinguibili per il 404; rimosso da ADR-002 il riferimento al framework Tasks; verifiche bloccanti riclassificate come da completare durante M0 (con VER-006, già prevista in M0), con le parti dipendenti dall'hosting assegnate a DEF-001; Q-011 chiusa. Nessun identificativo modificato |
 | 0.2.1 | 2026-11-01 | Verifica di completamento di M0 (issue #15 di `household-hub`): fonte dei requisiti aggiornata al PRD 0.2.3; esiti delle 12 verifiche di M0 nel §9, con le parti rinviate a DEF-001; DEF-014 rinviata dopo l'MVP con la MFA da rivalutare prima del livello 1; perimetro di NFR-002 in M0 (parte applicativa verificata, parte infrastrutturale su DEF-001); informativa di M0 registrata come bozza provvisoria non approvata; limite accettato di ADR-006 verificato. Nessuna decisione approvata e nessun identificativo modificato |
+| 0.2.2 | 2026-11-01 | Milestone tecnica [M0.1](M0.1-structural-refactoring.md) (TASK-095): decisioni D-1 – D-9 approvate dal product owner; nuovo §4.1 sulla struttura del repository e tabella dei pacchetti non di dominio (`config`, `legal`, `testing`, `tests`) nel §4; famiglie di identificativi `SR`, `TS` e `AC-TS`; regola 2 di ADR-001 revisionata in loco con l'elenco chiuso delle superfici tecniche pubbliche (D-9), senza cambiare il merito della decisione. Nessun requisito, VER, DEF o RA modificato |

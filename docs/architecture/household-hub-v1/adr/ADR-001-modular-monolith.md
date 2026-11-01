@@ -6,6 +6,7 @@
 |---|---|
 | Stato | **Approvato** (2026-10-30) |
 | Data | 2026-10-30 |
+| Revisione | 2026-11-01 — regola 2 allineata ad ADR-004, VER-016 e VER-021: elenco chiuso delle superfici tecniche pubbliche (M0.1, D-9; vedi [Revisione del 2026-11-01](#revisione-del-2026-11-01--superfici-tecniche-pubbliche)) |
 | Decisore | mdellapa (product owner) |
 | Questione | [Q-011](../../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
 | Requisiti | NFR-001, NFR-005, RISK-001, RISK-002 |
@@ -45,6 +46,7 @@ Un modulo nasce quando la milestone che lo usa inizia.
 | `models.py` | Modelli e vincoli del modulo | Privato |
 | `services.py` | Comandi: unico modo di cambiare lo stato del modulo; definiscono i confini di transazione | Pubblico |
 | `selectors.py` | Letture usate da altri moduli; restituiscono oggetti dedicati, non istanze di modello | Pubblico |
+| Superfici tecniche (`core.access`, `core.clock`, `core.ids`, `spaces.permissions`, `spaces.scoping`) | Tipi e contratti trasversali richiesti da ADR-004 e ADR-005; solo quelli elencati nella regola 2 | Pubblico |
 | `views.py`, `forms.py`, `templates/<modulo>/` | Interfaccia: validano l'input, chiamano servizi e selettori, renderizzano | Privato |
 
 Le viste restano sottili: nessuna regola di dominio in viste, form o template.
@@ -52,8 +54,20 @@ Le viste restano sottili: nessuna regola di dominio in viste, form o template.
 **Regole di dipendenza**
 
 1. `core` non dipende da altri moduli.
-2. Un modulo usa un altro modulo solo tramite `services`, `selectors` e i tipi
-   pubblici che essi espongono; non importa i `models` di altri moduli.
+2. Un modulo usa un altro modulo solo tramite i suoi `services` e `selectors`,
+   i tipi pubblici che essi espongono e le **superfici tecniche pubbliche**
+   di questo elenco chiuso; non importa i `models` né altri sottomoduli di
+   altri moduli.
+
+   | Superficie | Contenuto | Fonte |
+   |---|---|---|
+   | `core.access`, `core.clock`, `core.ids` | Contesto d'accesso, orologio, identificativi | [Architettura, §4](../README.md#4-moduli); ADR-004 punto 3; ADR-005 |
+   | `spaces.permissions` | Matrice dei permessi e dichiarazione del permesso delle viste | ADR-004 punto 4 |
+   | `spaces.scoping` | Modello, chiavi esterne e form delle risorse di uno spazio; accesso filtrato | ADR-004 punti 1 e 5; VER-016 |
+
+   Una nuova superficie tecnica richiede, nella stessa modifica,
+   l'aggiornamento di questo elenco e dei contratti di dipendenza verificati in
+   CI (VER-021).
 3. **Chiavi esterne tra moduli** ammesse solo verso modelli di riferimento
    stabili, dichiarate con l'etichetta (es. `"spaces.Space"`) senza
    importare il modulo: spazio (`spaces`), conto (`ledger`),
@@ -80,6 +94,32 @@ partecipano. Gli effetti esterni (email) partono dopo il commit
 - Il codice applicativo vive in un repository dedicato dell'organizzazione
   `House-Hold-Hub` (nome da definire all'avvio di M0).
 - PRD, architettura e ADR restano in questo repository `Documentation`.
+
+## Revisione del 2026-11-01 — superfici tecniche pubbliche
+
+Decisione del product owner del 2026-11-01 (D-9 di
+[M0.1](../M0.1-structural-refactoring.md#d-9--allineamento-di-adr-001-e-allentamento-registrato)).
+
+- **Motivo.** Il testo originale della regola 2 ammetteva solo `services`,
+  `selectors` e i tipi che essi espongono. ADR-004, approvato lo stesso giorno,
+  richiede invece a ogni modulo con risorse di dichiarare i permessi da
+  un'unica matrice (punto 4) e di usare l'accesso filtrato per spazio
+  (punti 1 e 5). Il meccanismo scelto con VER-016 e i contratti di VER-021,
+  approvati con la chiusura di M0, realizzano queste regole con
+  `spaces.permissions`, `spaces.scoping` e i tipi di `core`. La revisione
+  allinea il testo di questo ADR alle decisioni già approvate.
+- **Merito invariato.** Restano i confini espliciti, il divieto di importare i
+  `models` e gli altri sottomoduli di un altro modulo, le chiavi esterne solo
+  verso i riferimenti stabili e l'assenza di cicli. Per questo la revisione è
+  in loco e non richiede un nuovo ADR, come la revisione di
+  [ADR-006](ADR-006-testing-and-continuous-integration.md) (decisione B1).
+- **Allentamento registrato.** Il controllo manuale `ConfiniTraModuliTests` di
+  `household-hub` vietava al codice applicativo di `identity` di importare
+  `spaces.permissions` e `spaces.scoping`. Con la sua rimozione (TASK-090 di
+  M0.1) vale per `identity` la stessa superficie di ogni altro modulo. Le altre
+  asserzioni di quel controllo sono coperte da contratti più stretti.
+- **Elenco chiuso.** Superfici aggiuntive (es. il tipo `Money` di `core` in M1)
+  si aggiungono all'elenco della regola 2 insieme ai contratti di CI.
 
 ## Da verificare
 
