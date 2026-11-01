@@ -18,6 +18,11 @@ mantenendo private le finanze personali.
 | [M4](milestones/M4-households.md) | Nuclei, conti comuni, condivisione, attribuzione, report e budget familiari | Solo livello 2, insieme a M5 e dopo il gate di Q-012 |
 | [M5](milestones/M5-privacy-and-data-control.md) | Esportazione dei dati personali e del nucleo, eliminazione account, registro attività | Livello 2 insieme a M4, dopo il gate di Q-012; prerequisito per aprire il servizio a utenti esterni |
 
+Tra M0 e M1 si svolge la milestone tecnica **M0.1 — Refactoring strutturale**,
+senza valore nuovo per l'utente né modifiche a requisiti, regole o
+identificativi del PRD; va completata prima dell'avvio di M1. Il dettaglio è
+nel [documento di architettura](../../architecture/household-hub-v1/M0.1-structural-refactoring.md).
+
 ## Livelli di rilascio
 
 | Livello | Significato | Condizioni |
