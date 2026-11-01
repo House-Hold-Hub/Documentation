@@ -3,10 +3,10 @@
 | Campo | Valore |
 |---|---|
 | Documento | Architettura software, risposta a [Q-011](../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
-| Versione | 0.2 (ADR indispensabili per M0 approvati) |
-| Data | 2026-10-30 |
+| Versione | 0.2.1 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati) |
+| Data | 2026-11-01 |
 | Responsabile | mdellapa |
-| Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.1 |
+| Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.3 |
 | Ambito | V1 (M0–M6), con il dettaglio delle decisioni necessarie prima di M0 |
 
 ## Navigazione
@@ -18,7 +18,7 @@
 | [ADR-003](adr/ADR-003-authentication-and-sessions.md) | Autenticazione e sessioni | Approvato |
 | [ADR-004](adr/ADR-004-space-isolation-and-authorization.md) | Isolamento degli spazi e autorizzazione applicativa, senza RLS | Approvato; meccanismo di accesso filtrato scelto durante M0 (VER-016) |
 | [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md) | Convenzioni di persistenza, importi e invarianti | Approvato nei principi; meccanismi di trigger e contatori da verificare |
-| [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) | Test e integrazione continua | Approvato |
+| [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) | Test e integrazione continua | Approvato; esiti di M0 registrati (limite accettato verificato) |
 
 ## Convenzioni
 
@@ -251,7 +251,7 @@ condivisa per i limiti di tentativi usa PostgreSQL
 
 | ID | Scelta rinviata | Quando o a quale condizione | Default fino ad allora |
 |---|---|---|---|
-| DEF-001 | Fornitore di hosting e database gestito. Criteri: dati in UE, PostgreSQL gestito con ripristino a un istante e conservazione dei backup configurabile ≤ 35 giorni, cifratura a riposo, rete privata, accordo sul trattamento dei dati. Comprende la parte di VER-004 sul rilevamento dell'IP dietro proxy e la conferma di VER-015 presso il fornitore | Prima del livello 1 | Sviluppo locale e CI |
+| DEF-001 | Fornitore di hosting e database gestito. Criteri: dati in UE, PostgreSQL gestito con ripristino a un istante e conservazione dei backup configurabile ≤ 35 giorni, cifratura a riposo, rete privata, accordo sul trattamento dei dati. Comprende la parte di VER-004 sul rilevamento dell'IP dietro proxy e la conferma di VER-015 presso il fornitore, e la parte infrastrutturale di NFR-002 (cifratura in transito terminata dal proxy, cifratura a riposo, backup ed esportazioni temporanee; la parte applicativa è verificata in M0, [§9](#registrazioni-alla-chiusura-di-m0)) | Prima del livello 1 | Sviluppo locale e CI |
 | DEF-002 | Provider email transazionale in UE | Prima del livello 1 | Backend email su console |
 | DEF-003 | Esecuzione di attività periodiche (pulizie, scadenze) | M2, con la pulizia dei file di importazione | Nessuna; comandi di gestione eseguibili a mano |
 | DEF-004 | Coda di lavori asincroni | Solo se un requisito richiede lavoro fuori dalla richiesta che non sia periodico | Non prevista nella V1 |
@@ -264,7 +264,7 @@ condivisa per i limiti di tentativi usa PostgreSQL
 | DEF-011 | API per client esterni (es. app nativa) | Dopo la V1, su necessità, con un ADR dedicato | Nessuna API pubblica (approvato) |
 | DEF-012 | Pipeline di rilascio continuo | Con DEF-001 | Solo integrazione continua |
 | DEF-013 | Migrazione a htmx 4 | Quando htmx 4 diventa la versione "latest" (prevista a inizio 2027) | htmx 2.x |
-| DEF-014 | Verifica in due passaggi per gli utenti (AC-US-001-08, rinviabile nel PRD) e passkey | Prima di chiudere M0, oppure dopo l'MVP | TOTP disponibile nella libreria, non esposto |
+| DEF-014 | Verifica in due passaggi per gli utenti (AC-US-001-08, rinviabile nel PRD) e passkey. **Rinviata dopo l'MVP** con la verifica di completamento di M0 (issue #15 di `household-hub`); la MFA va **rivalutata prima del livello 1** (uso reale), perché fino ad allora l'accesso degli utenti poggia sulla sola password con i limiti di ADR-003. Resta obbligatoria per il referente (NFR-013, DEF-010) | Dopo l'MVP; rivalutazione prima del livello 1 | TOTP disponibile nella libreria (`allauth.mfa`), non installato né esposto in M0 |
 | DEF-015 | Strumenti di build per CSS e JavaScript | Solo se il CSS scritto a mano non basta | Nessuna toolchain Node |
 | DEF-016 | Test di prestazioni periodici sui volumi di NFR-006 | M1–M2 | Nessuno |
 | DEF-017 | Scansione dinamica di sicurezza su un ambiente ospitato | Prima del livello 1, con DEF-007 | Nessuna |
@@ -301,6 +301,33 @@ una decisione si realizza, non la decisione. Le verifiche sono di due classi:
 | VER-018 | Formato degli identificativi (UUIDv7 di Python 3.14 o UUIDv4) | ADR-005 | Durante M0, prima del primo modello |
 | VER-019 | Configurazione CSP compatibile con htmx e assenza di cache delle pagine nel browser | ADR-002 | Durante M0, con il template di base |
 | VER-021 | Contratti di dipendenza tra moduli verificabili in CI | ADR-001 | Durante M0 |
+
+### Esiti in M0
+
+Esiti registrati con la verifica di completamento di M0 (2026-11-01, issue #15 di `household-hub`). I documenti di dettaglio sono nella cartella `docs/` di `household-hub` (repository privato); la sintesi di verifica è `docs/m0-verifica.md`. **Nessuna verifica ha avuto esito negativo e nessuna ha richiesto un nuovo ADR**: le decisioni approvate non cambiano.
+
+| ID | Esito | Scelta o scostamento | Parte che resta su DEF-001 |
+|---|---|---|---|
+| VER-001 | Chiusa | Python 3.14.6, Django 6.1.2, PostgreSQL 18, django-allauth 65.21.1, django-htmx 1.29.0; compatibilità provata con controlli, migrazioni, test e avvio di gunicorn. Il supporto di Django 6.1 in django-htmx non è stato confrontato con il changelog ufficiale | — |
+| VER-022 | Chiusa | uv con `uv.lock` e hash; un hash alterato fa fallire `uv sync --locked`; Dependabot configurato per `uv` e `github-actions` | — |
+| VER-004 | Chiusa, tranne il proxy | allauth soddisfa AC-US-001-01..07 (AC-08 rinviato); tre comportamenti predefiniti corretti nel progetto (avviso che distingue un indirizzo appena usato, errore di lunghezza della password in inglese, email inviata prima del commit); limiti dei tentativi su cache condivisa in PostgreSQL; finestra di ri-autenticazione di 300 s (allauth ≥ 65.20: serve la password reinserita) | Rilevamento dell'IP dietro proxy (`TRUSTED_PROXY_COUNT`): senza configurazione i limiti per IP diventano globali |
+| VER-005 | Chiusa | Scadenza scorrevole di 1.800 s e durata massima di 12 ore; le richieste htmx non autenticate ricevono `HX-Redirect` | — |
+| VER-006 | Chiusa | Il cambio password conserva la sessione corrente e chiude le altre; il recupero le chiude tutte e non effettua l'accesso; collegamento monouso di 3.600 s misurato in UTC (scostamento dal predefinito di Django) | — |
+| VER-014 | Chiusa | Immutabilità di `space_id` con trigger nel database, su ogni percorso di scrittura | — |
+| VER-015 | Chiusa in locale e in CI | Due ruoli distinti, applicazione senza DDL; confermata dal job reale della CI | Conferma presso il fornitore di hosting |
+| VER-016 | Chiusa | Selettori e servizi con contesto obbligatorio (`for_context`), verificati in CI con regole HH001–HH006; non un manager che filtra da sé | — |
+| VER-017 | Chiusa | Matrice generata dall'URLconf: ogni vista è classificata o la suite fallisce; 23 URL e 608 casi in M0 | — |
+| VER-018 | Chiusa | UUIDv4 (`core.ids.new_id`), non UUIDv7: l'istante di creazione non si deve dedurre dall'identificativo; la località degli indici è trascurabile ai volumi di NFR-006 | — |
+| VER-019 | Chiusa | CSP senza `'unsafe-inline'` né `'unsafe-eval'`, htmx 2.0.11 in modalità sicura, nessuna cache delle pagine nel browser; storico di htmx in `sessionStorage` (non `localStorage` come in ADR-002), stessa contromisura | Proxy, HSTS, intestazioni sul percorso reale, controllo dinamico (DEF-017); prova su un solo motore di browser |
+| VER-021 | Chiusa, con due strumenti | Import Linter per le regole 2 e 7 di ADR-001 (job `contracts`); la regola 3 sulle chiavi esterne è un test su registro dei modelli e migrazioni | — |
+
+### Registrazioni alla chiusura di M0
+
+- **Perimetro di NFR-002 in M0.** Verificata la **parte applicativa**: HTTPS forzato, HSTS, cookie `Secure` e `HttpOnly`, CSP, rifiuto dell'avvio con configurazione insicura (`check --deploy` con le impostazioni di produzione), nessun dato finanziario in sessione, log ed email (in M0 non esistono dati finanziari). **Non verificata** la parte infrastrutturale: cifratura in transito terminata dal proxy, cifratura a riposo, backup ed esportazioni temporanee, che dipendono dall'hosting e restano su DEF-001, prima del livello 1. Il criterio di completamento di M0 «NFR-002 verificato sulle funzioni della milestone» va letto in questo senso.
+- **Verifica in due passaggi.** AC-US-001-08 e DEF-014 sono rinviati dopo l'MVP, con gli stessi identificativi ([perimetro dell'MVP](../../prd/household-hub-v1/roadmap.md#perimetro-dellmvp)); `allauth.mfa` non è installato. La MFA va rivalutata prima del livello 1. Per NFR-003, M0 verifica password robuste, limiti dei tentativi e scadenza delle sessioni, non l'autenticazione a due fattori.
+- **Informativa.** L'informativa generale di M0 (AC-US-001-09, parte generale) è una **bozza provvisoria, dichiarata non approvata per l'uso con dati reali**: l'avviso compare sulla pagina dedicata e nella registrazione, i dati del titolare, le finalità ulteriori, l'hosting (DEF-001) e il provider email (DEF-002) sono segnaposto `[DA COMPLETARE]`, non si chiede alcun consenso. Resta da verificare con la revisione privacy di NFR-010 prima dell'uso con dati reali; la sezione sullo storico dei nuclei (FR-044) non esiste in M0 e dipende da Q-012.
+- **Limite accettato di ADR-006 (decisione B1).** Verificato il 2026-11-01: repository privato su GitHub Free, branch protection non disponibile (risposta 403 dell'API), merge solo con squash, branch eliminati dopo il merge, Gitleaks sull'intera storia. Le tredici PR #17 e #21–#32 sono state unite con tutti i job verdi sull'ultimo commit (GitHub non prova che la verifica manuale sia avvenuta, solo che i controlli erano verdi); la PR #16 (bootstrap) è stata unita prima dell'esistenza della CI. Dependabot è attivo per `uv` e `github-actions` (aggiornamenti eseguiti il 2026-10-30, nessun alert aperto).
+- **Stato di M0.** M0 non si considera «Implementata» finché il product owner non ha chiuso i criteri aperti (PR di documentazione unita; limiti della verifica manuale, un solo motore di browser e viewport emulato a 360 px). M0 non va usata con dati reali.
 
 ### Rinviabili
 
@@ -359,3 +386,4 @@ gli ADR successivi non la riaprono.
 | 0.1 | 2026-10-30 | Prima bozza: stack e stile approvati dal product owner; ADR-001 – ADR-006 proposti; verifiche e rinvii elencati |
 | 0.1.1 | 2026-10-30 | Verifiche divise tra bloccanti prima di M0 e rinviabili (§9, tabelle degli ADR); criterio di chiusura di Q-011 (§10); Q-011 aggiornata nel PRD come parzialmente risolta. Stato degli ADR invariato: Proposto |
 | 0.2 | 2026-10-30 | Decision Review: ADR-001 – ADR-006 approvati (ADR-005 nei principi, non nei meccanismi di trigger e contatori); ADR-004 garantisce l'isolamento come risultato, con meccanismo scelto in VER-016, e non promette tempi indistinguibili per il 404; rimosso da ADR-002 il riferimento al framework Tasks; verifiche bloccanti riclassificate come da completare durante M0 (con VER-006, già prevista in M0), con le parti dipendenti dall'hosting assegnate a DEF-001; Q-011 chiusa. Nessun identificativo modificato |
+| 0.2.1 | 2026-11-01 | Verifica di completamento di M0 (issue #15 di `household-hub`): fonte dei requisiti aggiornata al PRD 0.2.3; esiti delle 12 verifiche di M0 nel §9, con le parti rinviate a DEF-001; DEF-014 rinviata dopo l'MVP con la MFA da rivalutare prima del livello 1; perimetro di NFR-002 in M0 (parte applicativa verificata, parte infrastrutturale su DEF-001); informativa di M0 registrata come bozza provvisoria non approvata; limite accettato di ADR-006 verificato. Nessuna decisione approvata e nessun identificativo modificato |
