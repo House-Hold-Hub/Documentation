@@ -3,10 +3,10 @@
 | Campo | Valore |
 |---|---|
 | Documento | Architettura software, risposta a [Q-011](../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
-| Versione | 0.2.4 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; M0.1 chiusa; decisioni tecniche di M1 e ADR-007 approvati) |
+| Versione | 0.2.5 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; M0.1 chiusa; decisioni tecniche di M1 e ADR-007 approvati; M3.1 approvata) |
 | Data | 2026-11-03 |
 | Responsabile | mdellapa |
-| Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.4 |
+| Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.5 |
 | Ambito | V1 (M0–M6), con il dettaglio delle decisioni necessarie prima di M0 |
 
 ## Navigazione
@@ -22,6 +22,7 @@
 | [ADR-007](adr/ADR-007-read-time-reports.md) | Report calcolati in lettura e vista delle righe di report | Approvato (2026-11-03); VER-023 e VER-024 da completare nei task |
 | [M0.1](M0.1-structural-refactoring.md) | Milestone tecnica di refactoring strutturale tra M0 e M1: decisioni D-1 – D-9, storie tecniche, task e dipendenze | Approvata (2026-11-01); esiti registrati; **chiusa il 2026-11-03** |
 | [M1 — preparazione tecnica](M1-technical-preparation.md) | Decisioni tecniche D-10 – D-18, storie tecniche TS-004 – TS-008, task, dipendenze e registrazione dei criteri di M1 | Approvata (2026-11-03); applicata dai task di M1 |
+| [M3.1](M3.1-level-1-readiness.md) | Milestone tecnica di preparazione al livello 1: decisioni D-19 – D-22, condizioni vincolanti, eccezioni ammissibili, accesso esclusivo, storie tecniche TS-009 – TS-012 e task | Approvata (2026-11-03); non avviata |
 
 ## Convenzioni
 
@@ -70,6 +71,7 @@ Decision Review, gli ADR indispensabili per M0. Con la loro approvazione
 | Struttura del repository, organizzazione dei test e superfici tecniche pubbliche (2026-11-01) | [M0.1, D-1 – D-9](M0.1-structural-refactoring.md#decisioni); [§4.1](#41-struttura-del-repository); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
 | Preparazione tecnica di M1: termine di VER-012 e VER-013, livelli dei moduli, superficie `core.money`, punti di estensione, collegamenti nello stesso spazio, modelli di sola lettura su viste, elenco delle relazioni, registrazione dei criteri, dati di test (2026-11-03) | [M1, D-10 – D-18](M1-technical-preparation.md#decisioni); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
 | Report calcolati in lettura da una vista delle righe di report (2026-11-03) | [ADR-007](adr/ADR-007-read-time-reports.md) |
+| Preparazione al livello 1: autorizzazione, perimetro di M3.1, Compose locale facoltativo, artefatti di runtime subordinati all'ADR di hosting (2026-11-03) | [M3.1, D-19 – D-22](M3.1-level-1-readiness.md#decisioni) |
 
 **Condizioni dell'approvazione**
 
@@ -315,6 +317,11 @@ condivisa per i limiti di tentativi usa PostgreSQL
 | DEF-015 | Strumenti di build per CSS e JavaScript | Solo se il CSS scritto a mano non basta | Nessuna toolchain Node |
 | DEF-016 | Test di prestazioni periodici sui volumi di NFR-006 | M1–M2 | Nessuno |
 | DEF-017 | Scansione dinamica di sicurezza su un ambiente ospitato | Prima del livello 1, con DEF-007 | Nessuna |
+| DEF-018 | Container: Compose locale e artefatti di runtime ([D-21 e D-22 di M3.1](M3.1-level-1-readiness.md#decisioni)) | Compose locale solo per una necessità concreta; Dockerfile e Compose di runtime solo se richiesti dall'ADR di hosting | PostgreSQL installato in locale; in CI il servizio `postgres:18` |
+
+Le scelte da fare «prima del livello 1» si chiudono in
+[M3.1](M3.1-level-1-readiness.md), che distingue le condizioni vincolanti
+dalle eccezioni ammissibili.
 
 **Esclusi dalla V1 salvo necessità dimostrata**: Redis, broker di messaggi,
 CDN, Kubernetes, microservizi, servizi di feature flag, cache dei report.
@@ -407,7 +414,7 @@ gli ADR successivi non la riaprono.
 |---|---|
 | Report calcolati in lettura e vista delle righe di report | Prima di M1: [ADR-007](adr/ADR-007-read-time-reports.md), approvato il 2026-11-03 |
 | Invarianti concorrenti: esito di VER-010 – VER-013 | Prima dell'implementazione di US-006 (TASK-017) per i giroconti, con TASK-099 e TASK-100; aggiornamento prima di M4 |
-| Hosting, ambienti, backup e ripristino, cifratura, accessi tecnici (NFR-002, NFR-012, NFR-013) | Prima del livello 1 |
+| Hosting, ambienti, backup e ripristino, cifratura, accessi tecnici (NFR-002, NFR-012, NFR-013), accesso esclusivo degli utenti autorizzati e artefatti di runtime ([M3.1](M3.1-level-1-readiness.md)) | Prima del livello 1, dopo l'ADR di importazione (TASK-108) |
 | Importazione: file, anteprima, duplicati, lotti, attività periodiche | Prima di M2 |
 | Visibilità per destinatario, appartenenze, attribuzioni e quote | Prima di M4 |
 | Audit e registri immutabili | Prima di M4 |
@@ -439,3 +446,4 @@ gli ADR successivi non la riaprono.
 | 0.2.2 | 2026-11-01 | Milestone tecnica [M0.1](M0.1-structural-refactoring.md) (TASK-095): decisioni D-1 – D-9 approvate dal product owner; nuovo §4.1 sulla struttura del repository e tabella dei pacchetti non di dominio (`config`, `legal`, `testing`, `tests`) nel §4; famiglie di identificativi `SR`, `TS` e `AC-TS`; regola 2 di ADR-001 revisionata in loco con l'elenco chiuso delle superfici tecniche pubbliche (D-9), senza cambiare il merito della decisione. Nessun requisito, VER, DEF o RA modificato |
 | 0.2.3 | 2026-11-03 | Esiti di [M0.1](M0.1-structural-refactoring.md#esiti) (TASK-097): registrati nella scheda i risultati della [verifica di completamento](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md) (TASK-096, PR #56 di `household-hub`) con riserve, anomalie e limiti dichiarati e le modifiche estranee (#47, #54); colonna «Applicata da» del §4.1 aggiornata con lo stato di applicazione; TASK-093 svolto e non rinviato. Nessuna decisione (D-1 – D-9), ADR, requisito, VER, DEF o RA modificato; la chiusura formale di M0.1 non è registrata |
 | 0.2.4 | 2026-11-03 | Preparazione di M1 (TASK-098, issue #57 di `household-hub`): chiusura di M0.1 registrata (decisione del product owner del 2026-11-03); termine di VER-012 e VER-013 precisato in «prima dell'implementazione di US-006 (TASK-017)», senza condizionare l'avvio di M1 (§9, §10; revisione in loco di ADR-005); superficie `core.money` aggiunta alla regola 2 di ADR-001 (revisione in loco, D-12); [scheda di preparazione tecnica di M1](M1-technical-preparation.md) con le decisioni D-10 – D-18 approvate dal product owner (D-14 e D-15 nella soluzione progettuale, con le verifiche obbligatorie di TASK-102 e TASK-103); [ADR-007](adr/ADR-007-read-time-reports.md) approvato (§1, §5.4, §10), con VER-023 e VER-024 (§9); §5.4 allineato ad ADR-007 (punto 6 di DR-012 garantito dalla fonte condivisa, punto 7 verificato con l'oracolo); fonte dei requisiti aggiornata al PRD 0.2.4. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
+| 0.2.5 | 2026-11-03 | Preparazione al livello 1 (TASK-107, issue #82 di `household-hub`): nuova scheda [M3.1](M3.1-level-1-readiness.md) con D-19 – D-22, condizioni vincolanti, inclusa la verifica di NFR-007, eccezioni ammissibili e accesso esclusivo; DEF-018 nel §8; ADR di hosting esteso nel §10 ad accesso esclusivo e artefatti di runtime; fonte dei requisiti aggiornata al PRD 0.2.5. Nessun ADR approvato cambia |

@@ -68,6 +68,9 @@ sul dominio: [DR-024](domain-rules.md#dr-024--eliminazione-dellaccount-e-storico
 
 Il servizio è aperto a chiunque o solo a persone invitate? **Default:**
 registrazione aperta con verifica dell'email ([FR-001](requirements.md#fr-001--registrazione-e-accesso)).
+Il default è una regola di prodotto e resta invariato; al livello 1 l'accesso
+è comunque limitato alle persone autorizzate
+([accesso esclusivo](../../architecture/household-hub-v1/M3.1-level-1-readiness.md#accesso-esclusivo)).
 
 ### Q-003 — Campi visibili delle attribuzioni
 
