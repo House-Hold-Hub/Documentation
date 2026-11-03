@@ -3,8 +3,8 @@
 | Campo | Valore |
 |---|---|
 | Documento | Architettura software, risposta a [Q-011](../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
-| Versione | 0.2.2 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; decisioni di M0.1 approvate) |
-| Data | 2026-11-01 |
+| Versione | 0.2.3 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; decisioni di M0.1 approvate; esiti di M0.1 registrati) |
+| Data | 2026-11-03 |
 | Responsabile | mdellapa |
 | Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.3 |
 | Ambito | V1 (M0–M6), con il dettaglio delle decisioni necessarie prima di M0 |
@@ -150,20 +150,21 @@ fuori dall'elenco di ADR-001:
 ### 4.1 Struttura del repository
 
 Regole decise con [M0.1](M0.1-structural-refactoring.md#decisioni) il
-2026-11-01. Si applicano con i task indicati; fino ad allora vale la struttura
-di M0.
+2026-11-01. Si applicano con i task indicati. Applicazione verificata il
+2026-11-03 con la [verifica di M0.1](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md); esiti nella
+[scheda](M0.1-structural-refactoring.md#esiti).
 
 | Regola | Decisione | Applicata da |
 |---|---|---|
 | Ogni modulo è un pacchetto di primo livello del repository; nessuna directory `apps/` né `src/`. Si riesamina all'avvio di ogni milestone che introduce moduli | D-1 | Già in vigore |
 | Le impostazioni restano i moduli `config/settings*.py`; il pacchetto `config/settings/` si riesamina con l'ADR di hosting (DEF-001, DEF-007) | D-2 | Già in vigore |
-| Test di modulo in `<modulo>/tests/`; verifiche trasversali in `tests/`; helper condivisi in `testing/`. Ogni directory di test è un pacchetto con `__init__.py`; la radice del progetto si ricava da `settings.BASE_DIR` | D-3 | TASK-090 – TASK-092 |
-| Gli helper usati da più moduli stanno in `testing/`; quelli privati di un modulo nel suo `tests/`, non importabile dagli altri moduli | D-3 (C5) | TASK-090, TASK-092 |
-| Il codice di produzione non importa `testing.*` né pacchetti `tests`; `scoping_lint` esclude solo migrazioni e file e directory di test | D-3 (C2) | TASK-089 |
-| Template privati di un modulo in `<modulo>/templates/<modulo>/`; in `templates/` del progetto solo base, pagine di errore, override di allauth, layout e frammenti pubblici | D-4 | TASK-094 |
-| Helper dei test come semplici funzioni, senza nuove dipendenze; factory_boy si decide in M1 | D-5 | TASK-093 (facoltativo) |
+| Test di modulo in `<modulo>/tests/`; verifiche trasversali in `tests/`; helper condivisi in `testing/`. Ogni directory di test è un pacchetto con `__init__.py`; la radice del progetto si ricava da `settings.BASE_DIR` | D-3 | TASK-090 – TASK-092 (applicata) |
+| Gli helper usati da più moduli stanno in `testing/`; quelli privati di un modulo nel suo `tests/`, non importabile dagli altri moduli | D-3 (C5) | TASK-090, TASK-092 (applicata) |
+| Il codice di produzione non importa `testing.*` né pacchetti `tests`; `scoping_lint` esclude solo migrazioni e file e directory di test | D-3 (C2) | TASK-089 (applicata) |
+| Template privati di un modulo in `<modulo>/templates/<modulo>/`; in `templates/` del progetto solo base, pagine di errore, override di allauth, layout e frammenti pubblici | D-4 | TASK-094 (applicata) |
+| Helper dei test come semplici funzioni, senza nuove dipendenze; factory_boy si decide in M1 | D-5 | TASK-093 (applicata; era facoltativo, non rinviato) |
 | Un modulo usa un altro modulo solo tramite `services`, `selectors` e le superfici tecniche pubbliche elencate in ADR-001, regola 2 | D-9 | Già in vigore in CI (VER-021) |
-| I criteri automatizzabili delle storie tecniche (`AC-TS`) sono richiamati dai test come quelli del PRD; ogni PR registra solo quelli che soddisfa | D-8 | TASK-088 |
+| I criteri automatizzabili delle storie tecniche (`AC-TS`) sono richiamati dai test come quelli del PRD; ogni PR registra solo quelli che soddisfa | D-8 | TASK-088 (applicata) |
 
 ## 5. Principi trasversali
 
@@ -421,3 +422,4 @@ gli ADR successivi non la riaprono.
 | 0.2 | 2026-10-30 | Decision Review: ADR-001 – ADR-006 approvati (ADR-005 nei principi, non nei meccanismi di trigger e contatori); ADR-004 garantisce l'isolamento come risultato, con meccanismo scelto in VER-016, e non promette tempi indistinguibili per il 404; rimosso da ADR-002 il riferimento al framework Tasks; verifiche bloccanti riclassificate come da completare durante M0 (con VER-006, già prevista in M0), con le parti dipendenti dall'hosting assegnate a DEF-001; Q-011 chiusa. Nessun identificativo modificato |
 | 0.2.1 | 2026-11-01 | Verifica di completamento di M0 (issue #15 di `household-hub`): fonte dei requisiti aggiornata al PRD 0.2.3; esiti delle 12 verifiche di M0 nel §9, con le parti rinviate a DEF-001; DEF-014 rinviata dopo l'MVP con la MFA da rivalutare prima del livello 1; perimetro di NFR-002 in M0 (parte applicativa verificata, parte infrastrutturale su DEF-001); informativa di M0 registrata come bozza provvisoria non approvata; limite accettato di ADR-006 verificato. Nessuna decisione approvata e nessun identificativo modificato |
 | 0.2.2 | 2026-11-01 | Milestone tecnica [M0.1](M0.1-structural-refactoring.md) (TASK-095): decisioni D-1 – D-9 approvate dal product owner; nuovo §4.1 sulla struttura del repository e tabella dei pacchetti non di dominio (`config`, `legal`, `testing`, `tests`) nel §4; famiglie di identificativi `SR`, `TS` e `AC-TS`; regola 2 di ADR-001 revisionata in loco con l'elenco chiuso delle superfici tecniche pubbliche (D-9), senza cambiare il merito della decisione. Nessun requisito, VER, DEF o RA modificato |
+| 0.2.3 | 2026-11-03 | Esiti di [M0.1](M0.1-structural-refactoring.md#esiti) (TASK-097): registrati nella scheda i risultati della [verifica di completamento](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md) (TASK-096, PR #56 di `household-hub`) con riserve, anomalie e limiti dichiarati e le modifiche estranee (#47, #54); colonna «Applicata da» del §4.1 aggiornata con lo stato di applicazione; TASK-093 svolto e non rinviato. Nessuna decisione (D-1 – D-9), ADR, requisito, VER, DEF o RA modificato; la chiusura formale di M0.1 non è registrata |
