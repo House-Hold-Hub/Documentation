@@ -97,6 +97,13 @@ signals:
 | Inizializzatori di spazio | `spaces.services`, eseguiti nella transazione di creazione dello spazio | `classification` (M1) | Tassonomia predefinita di ogni nuovo spazio (AC-US-004-01; nuclei in AC-US-014-01) |
 | Usi delle categorie | `classification.services` | `ledger` (M1); regole (TASK-035, M2) e budget (TASK-041, M3) | Categoria «in uso» e riassegnazione all'eliminazione (AC-US-004-06) |
 
+**Spazi personali già esistenti.** Il registro vale per gli spazi creati
+dopo l'introduzione di `classification`. TASK-011 deve dare la tassonomia
+predefinita anche agli spazi personali creati prima. La strategia, scelta in
+TASK-011, è idempotente: rieseguita, o applicata a uno spazio che ha già
+categorie, non crea duplicati né modifica la tassonomia esistente. I test di
+TASK-011 la verificano. Questa decisione non la implementa.
+
 Alternativa scartata: far creare la tassonomia a `identity` dopo lo spazio
 personale. Non coprirebbe i nuclei, creati in `spaces` (M4), che non può
 importare `classification`.
