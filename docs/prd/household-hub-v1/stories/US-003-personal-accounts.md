@@ -43,7 +43,10 @@ corretti a qualsiasi data.
 ## Verifica
 
 Test di accettazione automatizzati con i dati di AC-03; test negativi di
-accesso estesi ai conti (US-002).
+accesso estesi ai conti (US-002). AC-05 è soddisfatto in M2: il rifiuto
+delle importazioni su un conto archiviato si verifica con
+[US-008](US-008-file-import.md) (TASK-024, TASK-026); le altre condizioni
+sono verificate in M1 ([criteri completati dopo M1](../milestones/M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive)).
 
 ## Task
 

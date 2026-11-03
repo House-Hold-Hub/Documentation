@@ -34,6 +34,9 @@ US-009, US-010 e US-011 sono indipendenti tra loro dopo US-008.
 - NFR-006 (anteprima) e NFR-011 verificati.
 - Abbinamento uno a uno dei duplicati verificato (AC-US-009-09);
   AC-US-010-08 sui movimenti vincolati è verificato dopo M4.
+- AC-US-003-05 completato: un conto archiviato non è selezionabile per
+  un'importazione né la accetta alla conferma (TASK-024, TASK-026;
+  [criteri completati dopo M1](M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive)).
 - US-012 è rinviabile ([perimetro](../roadmap.md#perimetro-dellmvp)): se
   rinviata non blocca il completamento.
 

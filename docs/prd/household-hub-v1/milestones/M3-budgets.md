@@ -25,6 +25,10 @@ riusate dai budget del nucleo in [US-019](../stories/US-019-household-reports-an
 - Dataset di verifica di M1 esteso con voci di budget su categorie e
   sottocategorie, incluso il caso con voci solo su sottocategorie
   (AC-US-013-10).
+- Punto 6 di DR-012 (consuntivo uguale al report) verificato sul dataset
+  di verifica esteso, anche dopo la categorizzazione dal report di un
+  movimento "Da categorizzare" (AC-US-013-04;
+  [delimitazione in US-007](../stories/US-007-monthly-report.md#verifica)).
 
 ## Rischi principali
 

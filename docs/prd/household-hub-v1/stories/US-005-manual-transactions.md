@@ -49,6 +49,9 @@ movimenti (US-002). I vincoli sui movimenti attribuiti (DR-010) sono
 verificati in [US-018](US-018-transaction-attribution.md) e quelli sui
 movimenti vincolati (DR-023) in [US-015](US-015-household-roles-and-members.md);
 la natura dei movimenti è verificata in [US-006](US-006-transfers.md).
+AC-06 è soddisfatto in M4, quando esiste la natura «trasferimento tra
+spazi» (TASK-081); gli altri filtri sono verificati in M1
+([criteri completati dopo M1](../milestones/M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive)).
 
 ## Task
 

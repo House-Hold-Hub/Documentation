@@ -56,7 +56,11 @@ Test di accettazione automatizzati; il dataset di verifica dei report
 ([US-007](US-007-monthly-report.md)) include giroconti. AC-06 per i
 movimenti attribuiti è verificabile dopo US-018 e per i movimenti
 vincolati dopo US-015; AC-08 richiede un nucleo ed è verificato in M4, dopo
-[US-014](US-014-household-creation-and-invitations.md).
+[US-014](US-014-household-creation-and-invitations.md). Per lo stesso
+motivo AC-02 è soddisfatto in M4 (TASK-081): in M1 si verifica il rifiuto
+dello stesso conto e dei conti di altri spazi. AC-02, AC-06 e AC-08 sono
+quindi dichiarati soddisfatti in M4
+([criteri completati dopo M1](../milestones/M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive)).
 
 ## Task
 
