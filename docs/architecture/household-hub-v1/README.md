@@ -211,12 +211,17 @@ concorrenza prima della milestone che li usa (VER-010 – VER-013).
 
 Report, consuntivi di budget e "spese non pianificate" sono calcolati al
 momento della lettura da un'unica vista delle righe di report: movimenti
-ordinari, quote attribuite e quote storiche non limitate. Così
+ordinari, quote attribuite e quote storiche non limitate. Così il punto 6 di
 [DR-012](../../prd/household-hub-v1/domain-rules.md#dr-012--invariante-dei-totali)
-punti 6 e 7 valgono per costruzione, NFR-005 non richiede invalidazioni e il
-ricalcolo del ripiego di DR-024 non richiede elaborazioni. Con i volumi di
-A-005 il limite di NFR-006 non richiede cache. Stato: approvata con
-[ADR-007](adr/ADR-007-read-time-reports.md) il 2026-11-03.
+è garantito dalla fonte condivisa, perché consuntivi e report leggono le
+stesse righe; il punto 7 (quadratura dei saldi) non deriva dalla vista e si
+verifica esplicitamente confrontando i saldi di `ledger` con le righe della
+vista, tramite l'oracolo delle invarianti
+([ADR-006](adr/ADR-006-testing-and-continuous-integration.md),
+[ADR-007](adr/ADR-007-read-time-reports.md)). NFR-005 non richiede
+invalidazioni e il ricalcolo del ripiego di DR-024 non richiede elaborazioni.
+Con i volumi di A-005 il limite di NFR-006 non richiede cache. Stato:
+approvata con [ADR-007](adr/ADR-007-read-time-reports.md) il 2026-11-03.
 
 ### 5.5 Visibilità per destinatario
 
@@ -433,4 +438,4 @@ gli ADR successivi non la riaprono.
 | 0.2.1 | 2026-11-01 | Verifica di completamento di M0 (issue #15 di `household-hub`): fonte dei requisiti aggiornata al PRD 0.2.3; esiti delle 12 verifiche di M0 nel §9, con le parti rinviate a DEF-001; DEF-014 rinviata dopo l'MVP con la MFA da rivalutare prima del livello 1; perimetro di NFR-002 in M0 (parte applicativa verificata, parte infrastrutturale su DEF-001); informativa di M0 registrata come bozza provvisoria non approvata; limite accettato di ADR-006 verificato. Nessuna decisione approvata e nessun identificativo modificato |
 | 0.2.2 | 2026-11-01 | Milestone tecnica [M0.1](M0.1-structural-refactoring.md) (TASK-095): decisioni D-1 – D-9 approvate dal product owner; nuovo §4.1 sulla struttura del repository e tabella dei pacchetti non di dominio (`config`, `legal`, `testing`, `tests`) nel §4; famiglie di identificativi `SR`, `TS` e `AC-TS`; regola 2 di ADR-001 revisionata in loco con l'elenco chiuso delle superfici tecniche pubbliche (D-9), senza cambiare il merito della decisione. Nessun requisito, VER, DEF o RA modificato |
 | 0.2.3 | 2026-11-03 | Esiti di [M0.1](M0.1-structural-refactoring.md#esiti) (TASK-097): registrati nella scheda i risultati della [verifica di completamento](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md) (TASK-096, PR #56 di `household-hub`) con riserve, anomalie e limiti dichiarati e le modifiche estranee (#47, #54); colonna «Applicata da» del §4.1 aggiornata con lo stato di applicazione; TASK-093 svolto e non rinviato. Nessuna decisione (D-1 – D-9), ADR, requisito, VER, DEF o RA modificato; la chiusura formale di M0.1 non è registrata |
-| 0.2.4 | 2026-11-03 | Preparazione di M1 (TASK-098, issue #57 di `household-hub`): chiusura di M0.1 registrata (decisione del product owner del 2026-11-03); termine di VER-012 e VER-013 precisato in «prima dell'implementazione di US-006 (TASK-017)», senza condizionare l'avvio di M1 (§9, §10; revisione in loco di ADR-005); superficie `core.money` aggiunta alla regola 2 di ADR-001 (revisione in loco, D-12); [scheda di preparazione tecnica di M1](M1-technical-preparation.md) con le decisioni D-10 – D-18 approvate dal product owner (D-14 e D-15 nella soluzione progettuale, con le verifiche obbligatorie di TASK-102 e TASK-103); [ADR-007](adr/ADR-007-read-time-reports.md) approvato (§1, §5.4, §10), con VER-023 e VER-024 (§9); fonte dei requisiti aggiornata al PRD 0.2.4. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
+| 0.2.4 | 2026-11-03 | Preparazione di M1 (TASK-098, issue #57 di `household-hub`): chiusura di M0.1 registrata (decisione del product owner del 2026-11-03); termine di VER-012 e VER-013 precisato in «prima dell'implementazione di US-006 (TASK-017)», senza condizionare l'avvio di M1 (§9, §10; revisione in loco di ADR-005); superficie `core.money` aggiunta alla regola 2 di ADR-001 (revisione in loco, D-12); [scheda di preparazione tecnica di M1](M1-technical-preparation.md) con le decisioni D-10 – D-18 approvate dal product owner (D-14 e D-15 nella soluzione progettuale, con le verifiche obbligatorie di TASK-102 e TASK-103); [ADR-007](adr/ADR-007-read-time-reports.md) approvato (§1, §5.4, §10), con VER-023 e VER-024 (§9); §5.4 allineato ad ADR-007 (punto 6 di DR-012 garantito dalla fonte condivisa, punto 7 verificato con l'oracolo); fonte dei requisiti aggiornata al PRD 0.2.4. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
