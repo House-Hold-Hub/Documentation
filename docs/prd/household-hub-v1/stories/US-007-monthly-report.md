@@ -73,6 +73,33 @@ più mesi; trasferimenti tra spazi aggiunti in M4) riusato da [US-013](US-013-bu
 [US-019](US-019-household-reports-and-budgets.md); misura di prestazioni su
 dataset di volume; verifica manuale della leggibilità su smartphone.
 
+**Invarianti di DR-012 sul dataset di verifica.** In M1 si verificano le
+invarianti applicabili alle funzioni disponibili in M1; le altre si
+aggiungono con le milestone che introducono budget, trasferimenti tra spazi
+e attribuzioni.
+
+| Punto di DR-012 | Verificato in M1 | Completato in |
+|---|---|---|
+| 1 — Totali di entrate e uscite, rimborsi | Sì | M1 (quote del nucleo: [US-019](US-019-household-reports-and-budgets.md), M4) |
+| 2 — Saldo netto | Sì | M1 |
+| 3 — Somma delle categorie, inclusa "Da categorizzare" | Sì | M1 |
+| 4 — Totale di categoria | Sì | M1 |
+| 5 — Contributo nullo | Giroconti | M4: trasferimenti tra spazi (TASK-081, TASK-061) |
+| 6 — Consuntivo uguale al report | No | M3: AC-US-013-04 |
+| 7 — Quadratura dei saldi | Giroconti | M4: trasferimenti tra spazi; attribuzioni senza effetto sui saldi (TASK-061) |
+| 8 — Capienza | No | M4: AC-US-018-12 |
+
+- AC-02 e AC-09 sono soddisfatti in M4, sul dataset esteso (TASK-061);
+  in M1 il dataset è superato sui punti verificabili in M1
+  ([criteri completati dopo M1](../milestones/M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive)).
+- AC-06 è soddisfatto in M1: categorizzando dal report si verificano le
+  invarianti di DR-012 applicabili alle funzioni di M1 (punti 1 – 5 e 7).
+  L'effetto della categorizzazione sui budget è verificato in M3 con
+  AC-US-013-04; quello su attribuzioni e report del nucleo in M4
+  ([US-018](US-018-transaction-attribution.md),
+  [US-019](US-019-household-reports-and-budgets.md)). Il significato del
+  criterio non cambia.
+
 ## Task
 
 - **TASK-019** — Calcolo dei totali mensili per categoria e sottocategoria

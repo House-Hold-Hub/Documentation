@@ -51,6 +51,11 @@ US-016 e US-017 sono indipendenti tra loro.
   saldi (DR-012 punti 7 e 8) verificate.
 - AC-US-006-08 (trasferimenti tra spazi nello spazio personale) e
   AC-US-001-09 (sezione sullo storico dei nuclei) verificati.
+- Criteri di M1 completati in M4
+  ([elenco](M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive)):
+  AC-US-005-06, AC-US-006-02 (TASK-081); AC-US-006-06 (TASK-056,
+  TASK-085); AC-US-007-02 e AC-US-007-09 sul dataset di verifica esteso
+  (TASK-061).
 
 ## Rischi principali
 

@@ -3,8 +3,8 @@
 | Campo | Valore |
 |---|---|
 | Prodotto | House-Hold-Hub |
-| Versione del PRD | 0.2.3 (bozza per revisione) |
-| Data | 2026-10-30 |
+| Versione del PRD | 0.2.4 (bozza per revisione) |
+| Data | 2026-11-03 |
 | Product owner | mdellapa |
 | Ambito | V1, di cui MVP = milestone M0–M5 |
 
@@ -172,11 +172,11 @@ La colonna "Perimetro MVP" segue la classificazione della
 |---|---|---|---|---|---|
 | [US-001](stories/US-001-registration-and-personal-space.md) | Registrazione, accesso e spazio personale | M0 | FR-001, FR-002, FR-044 | READY | Indispensabile; AC-08 rinviabile; sezione sullo storico dei nuclei di AC-09 dipendente (Q-012) |
 | [US-002](stories/US-002-space-isolation.md) | Isolamento degli spazi | M0 | FR-002, FR-005 | READY | Indispensabile |
-| [US-003](stories/US-003-personal-accounts.md) | Gestione dei conti personali | M1 | FR-008, FR-009, FR-010 | READY | Indispensabile |
+| [US-003](stories/US-003-personal-accounts.md) | Gestione dei conti personali | M1 | FR-008, FR-009, FR-010 | READY | Indispensabile; AC-05 completato in M2 |
 | [US-004](stories/US-004-categories.md) | Categorie e sottocategorie personalizzabili | M1 | FR-016, FR-017, FR-018 | READY | Indispensabile |
-| [US-005](stories/US-005-manual-transactions.md) | Movimenti manuali | M1 | FR-012, FR-013, FR-015 | READY | Indispensabile |
-| [US-006](stories/US-006-transfers.md) | Giroconti tra conti | M1 | FR-012, FR-014 | READY | Indispensabile; AC-08 verificato in M4 |
-| [US-007](stories/US-007-monthly-report.md) | Report mensile per categoria | M1 | FR-030, FR-031, FR-032 | READY | Indispensabile; AC-05 rinviabile |
+| [US-005](stories/US-005-manual-transactions.md) | Movimenti manuali | M1 | FR-012, FR-013, FR-015 | READY | Indispensabile; AC-06 completato in M4 |
+| [US-006](stories/US-006-transfers.md) | Giroconti tra conti | M1 | FR-012, FR-014 | READY | Indispensabile; AC-02, AC-06 e AC-08 completati in M4 |
+| [US-007](stories/US-007-monthly-report.md) | Report mensile per categoria | M1 | FR-030, FR-031, FR-032 | READY | Indispensabile; AC-05 rinviabile; AC-02 e AC-09 completati in M4 |
 | [US-008](stories/US-008-file-import.md) | Importazione CSV/Excel | M2 | FR-020, FR-021, FR-022 | READY | Indispensabile; formato .xls rinviabile |
 | [US-009](stories/US-009-duplicate-detection.md) | Rilevamento duplicati | M2 | FR-023 | READY | Indispensabile |
 | [US-010](stories/US-010-import-batches.md) | Lotti di importazione annullabili | M2 | FR-024, FR-028 | READY | Indispensabile; AC-08 dipendente (Q-014) |
@@ -243,3 +243,4 @@ resta la 0.2.3.
 | 0.2.1 | 2026-10-28 | Consolidamento: trasferimenti tra spazi registrabili da qualsiasi membro senza accesso ai conti personali altrui (DR-007, I-1); rivalidazione indivisibile dei preavvisi alla scadenza (DR-026, I-2); audit minimo indispensabile e registro completo rinviabile (FR-043, US-022, I-3); criteri di completamento e NFR al netto dei rinviabili (I-4); informativa generale alla registrazione distinta dalla sezione soggetta al gate (FR-044, I-5); trasferimenti tra spazi verificati in M4 (I-6); rettifica contabile dei movimenti vincolati distinta dall'opposizione (DR-023, I-7); Definition of Ready e livelli di rilascio, con MVP implementato distinto da MVP autorizzato all'uso reale (I-8, I-10); inaccessibilità immediata e cancellazione nei tempi di DR-024 (I-9); tracciabilità tra requisiti, questioni e storie (I-11); accesso degli operatori allineato a NFR-013 (I-12); nessuna correlazione visibile tra quote storiche o tra ex membri (I-13); arrotondamento degli abbonamenti con totali uguali alla somma delle righe (DR-020, I-14). Finalizzazione con le decisioni del product owner: rettifica contabile bloccata se viola la capienza, con riconciliazione esplicita e senza riduzione automatica, e autorizzazioni nei nuclei lasciati aperte in Q-014 (DR-023); conferma di audit minimo indispensabile e registro completo rinviabile (FR-043), con dipendenze e criteri di completamento allineati (US-022, M4, M5); conferma dei livelli di rilascio, con requisiti di sicurezza per dati reali già al livello 1, e del perimetro MVP; costo annuale effettivo distinto dall'equivalente mensile (DR-020, FR-038, US-023). Nessun identificativo esistente è stato riutilizzato o ritirato. |
 | 0.2.2 | 2026-10-30 | Q-011 parzialmente risolta: approvati dal product owner stack di riferimento (Python con Django, PostgreSQL, HTMX), monolite modulare, pagine renderizzate dal server senza SPA e assenza di API pubbliche nella V1; collegamenti al documento di architettura e agli ADR-001 – ADR-006, nello stato Proposto; distinzione tra verifiche bloccanti prima di M0 e rinviabili; criterio di chiusura di Q-011 (aggiornati Q-011, prerequisiti globali e prerequisito di M0). Nessun requisito, regola o identificativo modificato. |
 | 0.2.3 | 2026-10-30 | Q-011 chiusa con l'approvazione di ADR-001 – ADR-006 (ADR-005 nei principi): aggiornati Q-011, prerequisiti globali e scheda M0; aggiunto al criterio di completamento di M0 il completamento delle verifiche architetturali di M0, escluse le parti che dipendono dall'hosting. Nessun requisito, regola o identificativo modificato. |
+| 0.2.4 | 2026-11-03 | Criteri completati dopo M1 (TASK-098): un criterio è soddisfatto solo quando tutte le sue condizioni verificabili sono implementate e verificate. Esplicitati nella scheda M1 i criteri che richiedono funzioni successive, con milestone e task di completamento (AC-US-003-05 in M2; AC-US-005-06, AC-US-006-02, AC-US-006-06, AC-US-007-02 e AC-US-007-09 in M4), e allineati i criteri di completamento di M2, M3 e M4, le sezioni «Verifica» di US-003, US-005, US-006 e US-007 e la colonna «Perimetro MVP». Nella verifica di US-007 la delimitazione delle invarianti di DR-012 verificabili per milestone; AC-US-007-06 resta in M1 senza cambiare significato. Dipendenza di M1 da M0.1, chiusa il 2026-11-03. Nessun requisito, regola di dominio, criterio di accettazione o identificativo modificato, riutilizzato o ritirato. |

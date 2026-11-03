@@ -154,7 +154,7 @@ sarà registrato in un ADR dedicato.
 
 | ID | Invariante | Meccanismo candidato | Entro |
 |---|---|---|---|
-| VER-012 | Giroconto: due lati, stesso spazio, stesso importo, direzioni opposte (DR-006) | Vincolo differito a fine transazione sul gruppo del giroconto; ogni modifica aggiorna sempre entrambi i lati, in ordine fisso | Prima di M1 (US-006) |
+| VER-012 | Giroconto: due lati, stesso spazio, stesso importo, direzioni opposte (DR-006) | Vincolo differito a fine transazione sul gruppo del giroconto; ogni modifica aggiorna sempre entrambi i lati, in ordine fisso | Prima dell'implementazione di US-006 (TASK-017); non condiziona l'avvio di M1 |
 | VER-010 | Capienza: somma delle attribuzioni ≤ importo del movimento, comprese quelle verso nuclei lasciati (DR-009, DR-012 p.8) | Totale attribuito sulla riga del movimento, aggiornato da trigger a ogni inserimento, modifica o rimozione di attribuzione; `CHECK (totale attribuito ≤ importo)`; `UNIQUE (movimento, nucleo)` | Prima di M4 (US-018) |
 | VER-011 | Nucleo con membri ha almeno un amministratore (DR-022) | Conteggi di membri attivi e amministratori sulla riga del nucleo, aggiornati da trigger; `CHECK (membri attivi = 0 OR amministratori ≥ 1)` | Prima di M4 (US-015) |
 | VER-013 | Strumento per dichiarare, migrare e testare i trigger | Migrazioni SQL esplicite oppure una libreria per trigger dichiarati nei modelli | Con la prima delle verifiche sopra |
@@ -211,3 +211,23 @@ movimento e nucleo, unicità del lotto per sessione di importazione.
 - Fino all'esito delle verifiche, le invarianti di capienza e di
   amministrazione non hanno un meccanismo approvato: le storie interessate
   (US-006, US-015, US-018) non si implementano prima della relativa verifica.
+
+## Revisione del 2026-11-03 — termine di VER-012 e report calcolati in lettura
+
+Decisione del product owner (D-10 della
+[preparazione tecnica di M1](../M1-technical-preparation.md#d-10--termine-di-ver-012-e-ver-013)),
+registrata con TASK-098 come revisione in loco.
+
+- **Motivo.** Il termine di VER-012, «Prima di M1 (US-006)», si poteva
+  leggere come prerequisito dell'avvio di M1 oppure della sola US-006. Le
+  «Conseguenze» di questo ADR legano già la verifica alle storie
+  interessate, che «non si implementano prima della relativa verifica».
+- **Precisazione.** VER-012 e VER-013 si completano prima
+  dell'implementazione di US-006 (TASK-017, e quindi TASK-018); l'avvio di
+  M1 e le storie US-003, US-004, US-005 e US-007 non ne dipendono. L'esito
+  è registrato in un ADR dedicato (TASK-100), come previsto dal §3.
+- **Report calcolati in lettura.** Il punto della sezione «Rinviato» è
+  formalizzato in [ADR-007](ADR-007-read-time-reports.md).
+- **Merito invariato.** Meccanismi candidati, alternative e principio delle
+  invarianti non cambiano; nessun meccanismo del §3 è approvato da questa
+  revisione.
