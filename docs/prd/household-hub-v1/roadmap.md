@@ -45,6 +45,8 @@ decisione esplicita del product owner. Le condizioni di sicurezza, privacy
 e ripristino sono vincolanti: nessuna accettazione del rischio può
 aggirarle, e le sole eccezioni ammissibili sono quelle elencate in
 [M3.1](../../architecture/household-hub-v1/M3.1-level-1-readiness.md#requisiti-del-livello-1).
+NFR-007 resta applicabile e si verifica prima dell'autorizzazione: l'eccezione
+accettata per M0 non è una deroga generalizzata.
 Gli «utenti non esterni» del livello 1 sono le sole persone autorizzate dal
 product owner: l'accesso è esclusivo, non basta bloccare le registrazioni
 ([accesso esclusivo](../../architecture/household-hub-v1/M3.1-level-1-readiness.md#accesso-esclusivo)).
