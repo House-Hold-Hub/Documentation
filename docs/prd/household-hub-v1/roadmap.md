@@ -9,12 +9,12 @@ Obiettivo: un utente e la sua famiglia analizzano ogni mese le spese per
 categoria, partendo dagli estratti conto, e pianificano con i budget,
 mantenendo private le finanze personali.
 
-| Milestone | Valore consegnato | Autorizzazione all'uso reale ([livelli](#livelli-di-rilascio)) |
+| Milestone | Valore consegnato | Contributo ai livelli di rilascio ([livelli](#livelli-di-rilascio)) |
 |---|---|---|
-| [M0](milestones/M0-foundation.md) | Accesso sicuro e spazio personale isolato | No (base tecnica) |
-| [M1](milestones/M1-personal-monthly-analysis.md) | Analisi mensile personale con inserimento manuale | Sì, livello 1 (uso individuale interno) |
-| [M2](milestones/M2-import.md) | Import degli estratti conto con duplicati e categorizzazione automatica | Sì, livello 1 |
-| [M3](milestones/M3-budgets.md) | Budget personali con confronto previsto/consuntivo | Sì, livello 1 |
+| [M0](milestones/M0-foundation.md) | Accesso sicuro e spazio personale isolato | Base tecnica; nessuna autorizzazione propria |
+| [M1](milestones/M1-personal-monthly-analysis.md) | Analisi mensile personale con inserimento manuale | Concorre al livello 1; nessuna autorizzazione propria |
+| [M2](milestones/M2-import.md) | Import degli estratti conto con duplicati e categorizzazione automatica | Concorre al livello 1; nessuna autorizzazione propria |
+| [M3](milestones/M3-budgets.md) | Budget personali con confronto previsto/consuntivo | Completa le funzioni del livello 1; autorizzazione dopo M3.1 |
 | [M4](milestones/M4-households.md) | Nuclei, conti comuni, condivisione, attribuzione, report e budget familiari | Solo livello 2, insieme a M5 e dopo il gate di Q-012 |
 | [M5](milestones/M5-privacy-and-data-control.md) | Esportazione dei dati personali e del nucleo, eliminazione account, registro attività | Livello 2 insieme a M4, dopo il gate di Q-012; prerequisito per aprire il servizio a utenti esterni |
 
@@ -22,6 +22,12 @@ Tra M0 e M1 si svolge la milestone tecnica **M0.1 — Refactoring strutturale**,
 senza valore nuovo per l'utente né modifiche a requisiti, regole o
 identificativi del PRD; va completata prima dell'avvio di M1. Il dettaglio è
 nel [documento di architettura](../../architecture/household-hub-v1/M0.1-structural-refactoring.md).
+
+Prima del livello 1 si svolge la milestone tecnica **M3.1 — Preparazione al
+livello 1**, senza valore nuovo per l'utente né modifiche a requisiti,
+regole o identificativi del PRD; si chiude dopo M2 e M3 e non blocca lo
+sviluppo di M4 con dati di prova. Il dettaglio è nel
+[documento di architettura](../../architecture/household-hub-v1/M3.1-level-1-readiness.md).
 
 ## Livelli di rilascio
 
@@ -32,6 +38,16 @@ nel [documento di architettura](../../architecture/household-hub-v1/M0.1-structu
 | Livello 2 — MVP autorizzato all'uso reale (M0–M5) | Uso reale con nuclei e apertura a utenti esterni | MVP implementato; gate di utilizzo di Q-012 superato e criteri cambiati dalla valutazione riverificati; revisione privacy (NFR-010), prova di ripristino con riapplicazione delle eliminazioni (NFR-012) e accesso del personale, compreso il referente (NFR-013), completati |
 
 Livelli e condizioni sono confermati dal product owner (C, 2026-10-28).
+
+**Autorizzazione al livello 1.** Il completamento di una milestone non
+autorizza l'uso reale. Il livello 1 richiede la chiusura di M3.1 e una
+decisione esplicita del product owner. Le condizioni di sicurezza, privacy
+e ripristino sono vincolanti: nessuna accettazione del rischio può
+aggirarle, e le sole eccezioni ammissibili sono quelle elencate in
+[M3.1](../../architecture/household-hub-v1/M3.1-level-1-readiness.md#requisiti-del-livello-1).
+Gli «utenti non esterni» del livello 1 sono le sole persone autorizzate dal
+product owner: l'accesso è esclusivo, non basta bloccare le registrazioni
+([accesso esclusivo](../../architecture/household-hub-v1/M3.1-level-1-readiness.md#accesso-esclusivo)).
 
 **MVP implementato**: gli elementi indispensabili e quelli dipendenti da
 decisioni aperte di M0–M5 sono al livello "Implementato", in particolare

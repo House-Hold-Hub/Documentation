@@ -7,7 +7,8 @@
 Un utente gestisce i propri conti, la propria tassonomia di categorie e
 sottocategorie, registra entrate, uscite e giroconti e ottiene il report
 mensile per categoria, senza doppi conteggi. È la priorità di prodotto
-(obiettivo G-1) ed è utilizzabile da sola per uso individuale.
+(obiettivo G-1) ed è funzionalmente autonoma per uso individuale; l'uso con
+dati reali segue il [livello 1](../roadmap.md#livelli-di-rilascio).
 
 ## Dipendenze
 

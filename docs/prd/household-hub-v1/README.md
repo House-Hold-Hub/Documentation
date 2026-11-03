@@ -3,7 +3,7 @@
 | Campo | Valore |
 |---|---|
 | Prodotto | House-Hold-Hub |
-| Versione del PRD | 0.2.4 (bozza per revisione) |
+| Versione del PRD | 0.2.5 (bozza per revisione) |
 | Data | 2026-11-03 |
 | Product owner | mdellapa |
 | Ambito | V1, di cui MVP = milestone M0–M5 |
@@ -155,7 +155,9 @@ dei movimenti ([NFR-010](requirements.md#requisiti-non-funzionali)).
 | [M5 — Privacy e controllo dei dati](milestones/M5-privacy-and-data-control.md) | Esportazione, eliminazione account, registro attività | M4 | US-020 – US-022 |
 | [M6 — Abbonamenti e investimenti](milestones/M6-subscriptions-and-investments.md) | Abbonamenti, investimenti, patrimonio | M1 | US-023, US-024 |
 
-Ordine consigliato: M0 → M1 → (M2 ∥ M3) → M4 → M5 → M6.
+Ordine consigliato: M0 → M1 → (M2 ∥ M3) → M3.1 → M4 → M5 → M6.
+[M3.1](../../architecture/household-hub-v1/M3.1-level-1-readiness.md) è la milestone tecnica di
+preparazione al livello 1: non blocca lo sviluppo di M4 con dati di prova.
 M2 e M3 sono indipendenti tra loro; M6 dipende da M1 (da M4 per
 abbonamenti e posizioni del nucleo) e può essere anticipata se le priorità
 cambiano. M4 e M5 sono autorizzate all'uso reale solo insieme e dopo il
@@ -244,3 +246,4 @@ resta la 0.2.3.
 | 0.2.2 | 2026-10-30 | Q-011 parzialmente risolta: approvati dal product owner stack di riferimento (Python con Django, PostgreSQL, HTMX), monolite modulare, pagine renderizzate dal server senza SPA e assenza di API pubbliche nella V1; collegamenti al documento di architettura e agli ADR-001 – ADR-006, nello stato Proposto; distinzione tra verifiche bloccanti prima di M0 e rinviabili; criterio di chiusura di Q-011 (aggiornati Q-011, prerequisiti globali e prerequisito di M0). Nessun requisito, regola o identificativo modificato. |
 | 0.2.3 | 2026-10-30 | Q-011 chiusa con l'approvazione di ADR-001 – ADR-006 (ADR-005 nei principi): aggiornati Q-011, prerequisiti globali e scheda M0; aggiunto al criterio di completamento di M0 il completamento delle verifiche architetturali di M0, escluse le parti che dipendono dall'hosting. Nessun requisito, regola o identificativo modificato. |
 | 0.2.4 | 2026-11-03 | Criteri completati dopo M1 (TASK-098): un criterio è soddisfatto solo quando tutte le sue condizioni verificabili sono implementate e verificate. Esplicitati nella scheda M1 i criteri che richiedono funzioni successive, con milestone e task di completamento (AC-US-003-05 in M2; AC-US-005-06, AC-US-006-02, AC-US-006-06, AC-US-007-02 e AC-US-007-09 in M4), e allineati i criteri di completamento di M2, M3 e M4, le sezioni «Verifica» di US-003, US-005, US-006 e US-007 e la colonna «Perimetro MVP». Nella verifica di US-007 la delimitazione delle invarianti di DR-012 verificabili per milestone; AC-US-007-06 resta in M1 senza cambiare significato. Dipendenza di M1 da M0.1, chiusa il 2026-11-03. Nessun requisito, regola di dominio, criterio di accettazione o identificativo modificato, riutilizzato o ritirato. |
+| 0.2.5 | 2026-11-03 | Livelli di rilascio allineati (TASK-107): colonna della roadmap «Contributo ai livelli di rilascio», regola di autorizzazione al livello 1 e milestone tecnica M3.1; condizioni di sicurezza, privacy e ripristino vincolanti, con le sole eccezioni elencate nella scheda di M3.1; accesso esclusivo degli utenti autorizzati; precisazioni nella scheda M1 e in Q-002. Il contenuto delle condizioni dei livelli, i requisiti, le regole di dominio, i criteri di accettazione e lo scope di M1 non cambiano |
