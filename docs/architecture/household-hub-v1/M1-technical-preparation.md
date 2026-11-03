@@ -5,7 +5,7 @@
 | Campo | Valore |
 |---|---|
 | Tipo | Preparazione tecnica di una milestone di prodotto: decisioni, storie tecniche, task e dipendenze. Non modifica requisiti, regole di dominio o criteri di accettazione del PRD |
-| Stato | **Proposta** (TASK-098). D-10 approvata dal product owner il 2026-11-03; D-11 – D-18 da approvare con TASK-098 |
+| Stato | **Approvata** (2026-11-03): D-10 – D-18 approvate dal product owner con TASK-098. Per D-14 e D-15 è approvata la soluzione progettuale; le verifiche di TASK-102 e TASK-103 restano obbligatorie |
 | Decisore | mdellapa (product owner) |
 | Collocazione | Dopo M0.1 (chiusa il 2026-11-03), prima e durante M1 |
 | Repository interessati | `household-hub` (codice e test), `Documentation` (decisioni ed esiti) |
@@ -45,14 +45,14 @@ criteri di accettazione di M1.
 | ID | Decisione | Stato |
 |---|---|---|
 | D-10 | Termine di VER-012 e VER-013 | Approvata (2026-11-03) |
-| D-11 | Livelli dei moduli | Proposta |
-| D-12 | Superficie `core.money` | Proposta |
-| D-13 | Punti di estensione tra moduli | Proposta |
-| D-14 | Collegamenti nello stesso spazio garantiti dal database | Proposta |
-| D-15 | Modelli di sola lettura su viste | Proposta |
-| D-16 | Elenco vivo delle relazioni attraversabili | Proposta |
-| D-17 | Registrazione dei criteri di accettazione | Proposta |
-| D-18 | Dati di test | Proposta |
+| D-11 | Livelli dei moduli | Approvata (2026-11-03) |
+| D-12 | Superficie `core.money` | Approvata (2026-11-03) |
+| D-13 | Punti di estensione tra moduli | Approvata (2026-11-03) |
+| D-14 | Collegamenti nello stesso spazio garantiti dal database | Approvata (2026-11-03): soluzione progettuale; verifiche in TASK-102 |
+| D-15 | Modelli di sola lettura su viste | Approvata (2026-11-03): soluzione progettuale; verifiche in TASK-103 |
+| D-16 | Elenco vivo delle relazioni attraversabili | Approvata (2026-11-03) |
+| D-17 | Registrazione dei criteri di accettazione | Approvata (2026-11-03) |
+| D-18 | Dati di test | Approvata (2026-11-03) |
 
 ### D-10 — Termine di VER-012 e VER-013
 
@@ -129,6 +129,10 @@ garantito dal database ciò che oggi garantiscono form e servizi (rischio
   tipo della categoria (DR-008), due livelli di categorie, stesso tipo
   della sottocategoria e del padre.
 
+**Approvazione.** È approvata la soluzione progettuale. Le verifiche di
+TASK-102 (AC-TS-005-01, AC-TS-005-02) restano obbligatorie: se non sono
+superate, la decisione si rivede prima dei task che la usano.
+
 ### D-15 — Modelli di sola lettura su viste
 
 Una base di `spaces.scoping` per i modelli non gestiti che leggono una vista
@@ -137,6 +141,10 @@ SQL di uno spazio, come previsto da
 nessuna scrittura, riconosciuta da `scoping_lint` (HH001) e da
 `check_models`. Al posto del trigger di VER-014 la verifica in CI controlla
 che la relazione sia una vista con `security_invoker` e non aggiornabile.
+
+**Approvazione.** È approvata la soluzione progettuale. Le verifiche di
+TASK-103 (AC-TS-005-05, VER-024) restano obbligatorie: se non sono
+superate, la decisione e ADR-007 si rivedono prima di TASK-019.
 
 ### D-16 — Elenco vivo delle relazioni attraversabili
 
@@ -311,3 +319,4 @@ Non sono decisioni architetturali e non bloccano TASK-098.
 | Data | Modifiche |
 |---|---|
 | 2026-11-03 | Prima versione (TASK-098): D-10 approvata; D-11 – D-18 proposte; storie tecniche TS-004 – TS-008, task, dipendenze e registrazione dei criteri di M1 |
+| 2026-11-03 | Review della PR Documentation#5: D-13 integrata con gli spazi personali già esistenti (TASK-011); D-11 – D-18 approvate dal product owner, D-14 e D-15 nella soluzione progettuale con le verifiche obbligatorie di TASK-102 e TASK-103; stato della scheda «Approvata» |

@@ -3,7 +3,7 @@
 | Campo | Valore |
 |---|---|
 | Documento | Architettura software, risposta a [Q-011](../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
-| Versione | 0.2.4 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; M0.1 chiusa; decisioni tecniche di M1 e ADR-007 proposti) |
+| Versione | 0.2.4 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; M0.1 chiusa; decisioni tecniche di M1 e ADR-007 approvati) |
 | Data | 2026-11-03 |
 | Responsabile | mdellapa |
 | Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.4 |
@@ -13,15 +13,15 @@
 
 | Documento | Contenuto | Stato |
 |---|---|---|
-| [ADR-001](adr/ADR-001-modular-monolith.md) | Monolite modulare con app Django | Approvato; regola 2 revisionata il 2026-11-01 (superfici tecniche pubbliche, D-9 di M0.1); revisione proposta il 2026-11-03 (superficie `core.money`, D-12 di M1) |
+| [ADR-001](adr/ADR-001-modular-monolith.md) | Monolite modulare con app Django | Approvato; regola 2 revisionata il 2026-11-01 (superfici tecniche pubbliche, D-9 di M0.1) e il 2026-11-03 (superficie `core.money`, D-12 di M1) |
 | [ADR-002](adr/ADR-002-stack-and-server-rendered-ui.md) | Stack, versioni e interfaccia renderizzata dal server | Approvato |
 | [ADR-003](adr/ADR-003-authentication-and-sessions.md) | Autenticazione e sessioni | Approvato |
 | [ADR-004](adr/ADR-004-space-isolation-and-authorization.md) | Isolamento degli spazi e autorizzazione applicativa, senza RLS | Approvato; meccanismo di accesso filtrato scelto durante M0 (VER-016) |
 | [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md) | Convenzioni di persistenza, importi e invarianti | Approvato nei principi; meccanismi di trigger e contatori da verificare; termine di VER-012 precisato il 2026-11-03 (prima di TASK-017, D-10 di M1) |
 | [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) | Test e integrazione continua | Approvato; esiti di M0 registrati (limite accettato verificato) |
-| [ADR-007](adr/ADR-007-read-time-reports.md) | Report calcolati in lettura e vista delle righe di report | Proposto (TASK-098) |
+| [ADR-007](adr/ADR-007-read-time-reports.md) | Report calcolati in lettura e vista delle righe di report | Approvato (2026-11-03); VER-023 e VER-024 da completare nei task |
 | [M0.1](M0.1-structural-refactoring.md) | Milestone tecnica di refactoring strutturale tra M0 e M1: decisioni D-1 – D-9, storie tecniche, task e dipendenze | Approvata (2026-11-01); esiti registrati; **chiusa il 2026-11-03** |
-| [M1 — preparazione tecnica](M1-technical-preparation.md) | Decisioni tecniche D-10 – D-18, storie tecniche TS-004 – TS-008, task, dipendenze e registrazione dei criteri di M1 | Proposta (TASK-098) |
+| [M1 — preparazione tecnica](M1-technical-preparation.md) | Decisioni tecniche D-10 – D-18, storie tecniche TS-004 – TS-008, task, dipendenze e registrazione dei criteri di M1 | Approvata (2026-11-03); applicata dai task di M1 |
 
 ## Convenzioni
 
@@ -68,6 +68,8 @@ Decision Review, gli ADR indispensabili per M0. Con la loro approvazione
 | Nessuna API pubblica nella V1 | [ADR-002](adr/ADR-002-stack-and-server-rendered-ui.md) |
 | ADR indispensabili prima di M0 | [ADR-001](adr/ADR-001-modular-monolith.md) – [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) |
 | Struttura del repository, organizzazione dei test e superfici tecniche pubbliche (2026-11-01) | [M0.1, D-1 – D-9](M0.1-structural-refactoring.md#decisioni); [§4.1](#41-struttura-del-repository); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
+| Preparazione tecnica di M1: termine di VER-012 e VER-013, livelli dei moduli, superficie `core.money`, punti di estensione, collegamenti nello stesso spazio, modelli di sola lettura su viste, elenco delle relazioni, registrazione dei criteri, dati di test (2026-11-03) | [M1, D-10 – D-18](M1-technical-preparation.md#decisioni); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
+| Report calcolati in lettura da una vista delle righe di report (2026-11-03) | [ADR-007](adr/ADR-007-read-time-reports.md) |
 
 **Condizioni dell'approvazione**
 
@@ -155,7 +157,7 @@ Regole decise con [M0.1](M0.1-structural-refactoring.md#decisioni) il
 2026-11-01. Si applicano con i task indicati. Applicazione verificata il
 2026-11-03 con la [verifica di M0.1](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md); esiti nella
 [scheda](M0.1-structural-refactoring.md#esiti). Le ultime tre righe sono
-proposte per M1 con la [scheda di preparazione tecnica](M1-technical-preparation.md#decisioni).
+decise per M1 il 2026-11-03 con la [scheda di preparazione tecnica](M1-technical-preparation.md#decisioni).
 
 | Regola | Decisione | Applicata da |
 |---|---|---|
@@ -168,9 +170,9 @@ proposte per M1 con la [scheda di preparazione tecnica](M1-technical-preparation
 | Helper dei test come semplici funzioni, senza nuove dipendenze; factory_boy si decide in M1 | D-5 | TASK-093 (applicata; era facoltativo, non rinviato) |
 | Un modulo usa un altro modulo solo tramite `services`, `selectors` e le superfici tecniche pubbliche elencate in ADR-001, regola 2 | D-9 | Già in vigore in CI (VER-021) |
 | I criteri automatizzabili delle storie tecniche (`AC-TS`) sono richiamati dai test come quelli del PRD; ogni PR registra solo quelli che soddisfa | D-8 | TASK-088 (applicata) |
-| Livelli dei moduli in un ordine lineare: `identity > reporting > ledger > classification > spaces > core` | D-11 di M1 (proposta) | Primo task di ogni modulo (TASK-008, TASK-011, TASK-019) |
-| L'elenco delle relazioni attraversabili è un documento vivo di `household-hub`, non la verifica datata `docs/ver-016.md` | D-16 di M1 (proposta) | TASK-102 |
-| Un criterio di accettazione si cita e si registra in `REQUIRED_ACS` solo nella PR che ne verifica l'ultima condizione; i test intermedi citano il task | D-17 di M1 (proposta) | Ogni PR di M1 |
+| Livelli dei moduli in un ordine lineare: `identity > reporting > ledger > classification > spaces > core` | D-11 di M1 | Primo task di ogni modulo (TASK-008, TASK-011, TASK-019) |
+| L'elenco delle relazioni attraversabili è un documento vivo di `household-hub`, non la verifica datata `docs/ver-016.md` | D-16 di M1 | TASK-102 |
+| Un criterio di accettazione si cita e si registra in `REQUIRED_ACS` solo nella PR che ne verifica l'ultima condizione; i test intermedi citano il task | D-17 di M1 | Ogni PR di M1 |
 
 ## 5. Principi trasversali
 
@@ -213,8 +215,8 @@ ordinari, quote attribuite e quote storiche non limitate. Così
 [DR-012](../../prd/household-hub-v1/domain-rules.md#dr-012--invariante-dei-totali)
 punti 6 e 7 valgono per costruzione, NFR-005 non richiede invalidazioni e il
 ricalcolo del ripiego di DR-024 non richiede elaborazioni. Con i volumi di
-A-005 il limite di NFR-006 non richiede cache. Stato: formalizzata in
-[ADR-007](adr/ADR-007-read-time-reports.md), proposto con TASK-098.
+A-005 il limite di NFR-006 non richiede cache. Stato: approvata con
+[ADR-007](adr/ADR-007-read-time-reports.md) il 2026-11-03.
 
 ### 5.5 Visibilità per destinatario
 
@@ -378,8 +380,8 @@ Esiti registrati con la verifica di completamento di M0 (2026-11-01, issue #15 d
 | VER-007 | Comportamento di Django e psycopg con importi a più di due decimali: errore o arrotondamento silenzioso | ADR-005 | Prima dei primi importi (M1) |
 | VER-008 | Parser degli importi in formato italiano, anche da tastiera di smartphone | ADR-005 | M1 |
 | VER-020 | Accessibilità delle sostituzioni HTMX (focus, annunci) | ADR-002 | Primi flussi di M1 |
-| VER-023 | Prestazioni del report calcolato in lettura sui volumi di NFR-006 | ADR-007 (proposto) | TASK-020 |
-| VER-024 | Modello di sola lettura su vista: ruoli, `security_invoker`, scritture rifiutate, filtro per spazio | ADR-007 (proposto) | TASK-103 |
+| VER-023 | Prestazioni del report calcolato in lettura sui volumi di NFR-006 | ADR-007 | TASK-020 |
+| VER-024 | Modello di sola lettura su vista: ruoli, `security_invoker`, scritture rifiutate, filtro per spazio | ADR-007 | TASK-103 |
 | VER-009 | Conversione dei numeri delle celle Excel in importi esatti | ADR-005 | M2, con i file di esempio di Q-008 |
 | VER-010 | Capienza delle attribuzioni garantita nel database sotto concorrenza | ADR-005 | Prima di M4 (US-018) |
 | VER-011 | Invariante "almeno un amministratore" garantita nel database sotto concorrenza | ADR-005 | Prima di M4 (US-015) |
@@ -398,7 +400,7 @@ gli ADR successivi non la riaprono.
 
 | Tema | Entro |
 |---|---|
-| Report calcolati in lettura e vista delle righe di report | Prima di M1: [ADR-007](adr/ADR-007-read-time-reports.md), proposto con TASK-098 |
+| Report calcolati in lettura e vista delle righe di report | Prima di M1: [ADR-007](adr/ADR-007-read-time-reports.md), approvato il 2026-11-03 |
 | Invarianti concorrenti: esito di VER-010 – VER-013 | Prima dell'implementazione di US-006 (TASK-017) per i giroconti, con TASK-099 e TASK-100; aggiornamento prima di M4 |
 | Hosting, ambienti, backup e ripristino, cifratura, accessi tecnici (NFR-002, NFR-012, NFR-013) | Prima del livello 1 |
 | Importazione: file, anteprima, duplicati, lotti, attività periodiche | Prima di M2 |
@@ -431,4 +433,4 @@ gli ADR successivi non la riaprono.
 | 0.2.1 | 2026-11-01 | Verifica di completamento di M0 (issue #15 di `household-hub`): fonte dei requisiti aggiornata al PRD 0.2.3; esiti delle 12 verifiche di M0 nel §9, con le parti rinviate a DEF-001; DEF-014 rinviata dopo l'MVP con la MFA da rivalutare prima del livello 1; perimetro di NFR-002 in M0 (parte applicativa verificata, parte infrastrutturale su DEF-001); informativa di M0 registrata come bozza provvisoria non approvata; limite accettato di ADR-006 verificato. Nessuna decisione approvata e nessun identificativo modificato |
 | 0.2.2 | 2026-11-01 | Milestone tecnica [M0.1](M0.1-structural-refactoring.md) (TASK-095): decisioni D-1 – D-9 approvate dal product owner; nuovo §4.1 sulla struttura del repository e tabella dei pacchetti non di dominio (`config`, `legal`, `testing`, `tests`) nel §4; famiglie di identificativi `SR`, `TS` e `AC-TS`; regola 2 di ADR-001 revisionata in loco con l'elenco chiuso delle superfici tecniche pubbliche (D-9), senza cambiare il merito della decisione. Nessun requisito, VER, DEF o RA modificato |
 | 0.2.3 | 2026-11-03 | Esiti di [M0.1](M0.1-structural-refactoring.md#esiti) (TASK-097): registrati nella scheda i risultati della [verifica di completamento](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md) (TASK-096, PR #56 di `household-hub`) con riserve, anomalie e limiti dichiarati e le modifiche estranee (#47, #54); colonna «Applicata da» del §4.1 aggiornata con lo stato di applicazione; TASK-093 svolto e non rinviato. Nessuna decisione (D-1 – D-9), ADR, requisito, VER, DEF o RA modificato; la chiusura formale di M0.1 non è registrata |
-| 0.2.4 | 2026-11-03 | Preparazione di M1 (TASK-098, issue #57 di `household-hub`): chiusura di M0.1 registrata (decisione del product owner del 2026-11-03); termine di VER-012 e VER-013 precisato in «prima dell'implementazione di US-006 (TASK-017)», senza condizionare l'avvio di M1 (§9, §10; revisione in loco di ADR-005); superficie `core.money` proposta per la regola 2 di ADR-001 (revisione in loco, D-12); [scheda di preparazione tecnica di M1](M1-technical-preparation.md) con le decisioni D-10 – D-18 proposte; [ADR-007](adr/ADR-007-read-time-reports.md) proposto (§5.4, §10), con VER-023 e VER-024 (§9); fonte dei requisiti aggiornata al PRD 0.2.4. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
+| 0.2.4 | 2026-11-03 | Preparazione di M1 (TASK-098, issue #57 di `household-hub`): chiusura di M0.1 registrata (decisione del product owner del 2026-11-03); termine di VER-012 e VER-013 precisato in «prima dell'implementazione di US-006 (TASK-017)», senza condizionare l'avvio di M1 (§9, §10; revisione in loco di ADR-005); superficie `core.money` aggiunta alla regola 2 di ADR-001 (revisione in loco, D-12); [scheda di preparazione tecnica di M1](M1-technical-preparation.md) con le decisioni D-10 – D-18 approvate dal product owner (D-14 e D-15 nella soluzione progettuale, con le verifiche obbligatorie di TASK-102 e TASK-103); [ADR-007](adr/ADR-007-read-time-reports.md) approvato (§1, §5.4, §10), con VER-023 e VER-024 (§9); fonte dei requisiti aggiornata al PRD 0.2.4. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |

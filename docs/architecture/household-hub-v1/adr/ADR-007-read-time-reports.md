@@ -4,7 +4,7 @@
 
 | Campo | Valore |
 |---|---|
-| Stato | **Proposto** (TASK-098) |
+| Stato | **Approvato** (2026-11-03), con TASK-098. Le verifiche VER-023 (TASK-020) e VER-024 (TASK-103) restano obbligatorie |
 | Data | 2026-11-03 |
 | Decisore | mdellapa (product owner) |
 | Requisiti | FR-030, FR-031, FR-032, NFR-001, NFR-004, NFR-005, NFR-006; [DR-007](../../../prd/household-hub-v1/domain-rules.md#dr-007--movimenti-tra-spazi-diversi), [DR-011](../../../prd/household-hub-v1/domain-rules.md#dr-011--perimetro-dei-report) – [DR-014](../../../prd/household-hub-v1/domain-rules.md#dr-014--rimborsi), [DR-018](../../../prd/household-hub-v1/domain-rules.md#dr-018--saldo-del-conto); [US-007](../../../prd/household-hub-v1/stories/US-007-monthly-report.md); RISK-002 |

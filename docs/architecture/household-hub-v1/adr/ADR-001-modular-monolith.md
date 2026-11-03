@@ -64,7 +64,7 @@ Le viste restano sottili: nessuna regola di dominio in viste, form o template.
    | `core.access`, `core.clock`, `core.ids` | Contesto d'accesso, orologio, identificativi | [Architettura, §4](../README.md#4-moduli); ADR-004 punto 3; ADR-005 |
    | `spaces.permissions` | Matrice dei permessi e dichiarazione del permesso delle viste | ADR-004 punto 4 |
    | `spaces.scoping` | Modello, chiavi esterne e form delle risorse di uno spazio; accesso filtrato | ADR-004 punti 1 e 5; VER-016 |
-   | `core.money` | Tipo `Money` degli importi e sue conversioni (testo inserito dall'utente, database, form) | [ADR-005](ADR-005-persistence-and-monetary-amounts.md) §2; D-12 di [M1](../M1-technical-preparation.md#d-12--superficie-coremoney), **proposta** |
+   | `core.money` | Tipo `Money` degli importi e sue conversioni (testo inserito dall'utente, database, form) | [ADR-005](ADR-005-persistence-and-monetary-amounts.md) §2; D-12 di [M1](../M1-technical-preparation.md#d-12--superficie-coremoney) |
 
    Una nuova superficie tecnica richiede, nella stessa modifica,
    l'aggiornamento di questo elenco e dei contratti di dipendenza verificati in
@@ -122,11 +122,11 @@ Decisione del product owner del 2026-11-01 (D-9 di
 - **Elenco chiuso.** Superfici aggiuntive (es. il tipo `Money` di `core` in M1)
   si aggiungono all'elenco della regola 2 insieme ai contratti di CI.
 
-## Revisione del 2026-11-03 — superficie `core.money` (proposta)
+## Revisione del 2026-11-03 — superficie `core.money`
 
-Proposta con TASK-098 (D-12 della
-[preparazione tecnica di M1](../M1-technical-preparation.md#d-12--superficie-coremoney));
-entra in vigore con l'approvazione del product owner, che ne aggiorna qui lo stato e la data.
+Decisione del product owner del 2026-11-03 (D-12 della
+[preparazione tecnica di M1](../M1-technical-preparation.md#d-12--superficie-coremoney)),
+registrata con TASK-098.
 
 - **Motivo.** ADR-005 colloca in `core` il tipo `Money`, che usano i moduli
   con importi (in M1 `ledger` e `reporting`). L'«Elenco chiuso» della
