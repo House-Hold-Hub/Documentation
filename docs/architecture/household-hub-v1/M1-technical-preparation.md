@@ -206,7 +206,7 @@ Legenda: **auto** = richiamato da un test e registrato in `REQUIRED_ACS`;
 |---|---|---|---|
 | AC-TS-006-01 | Con transazioni concorrenti su più connessioni, i due lati di un giroconto restano nello stesso spazio, di pari importo e di direzione opposta, oppure l'operazione è rifiutata | auto | TASK-099 |
 | AC-TS-006-02 | Esiti di VER-012 e VER-013 documentati, con lo strumento scelto per i trigger | processo | TASK-099 |
-| AC-TS-006-03 | Il meccanismo o il ripiego (ADR-005, §3) è approvato in un ADR prima dell'avvio di TASK-017 ([ADR-008](adr/ADR-008-transfer-concurrent-invariants.md): decisione tecnica approvata il 2026-11-05, testo in review; si verifica in TASK-105) | processo | TASK-100 |
+| AC-TS-006-03 | Il meccanismo o il ripiego (ADR-005, §3) è approvato in un ADR prima dell'avvio di TASK-017 ([ADR-008](adr/ADR-008-transfer-concurrent-invariants.md): decisione tecnica approvata il 2026-11-05, testo in review; si verifica retrospettivamente in TASK-105 e non blocca l'avvio di TASK-017 dopo l'approvazione dell'ADR) | processo | TASK-100 |
 
 ### TS-007 — Interfaccia verificata
 

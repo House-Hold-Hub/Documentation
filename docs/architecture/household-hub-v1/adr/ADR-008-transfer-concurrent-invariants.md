@@ -19,7 +19,9 @@ nella stessa transazione) ma non ne approva i meccanismi, e rinvia l'esito
 delle verifiche a un ADR dedicato. Per i giroconti il candidato era VER-012
 (vincolo differito sul gruppo del giroconto), con VER-013 per lo strumento
 dei trigger. [D-10](../M1-technical-preparation.md#d-10--termine-di-ver-012-e-ver-013)
-fissa il termine: l'ADR è prerequisito bloccante di TASK-017 (AC-TS-006-03).
+fissa il termine: l'approvazione formale dell'ADR è prerequisito bloccante di
+TASK-017. AC-TS-006-03 è il criterio di processo corrispondente, verificato
+retrospettivamente in TASK-105.
 
 [DR-006](../../../prd/household-hub-v1/domain-rules.md#dr-006--giroconti)
 definisce il giroconto: un'uscita su un conto e un'entrata di pari importo su
@@ -203,8 +205,9 @@ tenere presente.
 
 ## Conseguenze
 
-- TASK-017 può partire (D-10) quando questo ADR è approvato: l'approvazione
-  del testo è la condizione di AC-TS-006-03.
+- TASK-017 può partire (D-10) quando questo ADR è approvato formalmente dal
+  product owner. AC-TS-006-03 è verificato retrospettivamente in TASK-105 e
+  non blocca l'avvio di TASK-017 dopo l'approvazione.
 - ADR-005 §3 non è modificato nel merito: il meccanismo di VER-012 è ora
   deciso in questo ADR; VER-010 e VER-011 restano meccanismi candidati.
 - Una quantità limitata di logica SQL vive nelle migrazioni e richiede test
