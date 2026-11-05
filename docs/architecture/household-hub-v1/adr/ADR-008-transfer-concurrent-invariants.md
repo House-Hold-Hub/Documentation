@@ -4,7 +4,7 @@
 
 | Campo | Valore |
 |---|---|
-| Stato | **Proposto** (2026-11-05): il testo richiede review prima dell'approvazione formale. La decisione tecnica che formalizza è **approvata dal product owner il 2026-11-05**; l'approvazione del testo la registrerà con una revisione di questo ADR |
+| Stato | **Approvato** (2026-11-05): decisione tecnica approvata dal product owner il 2026-11-05; testo approvato formalmente lo stesso giorno, sulla versione `b97470a` della PR Documentation#7. Prerequisito di TASK-017 (D-10) soddisfatto |
 | Data | 2026-11-05 |
 | Decisore | mdellapa (product owner) |
 | Questione | [Q-011](../../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
@@ -205,8 +205,8 @@ tenere presente.
 
 ## Conseguenze
 
-- TASK-017 può partire (D-10) quando questo ADR è approvato formalmente dal
-  product owner. AC-TS-006-03 è verificato retrospettivamente in TASK-105 e
+- Con l'approvazione formale di questo ADR il prerequisito di TASK-017
+  (D-10) è soddisfatto. AC-TS-006-03 è da verificare retrospettivamente in TASK-105 e
   non blocca l'avvio di TASK-017 dopo l'approvazione.
 - ADR-005 §3 non è modificato nel merito: il meccanismo di VER-012 è ora
   deciso in questo ADR; VER-010 e VER-011 restano meccanismi candidati.
@@ -221,3 +221,4 @@ tenere presente.
 | Data | Modifiche |
 |---|---|
 | 2026-11-05 | Prima stesura (TASK-100), in stato Proposto. Decisione tecnica approvata dal product owner; testo in attesa di review |
+| 2026-11-05 | Approvazione formale da parte del product owner, sulla versione `b97470a` (PR Documentation#7): stato da Proposto ad Approvato. Nessuna modifica al merito della decisione |
