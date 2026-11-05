@@ -5,7 +5,7 @@
 | Campo | Valore |
 |---|---|
 | Tipo | Preparazione tecnica di una milestone di prodotto: decisioni, storie tecniche, task e dipendenze. Non modifica requisiti, regole di dominio o criteri di accettazione del PRD |
-| Stato | **Approvata** (2026-11-03): D-10 – D-18 approvate dal product owner con TASK-098. Per D-14 e D-15 è approvata la soluzione progettuale; le verifiche di TASK-102 e TASK-103 restano obbligatorie |
+| Stato | **Approvata** (2026-11-03): D-10 – D-18 approvate dal product owner con TASK-098. Per D-14 e D-15 è approvata la soluzione progettuale; le verifiche di TASK-102 e TASK-103 restano obbligatorie. Esito di TASK-102 per D-14: [superate sul commit `b3a5f50`](#d-14--collegamenti-nello-stesso-spazio-garantiti-dal-database), PR non ancora unita a `main` |
 | Decisore | mdellapa (product owner) |
 | Collocazione | Dopo M0.1 (chiusa il 2026-11-03), prima e durante M1 |
 | Repository interessati | `household-hub` (codice e test), `Documentation` (decisioni ed esiti) |
@@ -49,7 +49,7 @@ criteri di accettazione di M1.
 | D-11 | Livelli dei moduli | Approvata (2026-11-03) |
 | D-12 | Superficie `core.money` | Approvata (2026-11-03) |
 | D-13 | Punti di estensione tra moduli | Approvata (2026-11-03) |
-| D-14 | Collegamenti nello stesso spazio garantiti dal database | Approvata (2026-11-03): soluzione progettuale; verifiche in TASK-102 |
+| D-14 | Collegamenti nello stesso spazio garantiti dal database | Approvata (2026-11-03): soluzione progettuale; verifiche in TASK-102, superate sul commit `b3a5f50` (2026-11-05), integrazione in `main` in attesa |
 | D-15 | Modelli di sola lettura su viste | Approvata (2026-11-03): soluzione progettuale; verifiche in TASK-103 |
 | D-16 | Elenco vivo delle relazioni attraversabili | Approvata (2026-11-03) |
 | D-17 | Registrazione dei criteri di accettazione | Approvata (2026-11-03) |
@@ -133,6 +133,44 @@ garantito dal database ciò che oggi garantiscono form e servizi (rischio
 **Approvazione.** È approvata la soluzione progettuale. Le verifiche di
 TASK-102 (AC-TS-005-01, AC-TS-005-02) restano obbligatorie: se non sono
 superate, la decisione si rivede prima dei task che la usano.
+
+**Esito delle verifiche (TASK-102, 2026-11-05).** Positivo: la soluzione
+approvata regge e la decisione non cambia. L'esito vale per il commit
+[`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc) della PR [household-hub#86](https://github.com/House-Hold-Hub/household-hub/pull/86). **La PR non è ancora unita a `main`:** fino
+all'unione il vincolo non è nel codice integrato, TASK-102 non è concluso e
+AC-TS-005-01 e AC-TS-005-02 sono registrati in `REQUIRED_ACS` solo sul branch
+della PR. Il commit di `main` va riportato qui dopo l'unione.
+
+Verificato su quel commit, con PostgreSQL 18, ruolo applicativo e commit reali:
+
+- **Forma del vincolo (AC-TS-005-01).** Ogni `SpaceResourceForeignKey` ha la
+  chiave composta `MATCH SIMPLE`, `NO ACTION`, `DEFERRABLE INITIALLY DEFERRED`,
+  creata dall'operazione reversibile `SameSpaceForeignKey`. Ne sono coperti i due
+  collegamenti esistenti, entrambi su risorse di prova: `ProbeResource.parent`
+  e `TransferSide.group`. Il controllo sul catalogo rileva un vincolo rimosso
+  o indebolito (colonne o destinazione scambiate, `MATCH FULL`, azioni diverse,
+  non differibile, `NOT VALID`); `check_models` rileva una destinazione senza
+  `UniqueConstraint(space, id)`.
+- **Rifiuto (AC-TS-005-02).** Il database rifiuta il collegamento a una risorsa
+  di un altro spazio scritto con SQL diretto o con l'ORM, senza lasciare
+  effetti. Senza il vincolo la stessa scrittura passa: la chiave esterna semplice
+  di Django non basta.
+- **Reversibilità.** Le migrazioni si annullano e si riapplicano sul database;
+  una riga fuori regola ferma la migrazione in avanti.
+- **Giroconti.** La chiave composta convive con il trigger di ADR-008:
+  [nota successiva](adr/ADR-008-transfer-concurrent-invariants.md#2026-11-05--interazione-con-d-14-task-102).
+
+Evidenze: [`test_same_space_links.py`](https://github.com/House-Hold-Hub/household-hub/blob/b3a5f5070950c70d48c25395e663df4e339ae8fc/spaces/tests/test_same_space_links.py) e controlli in
+[`spaces/scoping_lint.py`](https://github.com/House-Hold-Hub/household-hub/blob/b3a5f5070950c70d48c25395e663df4e339ae8fc/spaces/scoping_lint.py) sul commit indicato;
+le prove negative e le mutazioni sono riportate nella PR. In CI, i sei job
+(`lint`, `typecheck`, `contracts`, `test` con PostgreSQL 18, `audit`,
+`gitleaks`) sono verdi: [esecuzione `ci` 42044887334](https://github.com/House-Hold-Hub/household-hub/actions/runs/42044887334).
+
+Limiti: la prova riguarda solo risorse di prova, quindi i modelli di M1
+ricevono il vincolo con i loro task, sotto lo stesso controllo in CI. Una
+migrazione che tocca la colonna collegata deve ricreare il vincolo, perché
+PostgreSQL lo elimina insieme alla colonna; il controllo sul catalogo lo
+segnala.
 
 ### D-15 — Modelli di sola lettura su viste
 
@@ -323,3 +361,4 @@ Non sono decisioni architetturali e non bloccano TASK-098.
 | 2026-11-03 | Review della PR Documentation#5: D-13 integrata con gli spazi personali già esistenti (TASK-011); D-11 – D-18 approvate dal product owner, D-14 e D-15 nella soluzione progettuale con le verifiche obbligatorie di TASK-102 e TASK-103; stato della scheda «Approvata» |
 | 2026-11-05 | TASK-100: [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) proposto con l'esito di VER-012 e VER-013 (decisione tecnica approvata dal product owner, testo in review); riferimenti di D-10, TASK-100, AC-TS-006-03 e rischi allineati. Decisioni, criteri e task invariati; AC-TS-006-03 resta un criterio di processo verificato in TASK-105 |
 | 2026-11-05 | TASK-100: approvazione formale di [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) da parte del product owner (versione `b97470a` della PR Documentation#7); prerequisito di TASK-017 (D-10) soddisfatto. Decisioni, criteri e task invariati; AC-TS-006-03 resta un criterio di processo da verificare retrospettivamente in TASK-105 |
+| 2026-11-05 | TASK-102: esito positivo delle verifiche di D-14 registrato, con le evidenze, sul commit `b3a5f50` della PR household-hub#86, non ancora unita a `main`; [nota successiva in ADR-008](adr/ADR-008-transfer-concurrent-invariants.md#2026-11-05--interazione-con-d-14-task-102) sull'interazione con la chiave composta. Decisioni, criteri e task invariati |
