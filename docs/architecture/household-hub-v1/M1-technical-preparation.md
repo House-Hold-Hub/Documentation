@@ -10,7 +10,7 @@
 | Collocazione | Dopo M0.1 (chiusa il 2026-11-03), prima e durante M1 |
 | Repository interessati | `household-hub` (codice e test), `Documentation` (decisioni ed esiti) |
 | Issue tracker | Milestone GitHub «M1 — Analisi mensile personale» e issue `[M1]` di `household-hub`: TASK-098 è l'issue #57; le altre si creano dopo l'unione di questa scheda |
-| Correlati | [ADR-001](adr/ADR-001-modular-monolith.md), [ADR-004](adr/ADR-004-space-isolation-and-authorization.md), [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md), [ADR-006](adr/ADR-006-testing-and-continuous-integration.md), [ADR-007](adr/ADR-007-read-time-reports.md); [consegne di M0.1](M0.1-structural-refactoring.md#consegne-a-m1) |
+| Correlati | [ADR-001](adr/ADR-001-modular-monolith.md), [ADR-004](adr/ADR-004-space-isolation-and-authorization.md), [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md), [ADR-006](adr/ADR-006-testing-and-continuous-integration.md), [ADR-007](adr/ADR-007-read-time-reports.md), [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md); [consegne di M0.1](M0.1-structural-refactoring.md#consegne-a-m1) |
 
 ## Esito
 
@@ -36,7 +36,8 @@ criteri di accettazione di M1.
 - requisiti, regole di dominio e criteri del PRD (i criteri completati dopo
   M1 sono nel [PRD](../../prd/household-hub-v1/milestones/M1-personal-monthly-analysis.md#criteri-completati-nelle-milestone-successive));
 - meccanismo delle invarianti dei giroconti: è l'esito di VER-012 e VER-013,
-  registrato in un ADR dedicato (TASK-100);
+  registrato in [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md)
+  (TASK-100), approvato il 2026-11-05;
 - hosting, rilascio e livello 1 (DEF-001, DEF-012);
 - moduli di M2 – M6.
 
@@ -205,7 +206,7 @@ Legenda: **auto** = richiamato da un test e registrato in `REQUIRED_ACS`;
 |---|---|---|---|
 | AC-TS-006-01 | Con transazioni concorrenti su più connessioni, i due lati di un giroconto restano nello stesso spazio, di pari importo e di direzione opposta, oppure l'operazione è rifiutata | auto | TASK-099 |
 | AC-TS-006-02 | Esiti di VER-012 e VER-013 documentati, con lo strumento scelto per i trigger | processo | TASK-099 |
-| AC-TS-006-03 | Il meccanismo o il ripiego (ADR-005, §3) è approvato in un ADR prima dell'avvio di TASK-017 | processo | TASK-100 |
+| AC-TS-006-03 | Il meccanismo o il ripiego (ADR-005, §3) è approvato in un ADR prima dell'avvio di TASK-017 ([ADR-008](adr/ADR-008-transfer-concurrent-invariants.md): approvato il 2026-11-05, prerequisito di TASK-017 soddisfatto; il criterio si verifica retrospettivamente in TASK-105) | processo | TASK-100 |
 
 ### TS-007 — Interfaccia verificata
 
@@ -238,7 +239,7 @@ colonna «Registra» indica i criteri che la PR dichiara soddisfatti (D-17).
 |---|---|---|---|
 | TASK-098 | Registrazione di M0.1, decisioni tecniche di M1 e ADR-007 (`Documentation`) | TS-008 | — |
 | TASK-099 | Verifica di VER-013 e VER-012: giroconti sotto concorrenza | TS-006 | — |
-| TASK-100 | ADR delle invarianti concorrenti dei giroconti (`Documentation`) | TS-006 | TASK-099 |
+| TASK-100 | ADR delle invarianti concorrenti dei giroconti (`Documentation`): [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md), approvato il 2026-11-05 | TS-006 | TASK-099 |
 | TASK-101 | `Money`, parser italiano e persistenza esatta (VER-007, VER-008) | TS-004 | TASK-098 |
 | TASK-102 | Collegamenti nello stesso spazio, doppio invio ed elenco vivo delle relazioni | TS-005 | TASK-098 |
 | TASK-103 | Modelli di sola lettura su viste di uno spazio (VER-024) | TS-005 | TASK-098 |
@@ -306,7 +307,7 @@ Non sono decisioni architetturali e non bloccano TASK-098.
 
 | Rischio | Impatto | Mitigazione |
 |---|---|---|
-| Il meccanismo dei giroconti non regge sotto concorrenza (RA-002) | Ritardo di TASK-017 sul percorso critico | TASK-099 avviato subito, in parallelo; ripieghi già previsti da ADR-005 |
+| Il meccanismo dei giroconti non regge sotto concorrenza (RA-002) | Ritardo di TASK-017 sul percorso critico | TASK-099 avviato subito, in parallelo; ripieghi già previsti da ADR-005. Esito: il meccanismo regge e nessun ripiego serve ([ADR-008](adr/ADR-008-transfer-concurrent-invariants.md)); restano i limiti della prova isolata |
 | Totali incoerenti (RISK-002) | Report inaffidabile | Fonte unica (ADR-007), oracolo e dataset di verifica, registrazione dei criteri solo se completi |
 | Arrotondamenti silenziosi (RA-008) | Importi errati | `Money` e VER-007 prima del primo campo importo |
 | Collegamenti tra spazi diversi | Esposizione di dati (RISK-001) | D-14 e join per `(space_id, id)` nella vista |
@@ -320,3 +321,5 @@ Non sono decisioni architetturali e non bloccano TASK-098.
 |---|---|
 | 2026-11-03 | Prima versione (TASK-098): D-10 approvata; D-11 – D-18 proposte; storie tecniche TS-004 – TS-008, task, dipendenze e registrazione dei criteri di M1 |
 | 2026-11-03 | Review della PR Documentation#5: D-13 integrata con gli spazi personali già esistenti (TASK-011); D-11 – D-18 approvate dal product owner, D-14 e D-15 nella soluzione progettuale con le verifiche obbligatorie di TASK-102 e TASK-103; stato della scheda «Approvata» |
+| 2026-11-05 | TASK-100: [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) proposto con l'esito di VER-012 e VER-013 (decisione tecnica approvata dal product owner, testo in review); riferimenti di D-10, TASK-100, AC-TS-006-03 e rischi allineati. Decisioni, criteri e task invariati; AC-TS-006-03 resta un criterio di processo verificato in TASK-105 |
+| 2026-11-05 | TASK-100: approvazione formale di [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) da parte del product owner (versione `b97470a` della PR Documentation#7); prerequisito di TASK-017 (D-10) soddisfatto. Decisioni, criteri e task invariati; AC-TS-006-03 resta un criterio di processo da verificare retrospettivamente in TASK-105 |

@@ -3,8 +3,8 @@
 | Campo | Valore |
 |---|---|
 | Documento | Architettura software, risposta a [Q-011](../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
-| Versione | 0.2.5 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; M0.1 chiusa; decisioni tecniche di M1 e ADR-007 approvati; M3.1 approvata) |
-| Data | 2026-11-03 |
+| Versione | 0.2.7 (ADR indispensabili per M0 approvati; esiti delle verifiche di M0 registrati; M0.1 chiusa; decisioni tecniche di M1 e ADR-007 approvati; M3.1 approvata; ADR-008 approvato) |
+| Data | 2026-11-05 |
 | Responsabile | mdellapa |
 | Fonte dei requisiti | [PRD House-Hold-Hub V1](../../prd/household-hub-v1/README.md), versione 0.2.5 |
 | Ambito | V1 (M0–M6), con il dettaglio delle decisioni necessarie prima di M0 |
@@ -20,6 +20,7 @@
 | [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md) | Convenzioni di persistenza, importi e invarianti | Approvato nei principi; meccanismi di trigger e contatori da verificare; termine di VER-012 precisato il 2026-11-03 (prima di TASK-017, D-10 di M1) |
 | [ADR-006](adr/ADR-006-testing-and-continuous-integration.md) | Test e integrazione continua | Approvato; esiti di M0 registrati (limite accettato verificato) |
 | [ADR-007](adr/ADR-007-read-time-reports.md) | Report calcolati in lettura e vista delle righe di report | Approvato (2026-11-03); VER-023 e VER-024 da completare nei task |
+| [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) | Invarianti concorrenti dei giroconti: esito di VER-012 e VER-013 | Approvato (2026-11-05); prerequisito di TASK-017 soddisfatto. AC-TS-006-03 resta da verificare in TASK-105 |
 | [M0.1](M0.1-structural-refactoring.md) | Milestone tecnica di refactoring strutturale tra M0 e M1: decisioni D-1 – D-9, storie tecniche, task e dipendenze | Approvata (2026-11-01); esiti registrati; **chiusa il 2026-11-03** |
 | [M1 — preparazione tecnica](M1-technical-preparation.md) | Decisioni tecniche D-10 – D-18, storie tecniche TS-004 – TS-008, task, dipendenze e registrazione dei criteri di M1 | Approvata (2026-11-03); applicata dai task di M1 |
 | [M3.1](M3.1-level-1-readiness.md) | Milestone tecnica di preparazione al livello 1: decisioni D-19 – D-22, condizioni vincolanti, eccezioni ammissibili, accesso esclusivo, storie tecniche TS-009 – TS-012 e task | Approvata (2026-11-03); non avviata |
@@ -71,6 +72,7 @@ Decision Review, gli ADR indispensabili per M0. Con la loro approvazione
 | Struttura del repository, organizzazione dei test e superfici tecniche pubbliche (2026-11-01) | [M0.1, D-1 – D-9](M0.1-structural-refactoring.md#decisioni); [§4.1](#41-struttura-del-repository); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
 | Preparazione tecnica di M1: termine di VER-012 e VER-013, livelli dei moduli, superficie `core.money`, punti di estensione, collegamenti nello stesso spazio, modelli di sola lettura su viste, elenco delle relazioni, registrazione dei criteri, dati di test (2026-11-03) | [M1, D-10 – D-18](M1-technical-preparation.md#decisioni); [ADR-001, regola 2](adr/ADR-001-modular-monolith.md) |
 | Report calcolati in lettura da una vista delle righe di report (2026-11-03) | [ADR-007](adr/ADR-007-read-time-reports.md) |
+| Invarianti concorrenti dei giroconti: constraint trigger differito con serializzazione tramite `UPDATE` della riga padre, trigger in migrazioni `RunSQL` esplicite, nessun ripiego (2026-11-05) | [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) |
 | Preparazione al livello 1: autorizzazione, perimetro di M3.1, Compose locale facoltativo, artefatti di runtime subordinati all'ADR di hosting (2026-11-03) | [M3.1, D-19 – D-22](M3.1-level-1-readiness.md#decisioni) |
 
 **Condizioni dell'approvazione**
@@ -207,7 +209,14 @@ possibile. Quelle che riguardano più righe sono verificate su una riga
 "padre" che serializza le scritture concorrenti. Il principio è approvato in
 [ADR-005](adr/ADR-005-persistence-and-monetary-amounts.md); i meccanismi
 concreti (trigger, vincoli differiti) restano da verificare con test di
-concorrenza prima della milestone che li usa (VER-010 – VER-013).
+concorrenza prima della milestone che li usa (VER-010 – VER-013). Per i
+giroconti VER-012 e VER-013 sono **verificate sul piano tecnico** con
+TASK-099 (2026-11-04); l'esito è formalizzato in
+[ADR-008](adr/ADR-008-transfer-concurrent-invariants.md), approvato
+formalmente dal product owner il 2026-11-05 (prerequisito di TASK-017
+soddisfatto). VER-010 e
+VER-011 (capienza delle attribuzioni, almeno un amministratore) sono
+**ancora pendenti** e restano da verificare prima di M4.
 
 ### 5.4 Report calcolati in lettura
 
@@ -387,8 +396,8 @@ Esiti registrati con la verifica di completamento di M0 (2026-11-01, issue #15 d
 
 | ID | Verifica | ADR | Entro |
 |---|---|---|---|
-| VER-012 | Coerenza dei due lati dei giroconti | ADR-005 | Prima dell'implementazione di US-006 (TASK-017); non condiziona l'avvio di M1 ([D-10](M1-technical-preparation.md#d-10--termine-di-ver-012-e-ver-013)) |
-| VER-013 | Strumento con cui dichiarare e migrare i trigger | ADR-005 | Con la prima tra VER-010 – VER-012; per i giroconti prima di TASK-017 |
+| VER-012 | Coerenza dei due lati dei giroconti | ADR-005 | Prima dell'implementazione di US-006 (TASK-017); non condiziona l'avvio di M1 ([D-10](M1-technical-preparation.md#d-10--termine-di-ver-012-e-ver-013)). **Verifica tecnica completata con TASK-099 (2026-11-04):** il meccanismo regge e non serve alcun ripiego; decisione tecnica approvata il 2026-11-05. [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) formalmente approvato il 2026-11-05: prerequisito di TASK-017 soddisfatto. AC-TS-006-03 è un criterio di processo da verificare retrospettivamente in TASK-105 e non blocca l'avvio di TASK-017 |
+| VER-013 | Strumento con cui dichiarare e migrare i trigger | ADR-005 | Con la prima tra VER-010 – VER-012; per i giroconti prima di TASK-017. **Verifica tecnica completata con TASK-099 per i giroconti:** migrazioni Django `RunSQL` esplicite, senza nuove dipendenze ([ADR-008](adr/ADR-008-transfer-concurrent-invariants.md), approvato il 2026-11-05); da riconfermare con VER-010 e VER-011, ancora pendenti |
 | VER-007 | Comportamento di Django e psycopg con importi a più di due decimali: errore o arrotondamento silenzioso | ADR-005 | Prima dei primi importi (M1) |
 | VER-008 | Parser degli importi in formato italiano, anche da tastiera di smartphone | ADR-005 | M1 |
 | VER-020 | Accessibilità delle sostituzioni HTMX (focus, annunci) | ADR-002 | Primi flussi di M1 |
@@ -413,7 +422,7 @@ gli ADR successivi non la riaprono.
 | Tema | Entro |
 |---|---|
 | Report calcolati in lettura e vista delle righe di report | Prima di M1: [ADR-007](adr/ADR-007-read-time-reports.md), approvato il 2026-11-03 |
-| Invarianti concorrenti: esito di VER-010 – VER-013 | Prima dell'implementazione di US-006 (TASK-017) per i giroconti, con TASK-099 e TASK-100; aggiornamento prima di M4 |
+| Invarianti concorrenti: esito di VER-010 – VER-013 | Giroconti (VER-012, VER-013): [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md), redatto con TASK-100 e approvato il 2026-11-05 (prerequisito di TASK-017 soddisfatto). VER-010 e VER-011: aggiornamento prima di M4 |
 | Hosting, ambienti, backup e ripristino, cifratura, accessi tecnici (NFR-002, NFR-012, NFR-013), accesso esclusivo degli utenti autorizzati e artefatti di runtime ([M3.1](M3.1-level-1-readiness.md)) | Prima del livello 1, dopo l'ADR di importazione (TASK-108) |
 | Importazione: file, anteprima, duplicati, lotti, attività periodiche | Prima di M2 |
 | Visibilità per destinatario, appartenenze, attribuzioni e quote | Prima di M4 |
@@ -447,3 +456,5 @@ gli ADR successivi non la riaprono.
 | 0.2.3 | 2026-11-03 | Esiti di [M0.1](M0.1-structural-refactoring.md#esiti) (TASK-097): registrati nella scheda i risultati della [verifica di completamento](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/m0.1-verifica.md) (TASK-096, PR #56 di `household-hub`) con riserve, anomalie e limiti dichiarati e le modifiche estranee (#47, #54); colonna «Applicata da» del §4.1 aggiornata con lo stato di applicazione; TASK-093 svolto e non rinviato. Nessuna decisione (D-1 – D-9), ADR, requisito, VER, DEF o RA modificato; la chiusura formale di M0.1 non è registrata |
 | 0.2.4 | 2026-11-03 | Preparazione di M1 (TASK-098, issue #57 di `household-hub`): chiusura di M0.1 registrata (decisione del product owner del 2026-11-03); termine di VER-012 e VER-013 precisato in «prima dell'implementazione di US-006 (TASK-017)», senza condizionare l'avvio di M1 (§9, §10; revisione in loco di ADR-005); superficie `core.money` aggiunta alla regola 2 di ADR-001 (revisione in loco, D-12); [scheda di preparazione tecnica di M1](M1-technical-preparation.md) con le decisioni D-10 – D-18 approvate dal product owner (D-14 e D-15 nella soluzione progettuale, con le verifiche obbligatorie di TASK-102 e TASK-103); [ADR-007](adr/ADR-007-read-time-reports.md) approvato (§1, §5.4, §10), con VER-023 e VER-024 (§9); §5.4 allineato ad ADR-007 (punto 6 di DR-012 garantito dalla fonte condivisa, punto 7 verificato con l'oracolo); fonte dei requisiti aggiornata al PRD 0.2.4. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
 | 0.2.5 | 2026-11-03 | Preparazione al livello 1 (TASK-107, issue #82 di `household-hub`): nuova scheda [M3.1](M3.1-level-1-readiness.md) con D-19 – D-22, condizioni vincolanti, inclusa la verifica di NFR-007, eccezioni ammissibili e accesso esclusivo; DEF-018 nel §8; ADR di hosting esteso nel §10 ad accesso esclusivo e artefatti di runtime; fonte dei requisiti aggiornata al PRD 0.2.5. Nessun ADR approvato cambia |
+| 0.2.6 | 2026-11-05 | Invarianti concorrenti dei giroconti (TASK-100, issue #59 di `household-hub`): nuovo [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) in stato Proposto, che formalizza la decisione tecnica approvata dal product owner il 2026-11-05 (constraint trigger differito con `UPDATE` della riga padre, trigger in migrazioni `RunSQL`, nessun ripiego) sulla base di ADR-005 §3, DR-006 e `docs/ver-012-013.md`; navigazione, §1, §5.3, §9 e §10 allineati (verifiche tecniche di VER-012 e VER-013 completate con TASK-099, distinte dall'approvazione formale di ADR-008, necessaria prima di TASK-017); VER-010 e VER-011 restano rinviate a M4. ADR-005 e il PRD non sono modificati; AC-TS-006-03 resta un criterio di processo, verificato retrospettivamente in TASK-105, che non blocca l'avvio di TASK-017 dopo l'approvazione dell'ADR. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
+| 0.2.7 | 2026-11-05 | Approvazione formale di [ADR-008](adr/ADR-008-transfer-concurrent-invariants.md) da parte del product owner, sulla versione `b97470a` della PR Documentation#7 (TASK-100): stato da Proposto ad Approvato; navigazione, §1, §5.3, §9 e §10 allineati. Restano distinti: VER-012 e VER-013 (verifiche tecniche completate con TASK-099), ADR-008 (approvato, prerequisito di TASK-017 soddisfatto), AC-TS-006-03 (criterio di processo da verificare retrospettivamente in TASK-105) e VER-010 e VER-011 (ancora pendenti prima di M4). Decisione tecnica, PRD e altri ADR invariati. Nessun requisito, VER, DEF o RA ritirato o riutilizzato |
