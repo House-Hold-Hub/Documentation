@@ -9,7 +9,7 @@
 | Decisore | mdellapa (product owner) |
 | Questione | [Q-011](../../../prd/household-hub-v1/open-questions-and-risks.md#q-011--architettura-e-stack-tecnologico) |
 | Requisiti | NFR-004, NFR-005; [DR-006](../../../prd/household-hub-v1/domain-rules.md#dr-006--giroconti), [DR-012](../../../prd/household-hub-v1/domain-rules.md#dr-012--invariante-dei-totali); [US-006](../../../prd/household-hub-v1/stories/US-006-transfers.md); RISK-002 |
-| Correlati | [ADR-004](ADR-004-space-isolation-and-authorization.md), [ADR-005](ADR-005-persistence-and-monetary-amounts.md) (§3), [ADR-006](ADR-006-testing-and-continuous-integration.md); [TS-006, D-10 e D-17](../M1-technical-preparation.md#ts-006--giroconti-sotto-concorrenza); evidenze: [`docs/ver-012-013.md`](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/ver-012-013.md) di `household-hub` (TASK-099, issue #58) |
+| Correlati | [ADR-004](ADR-004-space-isolation-and-authorization.md), [ADR-005](ADR-005-persistence-and-monetary-amounts.md) (§3), [ADR-006](ADR-006-testing-and-continuous-integration.md); [TS-006, D-10 e D-17](../M1-technical-preparation.md#ts-006--giroconti-sotto-concorrenza); evidenze: [`docs/ver-012-013.md`](https://github.com/House-Hold-Hub/household-hub/blob/main/docs/ver-012-013.md) di `household-hub` (TASK-099, issue #58); nota successiva: [interazione con D-14](#2026-11-05--interazione-con-d-14-task-102) (TASK-102) |
 
 ## Contesto
 
@@ -216,9 +216,87 @@ tenere presente.
   dell'applicazione, ma il costo di una modifica alla funzione è a carico di
   chi scrive la migrazione.
 
+## Note successive
+
+Aggiunte dopo l'approvazione. Non cambiano la decisione e non riscrivono i
+testi precedenti, che restano l'esito datato di TASK-099 e TASK-100.
+
+### 2026-11-05 — Interazione con D-14 (TASK-102)
+
+Risponde, sulla sola prova isolata, al limite «Interazione con D-14 non
+provata» e alla voce corrispondente delle implicazioni per TASK-017.
+
+**Stato.** TASK-102 è integrato in `main` con il commit [`88915b0`](https://github.com/House-Hold-Hub/household-hub/commit/88915b050eb7f647e5668aa81d095db7ba4afdfb), squash della
+PR [household-hub#86](https://github.com/House-Hold-Hub/household-hub/pull/86). La verifica è riferita a [`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc), ultimo commit della PR, con lo
+stesso contenuto del commit di integrazione: i sei job di CI sono verdi
+nell'[esecuzione `ci` 42044887334](https://github.com/House-Hold-Hub/household-hub/actions/runs/42044887334) su quel commit e nell'[esecuzione su `main`](https://github.com/House-Hold-Hub/household-hub/actions/runs/42076539049) per `88915b0`.
+
+**Esito.** Su `testing.transfer_probe`, con PostgreSQL 18, la chiave composta
+di [D-14](../M1-technical-preparation.md#d-14--collegamenti-nello-stesso-spazio-garantiti-dal-database)
+e il trigger di questo ADR convivono e sono garanzie indipendenti:
+
+- togliendo la chiave, il trigger rifiuta ancora un lato di un altro spazio;
+  disattivando il trigger, lo rifiuta la chiave;
+- il lock `FOR KEY SHARE`, riprodotto nel test come quello del controllo della
+  chiave, non entra in conflitto con l'aggiornamento di `revision` sul gruppo;
+- la suite di VER-012 resta verde con la chiave attiva. Un solo caso è stato
+  spostato, «terzo lato di un altro spazio»: con la chiave il rifiuto ha un
+  altro codice e la prova è ora in `GirocontiTests`.
+
+**Due rifiuti distinti.** §1 resta valido per il trigger. Il `23503` non è un
+esito del trigger: è la chiave esterna che scatta per conto suo.
+
+| | Chiave composta (D-14) | Trigger (§1) |
+|---|---|---|
+| Codice | `23503` (`foreign_key_violation`) | `23000` (`integrity_constraint_violation`) |
+| Vincolo indicato nell'errore, nella prova | `transfer_probe_transferside_group_id_same_space` | `transfer_probe_group_consistent` |
+| Cosa verifica | Che lato e gruppo abbiano lo stesso spazio | Tutta l'invariante di §2 |
+| Errore in Django | `IntegrityError` | `IntegrityError` |
+
+**Quale rifiuto arriva per un lato di un altro spazio.** Dipende dall'ordine
+delle scritture nella transazione, non solo dalla presenza dei due vincoli.
+La tabella riporta un comportamento osservato, **non una garanzia
+contrattuale**: è garantito il rifiuto del lato, non il codice con cui arriva.
+
+| Transazione | Rifiuto | Fonte |
+|---|---|---|
+| Solo `INSERT` del lato su un gruppo esistente | `23503` | Suite |
+| `DELETE` di un lato del gruppo, poi `INSERT` del lato | `23000` | Suite |
+| `UPDATE` dei lati del gruppo, poi `INSERT` del lato | `23000` | Prova locale |
+| `INSERT` del lato, poi `DELETE` di un lato del gruppo | `23503` | Prova locale |
+| Gruppo e lati creati nella stessa transazione | `23000` | Prova locale |
+| `UPDATE` di `group_id` verso un gruppo di un altro spazio | `23503` | Prova locale |
+
+I controlli differiti scattano nell'ordine delle scritture e, per una stessa
+scrittura, in ordine di nome: `RI_ConstraintTrigger_c_…` precede
+`transfer_probe_side_consistent`. Se la prima scrittura che tocca il gruppo è
+il lato altrui, fallisce prima la chiave. Se prima c'è un'altra scrittura,
+il trigger legge già il lato altrui e fallisce lui.
+
+«Suite» indica i test di [`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc), eseguiti anche in CI: `GirocontiTests`
+in [`test_same_space_links.py`](https://github.com/House-Hold-Hub/household-hub/blob/b3a5f5070950c70d48c25395e663df4e339ae8fc/spaces/tests/test_same_space_links.py) e i casi sui lati di un altro spazio in [`test_ver012_transfers.py`](https://github.com/House-Hold-Hub/household-hub/blob/b3a5f5070950c70d48c25395e663df4e339ae8fc/tests/test_ver012_transfers.py). «Prova locale»
+indica una prova manuale su PostgreSQL 18.6 e sullo stesso commit, che non fa
+parte della suite né della CI.
+
+**Per TASK-017.** Come le implicazioni sopra, non aggiunge requisiti. Un lato
+di un altro spazio non ha un codice unico, e la creazione di un giroconto in
+una transazione dà `23000`, non `23503`: il servizio riconosce entrambi dal
+nome del vincolo, senza presumere quale arrivi. L'ordine osservato su questa
+prova va riprovato sul modello reale.
+
+**Limiti.** Restano quelli dell'ADR, salvo l'interazione provata qui. In
+particolare:
+
+- la prova è isolata: in `ledger` un lato può esistere senza gruppo (FR-025),
+  e con `MATCH SIMPLE` la chiave non verifica una chiave nulla. La combinazione
+  con il passaggio da movimento singolo a lato non è provata;
+- `GirocontiTests` usa il livello di isolamento predefinito, `READ COMMITTED`;
+- il costo del controllo della chiave non è misurato, come quello del trigger.
+
 ## Revisioni
 
 | Data | Modifiche |
 |---|---|
 | 2026-11-05 | Prima stesura (TASK-100), in stato Proposto. Decisione tecnica approvata dal product owner; testo in attesa di review |
 | 2026-11-05 | Approvazione formale da parte del product owner, sulla versione `b97470a` (PR Documentation#7): stato da Proposto ad Approvato. Nessuna modifica al merito della decisione |
+| 2026-11-05 | Nota successiva (TASK-102): interazione con D-14 verificata su `b3a5f50` e integrata in `main` con `88915b0` (PR household-hub#86); distinti i rifiuti `23503` della chiave composta e `23000` del trigger, il cui ordine è un comportamento osservato, non una garanzia contrattuale. Nessuna modifica al merito della decisione né ai testi precedenti |
