@@ -226,9 +226,10 @@ testi precedenti, che restano l'esito datato di TASK-099 e TASK-100.
 Risponde, sulla sola prova isolata, al limite «Interazione con D-14 non
 provata» e alla voce corrispondente delle implicazioni per TASK-017.
 
-**Stato.** Verifica superata sul commit [`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc) della PR [household-hub#86](https://github.com/House-Hold-Hub/household-hub/pull/86), con i sei job
-dell'[esecuzione `ci` 42044887334](https://github.com/House-Hold-Hub/household-hub/actions/runs/42044887334) verdi. La PR non è ancora unita: la chiave composta non è in
-`main` e questa nota descrive quel commit, non il codice integrato.
+**Stato.** TASK-102 è integrato in `main` con il commit [`88915b0`](https://github.com/House-Hold-Hub/household-hub/commit/88915b050eb7f647e5668aa81d095db7ba4afdfb), squash della
+PR [household-hub#86](https://github.com/House-Hold-Hub/household-hub/pull/86). La verifica è riferita a [`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc), ultimo commit della PR, con lo
+stesso contenuto del commit di integrazione: i sei job di CI sono verdi
+nell'[esecuzione `ci` 42044887334](https://github.com/House-Hold-Hub/household-hub/actions/runs/42044887334) su quel commit e nell'[esecuzione su `main`](https://github.com/House-Hold-Hub/household-hub/actions/runs/42076539049) per `88915b0`.
 
 **Esito.** Su `testing.transfer_probe`, con PostgreSQL 18, la chiave composta
 di [D-14](../M1-technical-preparation.md#d-14--collegamenti-nello-stesso-spazio-garantiti-dal-database)
@@ -253,7 +254,9 @@ esito del trigger: è la chiave esterna che scatta per conto suo.
 | Errore in Django | `IntegrityError` | `IntegrityError` |
 
 **Quale rifiuto arriva per un lato di un altro spazio.** Dipende dall'ordine
-delle scritture nella transazione, non solo dalla presenza dei due vincoli:
+delle scritture nella transazione, non solo dalla presenza dei due vincoli.
+La tabella riporta un comportamento osservato, **non una garanzia
+contrattuale**: è garantito il rifiuto del lato, non il codice con cui arriva.
 
 | Transazione | Rifiuto | Fonte |
 |---|---|---|
@@ -270,7 +273,7 @@ scrittura, in ordine di nome: `RI_ConstraintTrigger_c_…` precede
 il lato altrui, fallisce prima la chiave. Se prima c'è un'altra scrittura,
 il trigger legge già il lato altrui e fallisce lui.
 
-«Suite» indica i test del commit [`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc), eseguiti anche in CI: `GirocontiTests`
+«Suite» indica i test di [`b3a5f50`](https://github.com/House-Hold-Hub/household-hub/commit/b3a5f5070950c70d48c25395e663df4e339ae8fc), eseguiti anche in CI: `GirocontiTests`
 in [`test_same_space_links.py`](https://github.com/House-Hold-Hub/household-hub/blob/b3a5f5070950c70d48c25395e663df4e339ae8fc/spaces/tests/test_same_space_links.py) e i casi sui lati di un altro spazio in [`test_ver012_transfers.py`](https://github.com/House-Hold-Hub/household-hub/blob/b3a5f5070950c70d48c25395e663df4e339ae8fc/tests/test_ver012_transfers.py). «Prova locale»
 indica una prova manuale su PostgreSQL 18.6 e sullo stesso commit, che non fa
 parte della suite né della CI.
@@ -278,8 +281,8 @@ parte della suite né della CI.
 **Per TASK-017.** Come le implicazioni sopra, non aggiunge requisiti. Un lato
 di un altro spazio non ha un codice unico, e la creazione di un giroconto in
 una transazione dà `23000`, non `23503`: il servizio riconosce entrambi dal
-nome del vincolo, senza presumere quale arrivi. L'ordine è un comportamento
-osservato, non un contratto, e va riprovato sul modello reale.
+nome del vincolo, senza presumere quale arrivi. L'ordine osservato su questa
+prova va riprovato sul modello reale.
 
 **Limiti.** Restano quelli dell'ADR, salvo l'interazione provata qui. In
 particolare:
@@ -296,4 +299,4 @@ particolare:
 |---|---|
 | 2026-11-05 | Prima stesura (TASK-100), in stato Proposto. Decisione tecnica approvata dal product owner; testo in attesa di review |
 | 2026-11-05 | Approvazione formale da parte del product owner, sulla versione `b97470a` (PR Documentation#7): stato da Proposto ad Approvato. Nessuna modifica al merito della decisione |
-| 2026-11-05 | Nota successiva (TASK-102): interazione con D-14 verificata sul commit `b3a5f50` della PR household-hub#86, non ancora unita a `main`; distinti i rifiuti `23503` della chiave composta e `23000` del trigger. Nessuna modifica al merito della decisione né ai testi precedenti |
+| 2026-11-05 | Nota successiva (TASK-102): interazione con D-14 verificata su `b3a5f50` e integrata in `main` con `88915b0` (PR household-hub#86); distinti i rifiuti `23503` della chiave composta e `23000` del trigger, il cui ordine è un comportamento osservato, non una garanzia contrattuale. Nessuna modifica al merito della decisione né ai testi precedenti |
